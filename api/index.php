@@ -164,6 +164,14 @@ if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') ===
     exit;
 }
 
+// Route: admin per-student supervisor assignment (GET/POST)
+// GET  /admin/student-supervisor/{index_number}
+// POST /admin/student-supervisor/assign
+if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') === 'student-supervisor') {
+    require __DIR__ . '/admin_student_supervisor.php';
+    exit;
+}
+
 // Route: supervisor dashboard stats
 if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'stats') {
     require __DIR__ . '/supervisor_stats.php';

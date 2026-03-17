@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:vercel": "vite build",
     "preview": "vite preview",
     "clean-install": "npm cache clean --force && npm install",
     "install:no-scripts": "npm install --ignore-scripts && npm rebuild"

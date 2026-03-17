@@ -42,6 +42,21 @@ function iasms_get_supervisor_students_and_summary(mysqli $conn, string $supervi
     $students = [];
     $seen_index = [];
 
+    // Load all direct per-student supervisor assignments once (if table exists).
+    // This lets us enforce "override": if a student is directly assigned to a supervisor,
+    // they must ONLY appear for that supervisor (not via region/faculty grid).
+    $direct_by_index = [];
+    $ssa_all = @mysqli_query($conn, "SELECT index_number, lecturer_id FROM student_supervisor_assignments");
+    if ($ssa_all) {
+        while ($row = mysqli_fetch_assoc($ssa_all)) {
+            $idx = trim((string)($row['index_number'] ?? ''));
+            $lid = (string)($row['lecturer_id'] ?? '');
+            if ($idx !== '' && ctype_digit($lid)) {
+                $direct_by_index[$idx] = (int)$lid;
+            }
+        }
+    }
+
     // Faculty code mapping copied from institutional_supervisor/dashboard.php
     $faculty_db_map = [
         'AGR' => ['AGR'],
@@ -121,6 +136,11 @@ function iasms_get_supervisor_students_and_summary(mysqli $conn, string $supervi
 
                 while ($stu = mysqli_fetch_assoc($stu_res)) {
                     $idx = $stu['index_number'] ?? '';
+                    // Direct assignment overrides grid assignment:
+                    // if the student is directly assigned to some supervisor, do not include them here.
+                    if ($idx !== '' && isset($direct_by_index[$idx])) {
+                        continue;
+                    }
                     if ($idx !== '' && !isset($seen_index[$idx])) {
                         $seen_index[$idx] = true;
                         $idx_esc = mysqli_real_escape_string($conn, $idx);
@@ -145,11 +165,51 @@ function iasms_get_supervisor_students_and_summary(mysqli $conn, string $supervi
         }
     }
 
+    // Also include any students directly assigned to this supervisor (per-student override)
+    // Table may not exist in older installs; ignore failures.
+    $sid = (int)$supervisorId;
+    $ssa_res = @mysqli_query(
+        $conn,
+        "SELECT ssa.index_number
+         FROM student_supervisor_assignments ssa
+         WHERE ssa.lecturer_id = $sid"
+    );
+    if ($ssa_res) {
+        while ($row = mysqli_fetch_assoc($ssa_res)) {
+            $idx = $row['index_number'] ?? '';
+            if ($idx !== '' && !isset($seen_index[$idx])) {
+                $seen_index[$idx] = true;
+                $idx_esc = mysqli_real_escape_string($conn, $idx);
+                $qi = "SELECT i.index_number AS student_index,
+                               i.first_name,
+                               i.last_name,
+                               COALESCE(NULLIF(TRIM(sa.company_region),''), i.attachment_region) AS attachment_region,
+                               COALESCE(sa.company_name,'') AS company_name,
+                               COALESCE(NULLIF(TRIM(sa.company_region),''), i.attachment_region) AS company_region,
+                               1 AS visit_number
+                        FROM industrial_registration i
+                        LEFT JOIN students_assumption sa
+                          ON sa.index_number = i.index_number
+                        WHERE i.index_number = '$idx_esc'";
+                $ri = mysqli_query($conn, $qi);
+                if ($ri && ($row2 = mysqli_fetch_assoc($ri))) {
+                    $students[] = $row2;
+                }
+            }
+        }
+    }
+
     $summary['total_students'] = count($students);
     $assigned_indexes = array_keys($seen_index);
 
     // Visit/scoresheet counts: use student list only (no institutional_supervisor_students)
     if (!empty($assigned_indexes)) {
+        // Ensure visit_number column exists on visiting_supervisor_grade (first/second visit support)
+        $colCheck = mysqli_query($conn, "SHOW COLUMNS FROM visiting_supervisor_grade LIKE 'visit_number'");
+        if (!$colCheck || mysqli_num_rows($colCheck) === 0) {
+            @mysqli_query($conn, "ALTER TABLE visiting_supervisor_grade ADD COLUMN visit_number TINYINT(1) NOT NULL DEFAULT 1 AFTER user_index");
+        }
+
         $in_list = "'" . implode(
             "','",
             array_map(
@@ -159,20 +219,40 @@ function iasms_get_supervisor_students_and_summary(mysqli $conn, string $supervi
                 $assigned_indexes
             )
         ) . "'";
-        // For now we treat all assigned students as first visit
-        $summary['first_visit'] = count($assigned_indexes);
-        $summary['second_visit'] = 0;
 
+        // First visits: all assigned students
+        $summary['first_visit'] = count($assigned_indexes);
+
+        // Scoresheets submitted (first visit)
         $res_first_scores = mysqli_query(
             $conn,
             "SELECT COUNT(DISTINCT vsg.user_index) AS c
              FROM visiting_supervisor_grade vsg
-             WHERE vsg.user_index IN ($in_list)"
+             WHERE vsg.user_index IN ($in_list)
+               AND COALESCE(vsg.visit_number, 1) = 1"
         );
+        $first_with = 0;
         if ($res_first_scores && ($row = mysqli_fetch_assoc($res_first_scores))) {
-            $summary['first_visit_with_scoresheet'] = (int)($row['c'] ?? 0);
+            $first_with = (int)($row['c'] ?? 0);
         }
-        $summary['second_visit_with_scoresheet'] = 0;
+        $summary['first_visit_with_scoresheet'] = $first_with;
+
+        // Second visits: students who have completed first visit (eligible for second)
+        $summary['second_visit'] = $first_with;
+
+        // Scoresheets submitted (second visit)
+        $res_second_scores = mysqli_query(
+            $conn,
+            "SELECT COUNT(DISTINCT vsg.user_index) AS c
+             FROM visiting_supervisor_grade vsg
+             WHERE vsg.user_index IN ($in_list)
+               AND vsg.visit_number = 2"
+        );
+        if ($res_second_scores && ($row2 = mysqli_fetch_assoc($res_second_scores))) {
+            $summary['second_visit_with_scoresheet'] = (int)($row2['c'] ?? 0);
+        } else {
+            $summary['second_visit_with_scoresheet'] = 0;
+        }
     }
 
     return [$students, $summary];
@@ -194,6 +274,35 @@ function iasms_is_student_assigned_to_lecturer(mysqli $conn, string $studentInde
         return false;
     }
     $idx_esc = mysqli_real_escape_string($conn, $studentIndex);
+
+    // First: direct per-student assignment (if table exists)
+    $name_esc = mysqli_real_escape_string($conn, $lecturerName);
+    $direct = @mysqli_query(
+        $conn,
+        "SELECT 1
+         FROM student_supervisor_assignments ssa
+         JOIN visiting_lecturers vl ON vl.id = ssa.lecturer_id
+         WHERE ssa.index_number = '$idx_esc'
+           AND BINARY vl.lecturer_name = '$name_esc'
+         LIMIT 1"
+    );
+    if ($direct && mysqli_num_rows($direct) > 0) {
+        return true;
+    }
+
+    // If the student has ANY direct assignment, and it wasn't this lecturer, then they are NOT assigned to this lecturer.
+    // This enforces "override": grid assignment must not apply when a per-student assignment exists.
+    $has_direct = @mysqli_query(
+        $conn,
+        "SELECT 1
+         FROM student_supervisor_assignments ssa
+         WHERE ssa.index_number = '$idx_esc'
+         LIMIT 1"
+    );
+    if ($has_direct && mysqli_num_rows($has_direct) > 0) {
+        return false;
+    }
+
     $r = mysqli_query(
         $conn,
         "SELECT i.faculty,
@@ -222,7 +331,6 @@ function iasms_is_student_assigned_to_lecturer(mysqli $conn, string $studentInde
     }
     $fac_key = strtolower($fac_key);
     $region_esc = mysqli_real_escape_string($conn, $region);
-    $name_esc = mysqli_real_escape_string($conn, $lecturerName);
     $col_first = 'first_supervisor_' . $fac_key;
     $col_second = 'second_supervisor_' . $fac_key;
     $check = mysqli_query(

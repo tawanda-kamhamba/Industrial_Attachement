@@ -4,6 +4,21 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 
+interface LecturerLite {
+  id: number;
+  lecturer_name: string;
+  lecturer_faculty: string;
+  lecturer_department: string;
+  lecturer_region_residence: string;
+  staff_id: string | null;
+}
+
+interface StudentSupervisorData {
+  index_number: string;
+  assigned: { lecturer_id: number; lecturer_name: string; staff_id: string | null } | null;
+  lecturers: LecturerLite[];
+}
+
 interface StudentProfileData {
   index_number: string;
   registration: {
@@ -78,6 +93,14 @@ export function AdminStudentProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [supData, setSupData] = useState<StudentSupervisorData | null>(null);
+  const [supLoading, setSupLoading] = useState(false);
+  const [supError, setSupError] = useState<string | null>(null);
+  const [supSaving, setSupSaving] = useState(false);
+  const [supMessage, setSupMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [supervisorFilter, setSupervisorFilter] = useState('');
+  const [selectedLecturerId, setSelectedLecturerId] = useState<string>('');
+
   useEffect(() => {
     if (!indexNumber) return;
     api
@@ -86,6 +109,42 @@ export function AdminStudentProfilePage() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [indexNumber]);
+
+  useEffect(() => {
+    if (!indexNumber) return;
+    setSupLoading(true);
+    setSupError(null);
+    api
+      .get<StudentSupervisorData>(`/admin/student-supervisor/${encodeURIComponent(indexNumber)}`)
+      .then((res) => {
+        setSupData(res);
+        setSelectedLecturerId(res.assigned ? String(res.assigned.lecturer_id) : '');
+      })
+      .catch((e) => setSupError(e instanceof Error ? e.message : 'Failed to load supervisors'))
+      .finally(() => setSupLoading(false));
+  }, [indexNumber]);
+
+  const saveSupervisorAssignment = async () => {
+    if (!indexNumber) return;
+    setSupSaving(true);
+    setSupMessage(null);
+    try {
+      await api.post('/admin/student-supervisor/assign', {
+        index_number: indexNumber,
+        lecturer_id: selectedLecturerId || null,
+      });
+      const refreshed = await api.get<StudentSupervisorData>(
+        `/admin/student-supervisor/${encodeURIComponent(indexNumber)}`
+      );
+      setSupData(refreshed);
+      setSelectedLecturerId(refreshed.assigned ? String(refreshed.assigned.lecturer_id) : '');
+      setSupMessage({ type: 'success', text: 'Supervisor assignment saved.' });
+    } catch (e) {
+      setSupMessage({ type: 'error', text: e instanceof Error ? e.message : 'Failed to save assignment' });
+    } finally {
+      setSupSaving(false);
+    }
+  };
 
   if (!indexNumber) return <p className="text-slate-500">Missing student.</p>;
   if (loading) return <p className="text-slate-500">Loading profile…</p>;
@@ -249,6 +308,78 @@ export function AdminStudentProfilePage() {
             statusColor={data.report_submitted ? 'green' : 'slate'}
           />
         </div>
+      </div>
+
+      {/* Institutional supervisor (direct assignment) */}
+      <div>
+        <h2 className="mb-4 text-lg font-bold text-slate-800">Institutional supervisor</h2>
+        <Card padding="lg" className="border-slate-200">
+          <CardHeader title="Assign a specific supervisor to this student" />
+
+          {supMessage && (
+            <div
+              className={`mb-4 rounded-lg p-3 text-sm ${
+                supMessage.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+              }`}
+            >
+              {supMessage.text}
+            </div>
+          )}
+
+          {supLoading ? (
+            <p className="text-slate-500">Loading supervisors…</p>
+          ) : supError ? (
+            <p className="text-red-600">{supError}</p>
+          ) : (
+            <>
+              <div className="grid gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-medium text-slate-700">Search supervisor</label>
+                  <input
+                    value={supervisorFilter}
+                    onChange={(e) => setSupervisorFilter(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    placeholder="Type a name, faculty, region…"
+                  />
+                </div>
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700">Select supervisor</label>
+                  <select
+                    value={selectedLecturerId}
+                    onChange={(e) => setSelectedLecturerId(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                  >
+                    <option value="">— Not assigned —</option>
+                    {(supData?.lecturers ?? [])
+                      .filter((l) => {
+                        const q = supervisorFilter.trim().toLowerCase();
+                        if (!q) return true;
+                        const hay = `${l.lecturer_name} ${l.lecturer_faculty} ${l.lecturer_department} ${l.lecturer_region_residence} ${
+                          l.staff_id ?? ''
+                        }`.toLowerCase();
+                        return hay.includes(q);
+                      })
+                      .map((l) => (
+                        <option key={l.id} value={String(l.id)}>
+                          {l.lecturer_name} — {l.lecturer_faculty} — {l.lecturer_region_residence}
+                          {l.staff_id ? ` (Staff ID: ${l.staff_id})` : ''}
+                        </option>
+                      ))}
+                  </select>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Current: <span className="font-medium text-slate-700">{supData?.assigned?.lecturer_name ?? '—'}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex justify-end gap-3">
+                <Button onClick={saveSupervisorAssignment} disabled={supSaving}>
+                  {supSaving ? 'Saving…' : 'Save supervisor'}
+                </Button>
+              </div>
+            </>
+          )}
+        </Card>
       </div>
 
       {/* Placement & company details */}
