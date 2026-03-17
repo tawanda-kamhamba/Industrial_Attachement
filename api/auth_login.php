@@ -96,6 +96,7 @@ if ($role === 'supervisor') {
     $_SESSION['staff_id'] = $row['staff_id'];
     require_once __DIR__ . '/supervisor_staff_cookie.php';
     iasms_set_supervisor_staff_cookie($row['staff_id']);
+    iasms_set_supervisor_id_cookie((string)$row['id']);
     echo json_encode([
         'success' => true,
         'user' => [

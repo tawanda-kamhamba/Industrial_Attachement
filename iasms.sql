@@ -353,7 +353,7 @@ INSERT INTO `vira_registration` (`id`, `first_name`, `last_name`, `other_name`, 
 --
 
 CREATE TABLE `visiting_lecturers` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `lecturer_name` varchar(255) NOT NULL,
   `lecturer_faculty` varchar(255) NOT NULL,
   `lecturer_phone_number` varchar(50) NOT NULL,
@@ -364,6 +364,7 @@ CREATE TABLE `visiting_lecturers` (
   `password` varchar(255) DEFAULT NULL,
   `visiting_assessment_password` varchar(255) DEFAULT NULL COMMENT 'Password for this supervisor to open Visiting Supervisor Assessment from student portal',
   `company_assessment_password` varchar(255) DEFAULT NULL COMMENT 'Password for company supervisors to open Company Supervisor Assessment from student portal',
+  PRIMARY KEY (`id`),
   UNIQUE KEY `staff_id` (`staff_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

@@ -13,28 +13,34 @@ if (($_SESSION['role'] ?? '') !== 'supervisor') {
 
 require_once __DIR__ . '/supervisor_staff_cookie.php';
 
-// Cookie (set on login) identifies which supervisor's row to use; fall back to session
-$staff_id = iasms_get_supervisor_staff_id_from_cookie();
-if ($staff_id === '') {
-    $staff_id = trim((string)($_SESSION['staff_id'] ?? ''));
+// Prefer the signed supervisor-id cookie (unique visiting_lecturers.id), then fall back to session.
+$supervisor_id = iasms_get_supervisor_id_from_cookie();
+if ($supervisor_id === '') {
+    $supervisor_id = trim((string)($_SESSION['user_id'] ?? ''));
 }
-if ($staff_id === '') {
+
+// Final fallback: resolve by staff_id if needed (older sessions/cookies)
+if ($supervisor_id === '') {
+    $staff_id = iasms_get_supervisor_staff_id_from_cookie();
+    if ($staff_id === '') {
+        $staff_id = trim((string)($_SESSION['staff_id'] ?? ''));
+    }
+    if ($staff_id !== '') {
+        $staff_id_esc = mysqli_real_escape_string($conn, $staff_id);
+        $r = mysqli_query($conn, "SELECT id FROM visiting_lecturers WHERE BINARY staff_id = '$staff_id_esc' LIMIT 1");
+        if ($r && mysqli_num_rows($r) === 1) {
+            $sup_row = mysqli_fetch_assoc($r);
+            $supervisor_id = (string)($sup_row['id'] ?? '');
+        }
+    }
+}
+
+if ($supervisor_id === '' || !ctype_digit($supervisor_id)) {
     http_response_code(401);
-    echo json_encode(['error' => 'Session invalid. Please log out and log in again with your Staff ID.']);
+    echo json_encode(['error' => 'Session invalid. Please log out and log in again.']);
     return;
 }
 
-$staff_id_esc = mysqli_real_escape_string($conn, $staff_id);
-
-// Resolve supervisor row only by staff_id so each supervisor updates their own row
-$r = mysqli_query($conn, "SELECT id, staff_id FROM visiting_lecturers WHERE BINARY staff_id = '$staff_id_esc' LIMIT 1");
-if (!$r || mysqli_num_rows($r) !== 1) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Your account was not found (Staff ID: ' . $staff_id . '). Please contact admin.']);
-    return;
-}
-$sup_row = mysqli_fetch_assoc($r);
-$supervisor_id = (string)$sup_row['id'];
 $sid_esc = mysqli_real_escape_string($conn, $supervisor_id);
 
 // Ensure columns exist (optional migration)
@@ -48,21 +54,37 @@ if ($cr && mysqli_num_rows($cr) === 0) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $q = "SELECT visiting_assessment_password, company_assessment_password FROM visiting_lecturers WHERE id = '$sid_esc' LIMIT 1";
+    $q = "SELECT staff_id, visiting_assessment_password, company_assessment_password FROM visiting_lecturers WHERE id = '$sid_esc' LIMIT 1";
     $res = mysqli_query($conn, $q);
     if (!$res || mysqli_num_rows($res) !== 1) {
         echo json_encode(['has_visiting' => false, 'has_company' => false]);
         return;
     }
     $row = mysqli_fetch_assoc($res);
+    $db_staff_id = (string)($row['staff_id'] ?? '');
     $v = $row['visiting_assessment_password'] ?? '';
     $c = $row['company_assessment_password'] ?? '';
-    echo json_encode([
+    $payload = [
         'has_visiting' => $v !== '' && $v !== null,
         'has_company' => $c !== '' && $c !== null,
         'visiting_password' => $v !== '' && $v !== null ? $v : null,
         'company_password' => $c !== '' && $c !== null ? $c : null,
-    ]);
+    ];
+
+    // Optional debug output: /supervisor/assessment-passwords?debug=1
+    if (($_GET['debug'] ?? '') === '1') {
+        $payload['_debug'] = [
+            'resolved_supervisor_id' => $supervisor_id,
+            'session_user_id' => (string)($_SESSION['user_id'] ?? ''),
+            'session_staff_id' => (string)($_SESSION['staff_id'] ?? ''),
+            'db_staff_id' => $db_staff_id,
+            'cookie_has_supervisor_id' => isset($_COOKIE['iasms_supervisor_id']),
+            'cookie_has_staff_id' => isset($_COOKIE['iasms_supervisor_staff_id']),
+            'php_session_id' => function_exists('session_id') ? session_id() : '',
+        ];
+    }
+
+    echo json_encode($payload);
     return;
 }
 
