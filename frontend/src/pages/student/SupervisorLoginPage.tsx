@@ -16,7 +16,6 @@ export function SupervisorAssessmentLoginPage() {
   const [loading, setLoading] = useState(false);
 
   const isVisiting = type === 'visiting';
-  const isCompany = type === 'company';
   const title = isVisiting ? 'Visiting Supervisor' : 'Company Supervisor';
   const subtitle = isVisiting
     ? 'Enter the visiting supervisor password to assess this student.'

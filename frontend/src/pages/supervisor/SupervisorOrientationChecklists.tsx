@@ -359,11 +359,11 @@ export function SupervisorOrientationChecklists() {
                         ['WRL coordinator', selected.signatures.wrl_coordinator],
                       ].map(([role, sig]) => (
                         <div
-                          key={role as string}
+                          key={String(role)}
                           className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600"
                         >
                           <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            {role}
+                            {typeof role === 'string' ? role : (role as { name: string }).name}
                           </p>
                           <p className="mt-1 font-medium text-slate-800">
                             {(sig as { name: string }).name || (

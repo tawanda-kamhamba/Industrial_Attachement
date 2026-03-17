@@ -65,11 +65,12 @@ const CHECKBOX_KEYS = [
   { key: 'others_it_systems_equipment', label: 'IT systems and equipment' },
 ] as const;
 
-const SECTIONS: { title: string; keys: (typeof CHECKBOX_KEYS)[] }[] = [
-  { title: 'General', keys: CHECKBOX_KEYS.slice(0, 7) },
-  { title: 'Work-related', keys: CHECKBOX_KEYS.slice(7, 11) },
-  { title: 'Health and Safety', keys: CHECKBOX_KEYS.slice(11, 19) },
-  { title: 'Others', keys: CHECKBOX_KEYS.slice(19, 22) },
+type CheckItem = (typeof CHECKBOX_KEYS)[number];
+const SECTIONS: { title: string; keys: CheckItem[] }[] = [
+  { title: 'General', keys: CHECKBOX_KEYS.slice(0, 7) as CheckItem[] },
+  { title: 'Work-related', keys: CHECKBOX_KEYS.slice(7, 11) as CheckItem[] },
+  { title: 'Health and Safety', keys: CHECKBOX_KEYS.slice(11, 19) as CheckItem[] },
+  { title: 'Others', keys: CHECKBOX_KEYS.slice(19, 22) as CheckItem[] },
 ];
 
 const documentStyles = {
@@ -160,7 +161,7 @@ export function OrientationChecklistPage() {
         wrl_coordinator_date: form.wrl_coordinator_date || undefined,
       };
       CHECKBOX_KEYS.forEach(({ key }) => {
-        body[key] = form[key as keyof typeof form] === true;
+        body[key] = (form as Record<string, unknown>)[key] === true;
       });
       const res = await api.post<{ success: boolean; error?: string }>('/student/orientation', body);
       if (res.success) {
@@ -278,7 +279,7 @@ export function OrientationChecklistPage() {
                         {section.keys.map(({ key, label }) => (
                           <tr key={key}>
                             <td style={{ ...documentStyles.td, ...documentStyles.tdFirst, ...documentStyles.checklistItem }}>{label}</td>
-                            <TickCell checked={!!(data && (data as Record<string, unknown>)[key])} />
+                            <TickCell checked={!!(data && (data as unknown as Record<string, unknown>)[key])} />
                           </tr>
                         ))}
                       </React.Fragment>
