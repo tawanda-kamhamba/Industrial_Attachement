@@ -86,6 +86,12 @@ if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') ===
     exit;
 }
 
+// Route: admin dashboard charts (real data for registrations, submissions, faculty, region)
+if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') === 'charts') {
+    require __DIR__ . '/admin_charts.php';
+    exit;
+}
+
 // Route: admin students (industrial_registration)
 if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') === 'students') {
     require __DIR__ . '/admin_students.php';
@@ -184,6 +190,12 @@ if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? ''
     exit;
 }
 
+// Route: supervisor all scores (company + my visit scores for assigned students)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'scores') {
+    require __DIR__ . '/supervisor_scores.php';
+    exit;
+}
+
 // Route: supervisor student profile (full details for one assigned student)
 if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'student-profile' && !empty($segments[2])) {
     require __DIR__ . '/supervisor_student_profile.php';
@@ -253,6 +265,12 @@ if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') =
 // Route: student grades (GET, requires student session)
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'grades') {
     require __DIR__ . '/student_grades.php';
+    exit;
+}
+
+// Route: student assigned institutional supervisor (GET, requires student session)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'supervisor' && ($segments[2] ?? '') === '') {
+    require __DIR__ . '/student_supervisor.php';
     exit;
 }
 

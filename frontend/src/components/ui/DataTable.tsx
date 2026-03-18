@@ -13,6 +13,8 @@ interface DataTableProps<T> {
   keyField: keyof T | string;
   emptyMessage?: string;
   className?: string;
+  /** Max height for vertical scroll (e.g. '60vh' or '400px'). When set, header stays sticky. */
+  maxHeight?: string;
 }
 
 export function DataTable<T extends object>({
@@ -21,6 +23,7 @@ export function DataTable<T extends object>({
   keyField,
   emptyMessage = 'No data to display.',
   className = '',
+  maxHeight,
 }: DataTableProps<T>) {
   const getValue = (row: T, key: keyof T | string): unknown =>
     (row as Record<string, unknown>)[key as string];
@@ -33,11 +36,14 @@ export function DataTable<T extends object>({
     );
   }
 
+  const scrollWrapperStyle = maxHeight ? { maxHeight } : undefined;
+  const scrollWrapperClass = `overflow-x-auto ${maxHeight ? 'overflow-y-auto' : ''} rounded-lg`;
+
   return (
     <div className={`overflow-hidden rounded-lg border border-slate-200 ${className}`}>
-      <div className="overflow-x-auto">
+      <div className={scrollWrapperClass} style={scrollWrapperStyle}>
         <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+          <thead className="sticky top-0 z-10 bg-slate-50">
             <tr>
               {columns.map((col) => (
                 <th

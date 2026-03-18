@@ -111,11 +111,16 @@ const tableCellCenter = `${tableCell} text-center`;
 export function SupervisorScoreForm({
   indexNumber,
   onClose,
+  initialVisitNumber,
 }: {
   indexNumber: string;
   onClose: () => void;
+  initialVisitNumber?: 1 | 2;
 }) {
-  const [form, setForm] = useState<FormState>(initialForm);
+  const [form, setForm] = useState<FormState>(() => ({
+    ...initialForm,
+    visitNumber: initialVisitNumber ?? 1,
+  }));
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
