@@ -93,6 +93,29 @@ if (is_dir($uploads_dir)) {
     }
 }
 
+// Current supervisor's own visit scores (so they can see and update only their scores)
+$my_visit_scores = ['first_visit_grade' => null, 'second_visit_grade' => null];
+$supervisor_name = (string)($_SESSION['name'] ?? '');
+if ($supervisor_name !== '') {
+    $vsg_user = mysqli_real_escape_string($conn, str_replace(' ', '', $supervisor_name));
+    $colCheck = mysqli_query($conn, "SHOW COLUMNS FROM visiting_supervisor_grade LIKE 'visit_number'");
+    if ($colCheck && mysqli_num_rows($colCheck) > 0) {
+        $vq = "SELECT visit_number, grade FROM visiting_supervisor_grade WHERE user_index='$idx' AND username='$vsg_user'";
+        $vr = mysqli_query($conn, $vq);
+        if ($vr) {
+            while ($vrow = mysqli_fetch_assoc($vr)) {
+                $vn = (int)($vrow['visit_number'] ?? 1);
+                $g = $vrow['grade'] !== null && $vrow['grade'] !== '' ? (int)$vrow['grade'] : null;
+                if ($vn === 1) {
+                    $my_visit_scores['first_visit_grade'] = $g;
+                } elseif ($vn === 2) {
+                    $my_visit_scores['second_visit_grade'] = $g;
+                }
+            }
+        }
+    }
+}
+
 $out = [
     'index_number' => $index_number,
     'registration' => $reg,
@@ -101,6 +124,7 @@ $out = [
     'orientation' => $orientation,
     'logbook' => $logbook,
     'report_submitted' => $report_submitted,
+    'my_visit_scores' => $my_visit_scores,
 ];
 
 echo json_encode($out);

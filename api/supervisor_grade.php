@@ -74,53 +74,87 @@ $grade_score = $s1v + $s2v + $s3v + $s4v + $s5v
     + $c1 + $c2 + $c3 + $c4
     + $d1 + $d2 + $d3 + 5;
 
-// Visiting supervisor only (institutional supervisor)
+// Visiting supervisor only (institutional supervisor). Update existing row if this supervisor already scored this student+visit.
 $table = 'visiting_supervisor_grade';
 $col = 'visiting_supervisor_grade';
 
-$ins = "INSERT INTO `$table` (
-    `username`,
-    `user_index`,
-    `visit_number`,
-    `specific_skill_1`, `specific_skill_1_score`,
-    `specific_skill_2`, `specific_skill_2_score`,
-    `specific_skill_3`, `specific_skill_3_score`,
-    `specific_skill_4`, `specific_skill_4_score`,
-    `specific_skill_5`, `specific_skill_5_score`,
-    `ability_to_complete_work_on_time`,
-    `ability_to_follow_instructions_carefully`,
-    `ability_to_take_initiatives`,
-    `ability_to_work_with_little_supervision`,
-    `adherence_to_organizations_rules`,
-    `adherence_to_safety`,
-    `resourcefulness`,
-    `attendance_to_work`,
-    `punctuality`,
-    `desire_to_work`,
-    `williness_to_accept_new_ideas`,
-    `relationship_with_colleagues`,
-    `relationship_with_supervisors`,
-    `ability_to_control_emotions_when_provoked`,
-    `grade`
-) VALUES (
-    '$user',
-    '$idx',
-    $visit_number,
-    '$s1', $s1v,
-    '$s2', $s2v,
-    '$s3', $s3v,
-    '$s4', $s4v,
-    '$s5', $s5v,
-    $b1, $b2, $b3, $b4, $b5, $b6, $b7,
-    $c1, $c2, $c3, $c4,
-    $d1, $d2, $d3,
-    $grade_score
-)";
+$existing = mysqli_query($conn, "SELECT id FROM $table WHERE username='$user' AND user_index='$idx' AND visit_number=$visit_number LIMIT 1");
+$existingRow = $existing && mysqli_num_rows($existing) > 0 ? mysqli_fetch_assoc($existing) : null;
 
-if (!mysqli_query($conn, $ins)) {
-    echo json_encode(['error' => 'Failed to save grade']);
-    http_response_code(500);
-    exit;
+if ($existingRow && isset($existingRow['id'])) {
+    $existingId = (int)$existingRow['id'];
+    $upd = "UPDATE `$table` SET
+        `specific_skill_1`='$s1', `specific_skill_1_score`=$s1v,
+        `specific_skill_2`='$s2', `specific_skill_2_score`=$s2v,
+        `specific_skill_3`='$s3', `specific_skill_3_score`=$s3v,
+        `specific_skill_4`='$s4', `specific_skill_4_score`=$s4v,
+        `specific_skill_5`='$s5', `specific_skill_5_score`=$s5v,
+        `ability_to_complete_work_on_time`=$b1,
+        `ability_to_follow_instructions_carefully`=$b2,
+        `ability_to_take_initiatives`=$b3,
+        `ability_to_work_with_little_supervision`=$b4,
+        `adherence_to_organizations_rules`=$b5,
+        `adherence_to_safety`=$b6,
+        `resourcefulness`=$b7,
+        `attendance_to_work`=$c1,
+        `punctuality`=$c2,
+        `desire_to_work`=$c3,
+        `williness_to_accept_new_ideas`=$c4,
+        `relationship_with_colleagues`=$d1,
+        `relationship_with_supervisors`=$d2,
+        `ability_to_control_emotions_when_provoked`=$d3,
+        `grade`=$grade_score
+        WHERE id=$existingId";
+    if (!mysqli_query($conn, $upd)) {
+        echo json_encode(['error' => 'Failed to update grade']);
+        http_response_code(500);
+        exit;
+    }
+} else {
+    $ins = "INSERT INTO `$table` (
+        `username`,
+        `user_index`,
+        `visit_number`,
+        `specific_skill_1`, `specific_skill_1_score`,
+        `specific_skill_2`, `specific_skill_2_score`,
+        `specific_skill_3`, `specific_skill_3_score`,
+        `specific_skill_4`, `specific_skill_4_score`,
+        `specific_skill_5`, `specific_skill_5_score`,
+        `ability_to_complete_work_on_time`,
+        `ability_to_follow_instructions_carefully`,
+        `ability_to_take_initiatives`,
+        `ability_to_work_with_little_supervision`,
+        `adherence_to_organizations_rules`,
+        `adherence_to_safety`,
+        `resourcefulness`,
+        `attendance_to_work`,
+        `punctuality`,
+        `desire_to_work`,
+        `williness_to_accept_new_ideas`,
+        `relationship_with_colleagues`,
+        `relationship_with_supervisors`,
+        `ability_to_control_emotions_when_provoked`,
+        `grade`
+    ) VALUES (
+        '$user',
+        '$idx',
+        $visit_number,
+        '$s1', $s1v,
+        '$s2', $s2v,
+        '$s3', $s3v,
+        '$s4', $s4v,
+        '$s5', $s5v,
+        $b1, $b2, $b3, $b4, $b5, $b6, $b7,
+        $c1, $c2, $c3, $c4,
+        $d1, $d2, $d3,
+        $grade_score
+    )";
+
+    if (!mysqli_query($conn, $ins)) {
+        echo json_encode(['error' => 'Failed to save grade']);
+        http_response_code(500);
+        exit;
+    }
 }
 
 // Update industrial_registration: visit 1 -> visiting_supervisor_grade, visit 2 -> visiting_supervisor_grade_2 (add column if missing)

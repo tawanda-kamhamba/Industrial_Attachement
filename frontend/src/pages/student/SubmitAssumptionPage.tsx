@@ -104,8 +104,15 @@ export function SubmitAssumptionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const required = ['company_name', 'supervisor_name', 'supervisor_contact', 'supervisor_email', 'company_region', 'company_address'];
-    const missing = required.filter((k) => !(form as Record<string, string>)[k]?.trim());
+    const required: (keyof AssumptionData)[] = [
+      'company_name',
+      'supervisor_name',
+      'supervisor_contact',
+      'supervisor_email',
+      'company_region',
+      'company_address',
+    ];
+    const missing = required.filter((k) => !form[k]?.trim());
     if (missing.length > 0) {
       setStatus('error');
       setMessage('Please fill in all company and supervisor fields.');

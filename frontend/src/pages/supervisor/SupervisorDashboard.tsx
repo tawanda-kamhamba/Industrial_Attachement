@@ -1,14 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Card, CardHeader } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { BarChartCard } from '@/components/charts/BarChartCard';
+import { PieChartCard } from '@/components/charts/PieChartCard';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
-import { mockVisitScoresData } from '@/services/mockData';
 import { SupervisorScoreForm } from '@/pages/supervisor/SupervisorScoreForm';
 import type { StudentSummary, SupervisorDashboardStats } from '@/types';
+import type { ChartDataPoint } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
+import { getTimeBasedGreeting } from '@/utils/greeting';
+
+const defaultStats: SupervisorDashboardStats = {
+  totalStudents: 0,
+  firstVisits: 0,
+  secondVisits: 0,
+  firstVisitWithScoresheet: 0,
+  secondVisitWithScoresheet: 0,
+};
 
 const columns: Column<StudentSummary & { onGrade?: (student: StudentSummary) => void }>[] = [
   {
@@ -46,7 +57,7 @@ const columns: Column<StudentSummary & { onGrade?: (student: StudentSummary) => 
         <Button
           variant="primary"
           size="sm"
-          onClick={() => (row as any).onGrade?.(row)}
+          onClick={() => (row as StudentSummary & { onGrade?: (s: StudentSummary) => void }).onGrade?.(row)}
         >
           Enter score
         </Button>
@@ -56,6 +67,7 @@ const columns: Column<StudentSummary & { onGrade?: (student: StudentSummary) => 
 ];
 
 export function SupervisorDashboard() {
+  const { user } = useAuth();
   const location = useLocation();
   const [stats, setStats] = useState<SupervisorDashboardStats | null>(null);
   const [students, setStudents] = useState<StudentSummary[]>([]);
@@ -76,69 +88,177 @@ export function SupervisorDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Open grading modal when navigated from student profile with state.gradeStudentIndex
+  const [gradingVisitNumber, setGradingVisitNumber] = useState<1 | 2 | undefined>(undefined);
+
   useEffect(() => {
-    const state = location.state as { gradeStudentIndex?: string } | null;
+    const state = location.state as { gradeStudentIndex?: string; visitNumber?: 1 | 2 } | null;
     const idx = state?.gradeStudentIndex;
     if (idx && students.length > 0) {
       const found = students.find((s) => s.student_index === idx);
-      if (found) setGradingStudent(found);
+      if (found) {
+        setGradingStudent(found);
+        setGradingVisitNumber(state?.visitNumber ?? undefined);
+      }
     }
   }, [location.state, students]);
 
-  if (loading) return <p className="text-slate-500">Loading...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
+  const s = stats ?? defaultStats;
 
-  const s = stats ?? {
-    totalStudents: 0,
-    firstVisits: 0,
-    secondVisits: 0,
-    firstVisitWithScoresheet: 0,
-    secondVisitWithScoresheet: 0,
-  };
+  // Charts: assigned students only (from stats + students)
+  const visitScoresData: ChartDataPoint[] = useMemo(
+    () => [
+      { name: 'First visit', value: s.firstVisitWithScoresheet },
+      { name: 'Second visit', value: s.secondVisitWithScoresheet },
+    ],
+    [s.firstVisitWithScoresheet, s.secondVisitWithScoresheet]
+  );
+
+  const regionChartData: ChartDataPoint[] = useMemo(() => {
+    const byRegion: Record<string, number> = {};
+    students.forEach((st) => {
+      const region = st.company_region?.trim() || st.attachment_region?.trim() || 'Unspecified';
+      byRegion[region] = (byRegion[region] ?? 0) + 1;
+    });
+    return Object.entries(byRegion)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [students]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-28 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-300 animate-pulse" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="min-h-[7.5rem] rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="h-64 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
+          <div className="h-64 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
+        </div>
+        <div className="h-48 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
+        <div className="flex items-center justify-center py-12">
+          <p className="text-sm text-slate-500">Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 px-6 py-8 text-white shadow-lg">
+          <div className="relative">
+            <h1 className="text-2xl font-display font-bold tracking-tight">Supervisor Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-300">Something went wrong</p>
+          </div>
+        </div>
+        <Card className="border-amber-200 bg-amber-50">
+          <div className="flex items-start gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-lg text-amber-600" aria-hidden>!</span>
+            <div>
+              <h2 className="font-semibold text-amber-900">Could not load dashboard</h2>
+              <p className="mt-1 text-sm text-amber-800">{error}</p>
+              <p className="mt-2 text-xs text-amber-700">Check your connection and try refreshing the page.</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Institutional Supervisor Dashboard</h1>
-        <p className="mt-1 text-slate-500">Your assigned students and visit summary</p>
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 px-6 py-8 text-white shadow-lg">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute -right-14 -top-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -left-14 -bottom-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+        </div>
+        <div className="relative">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary-100">Institutional Supervisor</p>
+          <h1 className="mt-1 text-2xl font-display font-bold tracking-tight sm:text-3xl">
+            {getTimeBasedGreeting()}, {user?.name ?? 'Supervisor'}!
+          </h1>
+          <p className="mt-2 text-sm text-primary-100">
+            Your assigned students, visit summary and scoresheets.
+          </p>
+        </div>
       </div>
 
+      {/* Summary stats — 1 primary, 3 light */}
       <section>
-        <CardHeader title="Summary" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard title="Total Assigned Students" value={s.totalStudents} variant="primary" />
-          <StatCard title="First Visits" value={s.firstVisits} variant="success" />
-          <StatCard title="Second Visits" value={s.secondVisits} variant="info" />
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-800 font-display">Visit summary</h2>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            Live stats
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <StatCard
+            title="Total Assigned Students"
+            value={s.totalStudents}
+            variant="primary"
+            subtitle="In your list"
+            cornerIcon={false}
+          />
+          <StatCard title="First Visits" value={s.firstVisits} variant="light" subtitle="Completed" />
+          <StatCard title="Second Visits" value={s.secondVisits} variant="light" subtitle="Completed" />
           <StatCard
             title="Scoresheets (1st / 2nd)"
             value={`${s.firstVisitWithScoresheet} / ${s.secondVisitWithScoresheet}`}
-            variant="warning"
+            variant="light"
+            subtitle="Submitted"
           />
         </div>
       </section>
 
+      {/* Charts: assigned students only — side by side */}
       <section>
-        <BarChartCard
-          title="Visit scoresheets submitted"
-          data={mockVisitScoresData}
-          barColor="#10b981"
-          height={240}
-        />
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-800 font-display">Assigned students overview</h2>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            Your students only
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <BarChartCard
+            title="Visit scoresheets submitted"
+            data={visitScoresData}
+            barColor="#10b981"
+            height={240}
+          />
+          <PieChartCard
+            title="Students by region"
+            data={regionChartData}
+            height={240}
+            showRegionList={true}
+          />
+        </div>
       </section>
 
+      {/* Assigned students table */}
       <section>
-        <Card>
-          <CardHeader title="Assigned Students" />
-          <DataTable
-            columns={columns}
-            data={students.map((s) => ({
-              ...s,
-              onGrade: (student: StudentSummary) => setGradingStudent(student),
-            })) as any}
-            keyField="student_index"
-            emptyMessage="No students have been assigned to you yet."
-          />
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-800 font-display">Assigned Students</h2>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            {students.length} student{students.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <Card className="overflow-hidden border border-slate-200 bg-white shadow-sm">
+          <div className="p-5">
+            <DataTable
+              columns={columns}
+              data={students.map((st) => ({
+                ...st,
+                onGrade: (student: StudentSummary) => setGradingStudent(student),
+              })) as (StudentSummary & { onGrade?: (s: StudentSummary) => void })[]}
+              maxHeight="60vh"
+              keyField="student_index"
+              emptyMessage="No students have been assigned to you yet."
+            />
+          </div>
         </Card>
       </section>
 
@@ -174,7 +294,11 @@ export function SupervisorDashboard() {
             <div className="flex-1 overflow-y-auto px-6 py-4 bg-slate-50">
               <SupervisorScoreForm
                 indexNumber={gradingStudent.student_index}
-                onClose={() => setGradingStudent(null)}
+                onClose={() => {
+                  setGradingStudent(null);
+                  setGradingVisitNumber(undefined);
+                }}
+                initialVisitNumber={gradingVisitNumber}
               />
             </div>
           </div>

@@ -39,6 +39,10 @@ interface StudentProfileData {
   orientation: { id: number; completed_at: string | null } | null;
   logbook: { count: number; latest_week: number | null };
   report_submitted: boolean;
+  my_visit_scores?: {
+    first_visit_grade: number | null;
+    second_visit_grade: number | null;
+  };
 }
 
 function StatCard({
@@ -191,25 +195,67 @@ export function StudentProfilePage() {
               <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Contract</dt>
               <dd className="mt-0.5 text-sm font-semibold text-slate-800">{contractStatus}</dd>
             </div>
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Visiting grade</dt>
-              <dd className="mt-0.5 text-sm font-semibold text-slate-800">
-                {reg?.visiting_supervisor_grade != null && reg.visiting_supervisor_grade !== ''
-                  ? String(reg.visiting_supervisor_grade)
-                  : '—'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Company grade</dt>
-              <dd className="mt-0.5 text-sm font-semibold text-slate-800">
-                {reg?.company_supervisor_grade != null && reg.company_supervisor_grade !== ''
-                  ? String(reg.company_supervisor_grade)
-                  : '—'}
-              </dd>
-            </div>
           </dl>
         </div>
       </Card>
+
+      {/* Scores: company (read-only) + my visit scores (with update) */}
+      <div>
+        <h2 className="mb-4 text-lg font-bold text-slate-800">Scores</h2>
+        <Card padding="lg" className="border-slate-200">
+          <div className="grid gap-6 sm:grid-cols-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Company supervisor score</p>
+              <p className="mt-1 text-xl font-semibold text-slate-800">
+                {reg?.company_supervisor_grade != null && reg.company_supervisor_grade !== ''
+                  ? String(reg.company_supervisor_grade)
+                  : '—'}
+              </p>
+              <p className="mt-0.5 text-xs text-slate-500">Read-only (set by company supervisor)</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">My first visit score</p>
+              <p className="mt-1 text-xl font-semibold text-slate-800">
+                {data.my_visit_scores?.first_visit_grade != null
+                  ? String(data.my_visit_scores.first_visit_grade)
+                  : '—'}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                onClick={() =>
+                  navigate('/supervisor/dashboard', {
+                    state: { gradeStudentIndex: data.index_number, visitNumber: 1 },
+                  })
+                }
+              >
+                {data.my_visit_scores?.first_visit_grade != null ? 'Update score' : 'Enter score'}
+              </Button>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">My second visit score</p>
+              <p className="mt-1 text-xl font-semibold text-slate-800">
+                {data.my_visit_scores?.second_visit_grade != null
+                  ? String(data.my_visit_scores.second_visit_grade)
+                  : '—'}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                onClick={() =>
+                  navigate('/supervisor/dashboard', {
+                    state: { gradeStudentIndex: data.index_number, visitNumber: 2 },
+                  })
+                }
+              >
+                {data.my_visit_scores?.second_visit_grade != null ? 'Update score' : 'Enter score'}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Student current status – like Patient Current Vitals */}
       <div>

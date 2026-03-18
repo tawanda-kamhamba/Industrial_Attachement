@@ -32,6 +32,7 @@ import { SupervisorELogbooks } from './pages/supervisor/SupervisorELogbooks';
 import { SupervisorStudentAssumptions } from './pages/supervisor/SupervisorStudentAssumptions';
 import { SupervisorContracts } from './pages/supervisor/SupervisorContracts';
 import { SupervisorReports } from './pages/supervisor/SupervisorReports';
+import { SupervisorScoresPage } from './pages/supervisor/SupervisorScoresPage';
 import { SupervisorAssessmentPasswordsPage } from './pages/supervisor/SupervisorAssessmentPasswordsPage';
 import { StudentProfilePage } from './pages/supervisor/StudentProfilePage';
 import { AdminViewLogbook } from './pages/admin/AdminViewLogbook';
@@ -105,6 +106,7 @@ export default function App() {
       >
         <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
         <Route path="dashboard" element={<SupervisorDashboard />} />
+        <Route path="scores" element={<SupervisorScoresPage />} />
         <Route path="passwords" element={<SupervisorAssessmentPasswordsPage />} />
         <Route path="student/:indexNumber" element={<StudentProfilePage />} />
         <Route path="logbook/:indexNumber" element={<ViewStudentLogbook />} />

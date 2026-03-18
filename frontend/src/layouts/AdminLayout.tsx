@@ -22,12 +22,14 @@ export function AdminLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-surface">
-      <TopBar
-        displayName={user?.name ?? 'Admin'}
-        onLogout={logout}
-      />
-      <Sidebar items={adminSidebarItems} basePath="/admin" onLogout={logout} />
+    <div className="min-h-screen bg-slate-50">
+      <div className="no-print">
+        <TopBar
+          displayName={user?.name ?? 'Admin'}
+          onLogout={logout}
+        />
+        <Sidebar items={adminSidebarItems} basePath="/admin" onLogout={logout} />
+      </div>
       <main className="pl-56 pt-14 min-h-screen">
         <div className="p-6">
           <Outlet />
