@@ -21,9 +21,59 @@ if ($index_number === '') {
 
 $assigned = iasms_get_assigned_indexes_for_current_supervisor($conn);
 if (!in_array($index_number, $assigned, true)) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Student not assigned to you']);
-    return;
+    // Fallback authorization for admin-specific per-student assignment.
+    $idx_esc = mysqli_real_escape_string($conn, $index_number);
+    $sid = (int)($_SESSION['user_id'] ?? 0);
+    $staff_id = (string)($_SESSION['staff_id'] ?? '');
+    $name_esc = mysqli_real_escape_string($conn, (string)($_SESSION['name'] ?? ''));
+
+    $directAllowed = false;
+    // 1) Direct lecturer_id match (most common case).
+    if ($sid > 0) {
+        $directRes = @mysqli_query(
+            $conn,
+            "SELECT 1
+             FROM student_supervisor_assignments
+             WHERE index_number='$idx_esc'
+               AND lecturer_id=$sid
+             LIMIT 1"
+        );
+        $directAllowed = $directRes && mysqli_num_rows($directRes) > 0;
+    }
+
+    // 2) Direct match by lecturer name (covers potential lecturer_id/name storage inconsistencies).
+    if (!$directAllowed && $name_esc !== '') {
+        $directRes2 = @mysqli_query(
+            $conn,
+            "SELECT 1
+             FROM student_supervisor_assignments ssa
+             JOIN visiting_lecturers vl ON vl.id = ssa.lecturer_id
+             WHERE ssa.index_number='$idx_esc'
+               AND BINARY vl.lecturer_name='$name_esc'
+             LIMIT 1"
+        );
+        $directAllowed = $directRes2 && mysqli_num_rows($directRes2) > 0;
+    }
+
+    // 3) Match by staff_id if stored in lecturer_id column.
+    if (!$directAllowed && $staff_id !== '') {
+        $staffEsc = mysqli_real_escape_string($conn, $staff_id);
+        $directRes3 = @mysqli_query(
+            $conn,
+            "SELECT 1
+             FROM student_supervisor_assignments
+             WHERE index_number='$idx_esc'
+               AND lecturer_id='$staffEsc'
+             LIMIT 1"
+        );
+        $directAllowed = $directRes3 && mysqli_num_rows($directRes3) > 0;
+    }
+
+    if (!$directAllowed) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Student not assigned to you']);
+        return;
+    }
 }
 
 $idx = mysqli_real_escape_string($conn, $index_number);

@@ -26,6 +26,30 @@ interface ElogbookResponse {
   entries: LogbookEntry[];
 }
 
+function jobAssignedPoints(text: string | null | undefined): string[] {
+  const raw = (text ?? '').replace(/\r\n/g, '\n');
+  return raw
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => l.replace(/^\s*[-*•]\s+/, ''));
+}
+
+function renderJobAssigned(text: string | null | undefined) {
+  const points = jobAssignedPoints(text);
+  if (points.length === 0) return <span className="text-slate-500">-</span>;
+
+  return (
+    <ul className="list-disc space-y-1 pl-5">
+      {points.map((p, idx) => (
+        <li key={idx} className="whitespace-pre-wrap">
+          {p}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function AdminViewLogbook() {
   const { indexNumber } = useParams<{ indexNumber: string }>();
   const [data, setData] = useState<ElogbookResponse | null>(null);
@@ -71,16 +95,16 @@ export function AdminViewLogbook() {
               <div key={entry.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <h3 className="font-semibold text-slate-800">Week {entry.week_number}</h3>
                 <dl className="mt-2 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  <div><dt className="text-slate-500">Monday job</dt><dd>{entry.monday_job_assigned || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Monday skill</dt><dd>{entry.monday_skill_acquired || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Tuesday job</dt><dd>{entry.tuesday_job_assigned || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Tuesday skill</dt><dd>{entry.tuesday_skill_acquired || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Wednesday job</dt><dd>{entry.wednesday_job_assigned || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Wednesday skill</dt><dd>{entry.wednesday_skill_acquired || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Thursday job</dt><dd>{entry.thursday_job_assigned || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Thursday skill</dt><dd>{entry.thursday_skill_acquired || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Friday job</dt><dd>{entry.friday_job_assigned || '-'}</dd></div>
-                  <div><dt className="text-slate-500">Friday skill</dt><dd>{entry.friday_skill_acquired || '-'}</dd></div>
+                  <div><dt className="text-slate-500">Monday job</dt><dd>{renderJobAssigned(entry.monday_job_assigned)}</dd></div>
+                  <div><dt className="text-slate-500">Monday skill</dt><dd>{renderJobAssigned(entry.monday_skill_acquired)}</dd></div>
+                  <div><dt className="text-slate-500">Tuesday job</dt><dd>{renderJobAssigned(entry.tuesday_job_assigned)}</dd></div>
+                  <div><dt className="text-slate-500">Tuesday skill</dt><dd>{renderJobAssigned(entry.tuesday_skill_acquired)}</dd></div>
+                  <div><dt className="text-slate-500">Wednesday job</dt><dd>{renderJobAssigned(entry.wednesday_job_assigned)}</dd></div>
+                  <div><dt className="text-slate-500">Wednesday skill</dt><dd>{renderJobAssigned(entry.wednesday_skill_acquired)}</dd></div>
+                  <div><dt className="text-slate-500">Thursday job</dt><dd>{renderJobAssigned(entry.thursday_job_assigned)}</dd></div>
+                  <div><dt className="text-slate-500">Thursday skill</dt><dd>{renderJobAssigned(entry.thursday_skill_acquired)}</dd></div>
+                  <div><dt className="text-slate-500">Friday job</dt><dd>{renderJobAssigned(entry.friday_job_assigned)}</dd></div>
+                  <div><dt className="text-slate-500">Friday skill</dt><dd>{renderJobAssigned(entry.friday_skill_acquired)}</dd></div>
                 </dl>
                 {entry.updated_at && (
                   <p className="mt-2 text-xs text-slate-400">Updated: {entry.updated_at}</p>
