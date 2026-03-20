@@ -110,6 +110,15 @@ type StudentSupervisorResponse = {
     staff_id: string | null;
     assigned_at?: string | null;
   };
+  other_assigned?: null | {
+    lecturer_id: number;
+    lecturer_name: string;
+    lecturer_faculty: string;
+    lecturer_department: string;
+    lecturer_region_residence: string;
+    staff_id: string | null;
+    assigned_at?: string | null;
+  };
 };
 
 export function StudentDashboard() {
@@ -117,6 +126,7 @@ export function StudentDashboard() {
   const [query, setQuery] = useState('');
   const [grades, setGrades] = useState<StudentGradesResponse | null>(null);
   const [assignedSupervisor, setAssignedSupervisor] = useState<StudentSupervisorResponse['assigned'] | null>(null);
+  const [otherAssignedSupervisor, setOtherAssignedSupervisor] = useState<StudentSupervisorResponse['other_assigned'] | null>(null);
   const [cardsLoading, setCardsLoading] = useState(true);
   const photoVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(PROFILE_PHOTO_CACHE_KEY) ?? '' : '';
   const profilePhotoUrl = user?.role === 'student'
@@ -135,6 +145,7 @@ export function StudentDashboard() {
         if (cancelled) return;
         setGrades(g);
         setAssignedSupervisor(sup?.assigned ?? null);
+        setOtherAssignedSupervisor(sup?.other_assigned ?? null);
       })
       .finally(() => {
         if (!cancelled) setCardsLoading(false);
@@ -255,14 +266,31 @@ export function StudentDashboard() {
                   <p className="mt-1 text-sm font-display font-semibold text-slate-900">
                     {assignedSupervisor.lecturer_name || 'Assigned supervisor'}
                   </p>
+                  {otherAssignedSupervisor ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Also: {otherAssignedSupervisor.lecturer_name || 'Institutional supervisor'}
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-xs text-slate-500">
                     {[assignedSupervisor.lecturer_department, assignedSupervisor.lecturer_faculty]
                       .filter(Boolean)
                       .join(' • ') || 'Details available soon'}
                   </p>
+                  {otherAssignedSupervisor ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Also: {[otherAssignedSupervisor.lecturer_department, otherAssignedSupervisor.lecturer_faculty]
+                        .filter(Boolean)
+                        .join(' • ') || 'Details available soon'}
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-xs text-slate-500">
                     {assignedSupervisor.lecturer_region_residence ? `Region: ${assignedSupervisor.lecturer_region_residence}` : 'Region: —'}
                   </p>
+                  {otherAssignedSupervisor ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Also Region: {otherAssignedSupervisor.lecturer_region_residence ? otherAssignedSupervisor.lecturer_region_residence : '—'}
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <p className="mt-1 text-xs text-slate-500">Not assigned yet.</p>
@@ -275,15 +303,23 @@ export function StudentDashboard() {
         </Card>
 
         <Card className="border border-slate-200 bg-white" padding="sm">
-          <p className="text-sm font-semibold text-slate-800">Quick info</p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-semibold text-slate-800">Quick info</p>
+            <Link to="/student/instructions" aria-label="Help">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+              >
+                Help
+              </Button>
+            </Link>
+          </div>
           <p className="mt-1 text-xs text-slate-500">Index number</p>
           <p className="mt-0.5 font-display text-base font-semibold text-slate-900">{user?.indexNumber ?? '—'}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link to="/student/profile">
               <Button variant="outline" size="sm">Edit profile</Button>
-            </Link>
-            <Link to="/student/instructions">
-              <Button variant="ghost" size="sm">Help</Button>
             </Link>
           </div>
         </Card>
