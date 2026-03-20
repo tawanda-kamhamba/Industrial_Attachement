@@ -214,6 +214,12 @@ if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? ''
     exit;
 }
 
+// Route: supervisor logbook week comments (POST)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'elogbook-comment') {
+    require __DIR__ . '/supervisor_elogbook_comment.php';
+    exit;
+}
+
 // Route: supervisor student assumptions (assigned students only)
 if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'assumptions') {
     require __DIR__ . '/supervisor_assumptions.php';
@@ -277,6 +283,18 @@ if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') =
 // Route: student contract (GET status, POST upload) — uses student_contracts table only
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'contract') {
     require __DIR__ . '/student_contract.php';
+    exit;
+}
+
+// Route: student notifications (GET)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'notifications' && ($segments[2] ?? '') === '') {
+    require __DIR__ . '/student_notifications.php';
+    exit;
+}
+
+// Route: student notifications mark-read (POST)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'notifications' && ($segments[2] ?? '') === 'mark-read') {
+    require __DIR__ . '/student_notifications_mark_read.php';
     exit;
 }
 
