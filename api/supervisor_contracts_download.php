@@ -1,12 +1,14 @@
 <?php
 /**
- * GET /api/admin/contracts/download?id=123
- * Streams the contract PDF for admin from student_contracts. No JSON; sends file headers and body.
+ * GET /iasms/api/supervisor/contracts/download?id=123
+ * Stream contract PDF for assigned students only (supervisor session).
  */
+require_once __DIR__ . '/supervisor_helpers.php';
+
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Credentials: true');
 
-if (($_SESSION['role'] ?? '') !== 'admin') {
+if (($_SESSION['role'] ?? '') !== 'supervisor') {
     http_response_code(401);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Not authorized']);
@@ -14,7 +16,6 @@ if (($_SESSION['role'] ?? '') !== 'admin') {
 }
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-// Fallback if query string was stripped but path is .../download/123
 if ($id < 1) {
     $reqUri = $_SERVER['REQUEST_URI'] ?? '';
     if (preg_match('~/contracts/download/(\d+)(?:\?|$)~', $reqUri, $m)) {
@@ -28,13 +29,21 @@ if ($id < 1) {
     exit;
 }
 
-$q = "SELECT contract_file, original_filename FROM student_contracts WHERE id=$id LIMIT 1";
+$q = "SELECT contract_file, original_filename, index_number FROM student_contracts WHERE id=$id LIMIT 1";
 $res = mysqli_query($conn, $q);
 $row = $res ? mysqli_fetch_assoc($res) : null;
 if (!$row || empty($row['contract_file'])) {
     http_response_code(404);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Contract not found']);
+    exit;
+}
+
+$studentIndex = trim((string)($row['index_number'] ?? ''));
+if ($studentIndex === '' || !iasms_supervisor_can_access_student_index($conn, $studentIndex)) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Not allowed to view this contract']);
     exit;
 }
 

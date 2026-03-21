@@ -5,8 +5,6 @@ import { Button } from '@/components/ui/Button';
 
 type StatusType = 'idle' | 'success' | 'error';
 
-const LEGACY_BASE = import.meta.env.DEV ? 'http://localhost/iasms' : '';
-
 export function SubmitReportPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<FileList | null>(null);
@@ -43,22 +41,35 @@ export function SubmitReportPage() {
     setMessage(null);
 
     try {
-      const res = await fetch(`${LEGACY_BASE}/submit_report/upload.php`, {
+      const baseUrl = '/api';
+      const res = await fetch(`${baseUrl}/student/report`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
       });
 
       const text = await res.text();
+      let data: { success?: boolean; error?: string; message?: string } = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        // ignore non-JSON responses
+      }
 
-      if (!res.ok) {
+      if (!res.ok || data.success !== true) {
         setStatus('error');
-        setMessage('Upload failed. Please try again.');
+        setMessage(
+          typeof data.error === 'string'
+            ? data.error
+            : typeof data.message === 'string'
+              ? data.message
+              : text || 'Upload failed. Please try again.'
+        );
         return;
       }
 
       setStatus('success');
-      setMessage(text || 'Reports uploaded successfully.');
+      setMessage(typeof data.message === 'string' ? data.message : 'Reports uploaded successfully.');
       setFiles(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';

@@ -26,16 +26,27 @@ if ($r && $row = mysqli_fetch_assoc($r)) $stats['contractsPending'] = (int)$row[
 $r = mysqli_query($conn, "SELECT COUNT(*) AS c FROM student_contracts WHERE status = 'approved'");
 if ($r && $row = mysqli_fetch_assoc($r)) $stats['contractsApproved'] = (int)$row['c'];
 
-$uploads_dir = dirname(__DIR__) . '/submit_report/uploads';
-$reports_count = 0;
-if (is_dir($uploads_dir)) {
-    $files = array_diff(scandir($uploads_dir), ['.', '..']);
-    foreach ($files as $f) {
-        $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
-        if (in_array($ext, ['doc', 'docx', 'pdf'])) $reports_count++;
-    }
+// Reports: count submissions from student_reports table (not just files).
+mysqli_query(
+    $conn,
+    "CREATE TABLE IF NOT EXISTS student_reports (
+      id INT(11) NOT NULL AUTO_INCREMENT,
+      student_name VARCHAR(255) NOT NULL,
+      index_number VARCHAR(100) NOT NULL,
+      report_files_json LONGTEXT NOT NULL,
+      original_filenames_json LONGTEXT NOT NULL,
+      submission_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+      admin_comment TEXT,
+      PRIMARY KEY (id),
+      UNIQUE KEY index_number_unique (index_number)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1"
+);
+
+$r = mysqli_query($conn, "SELECT COUNT(*) AS c FROM student_reports");
+if ($r && $row = mysqli_fetch_assoc($r)) {
+    $stats['reportsSubmitted'] = (int)($row['c'] ?? 0);
 }
-$stats['reportsSubmitted'] = $reports_count;
 
 $r = mysqli_query($conn, "SELECT COUNT(*) AS c FROM students_assumption");
 if ($r && $row = mysqli_fetch_assoc($r)) $stats['assumptionsCount'] = (int)$row['c'];

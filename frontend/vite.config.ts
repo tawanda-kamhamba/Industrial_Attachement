@@ -31,6 +31,11 @@ export default defineConfig({
           });
         },
       },
+      // Static uploads & legacy paths live under /iasms on Apache; without this, :3000 serves the SPA (→ /login).
+      '/iasms': {
+        target: 'http://localhost',
+        changeOrigin: true,
+      },
     },
   },
 });

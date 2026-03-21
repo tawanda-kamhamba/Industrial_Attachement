@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { api } from '@/services/api';
+import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 
 interface ReportRow {
   name: string;
@@ -10,40 +11,42 @@ interface ReportRow {
   index_number: string;
 }
 
-const columns: Column<ReportRow>[] = [
-  {
-    key: 'student',
-    header: 'Student index',
-    render: (row) => (
-      <div>
-        <p className="font-medium text-slate-900">{row.index_number}</p>
-        <p className="text-xs text-slate-500 break-all">{row.name}</p>
-      </div>
-    ),
-  },
-  { key: 'size', header: 'Size (bytes)' },
-  { key: 'modified', header: 'Modified' },
-  {
-    key: 'download',
-    header: 'Download',
-    align: 'center',
-    render: (row) => (
-      <a
-        href={`/iasms/submit_report/uploads/${encodeURIComponent(row.name)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary-600 hover:underline"
-      >
-        Download
-      </a>
-    ),
-  },
-];
-
 export function SupervisorReports() {
   const [rows, setRows] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const columns: Column<ReportRow>[] = useMemo(
+    () => [
+      {
+        key: 'student',
+        header: 'Student index',
+        render: (row) => (
+          <div>
+            <p className="font-medium text-slate-900">{row.index_number}</p>
+            <p className="text-xs text-slate-500 break-all">{row.name}</p>
+          </div>
+        ),
+      },
+      { key: 'size', header: 'Size (bytes)' },
+      { key: 'modified', header: 'Modified' },
+      {
+        key: 'actions',
+        header: 'View / download',
+        align: 'center',
+        render: (row) => (
+          <ReportViewDownloadActions
+            role="supervisor"
+            storageFilename={row.name}
+            displayLabel={row.name}
+            layout="actions-only"
+            onError={(msg) => setError(msg)}
+          />
+        ),
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     api

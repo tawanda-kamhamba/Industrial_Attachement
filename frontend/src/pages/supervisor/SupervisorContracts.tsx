@@ -3,6 +3,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 
 interface ContractRow {
   id: number;
@@ -13,35 +14,6 @@ interface ContractRow {
   admin_comment: string;
   original_filename: string;
 }
-
-const columns: Column<ContractRow>[] = [
-  {
-    key: 'student_name',
-    header: 'Student',
-    render: (row) => (
-      <div>
-        <p className="font-medium text-slate-900">{row.student_name || '-'}</p>
-        <p className="text-xs text-slate-500">{row.index_number}</p>
-      </div>
-    ),
-  },
-  { key: 'original_filename', header: 'File' },
-  { key: 'status', header: 'Status', align: 'center' },
-  {
-    key: 'submission_date',
-    header: 'Submitted',
-    render: (row) =>
-      row.submission_date
-        ? new Date(row.submission_date).toLocaleString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        : '-',
-  },
-];
 
 export function SupervisorContracts() {
   const [rows, setRows] = useState<ContractRow[]>([]);
@@ -76,8 +48,49 @@ export function SupervisorContracts() {
     }
   };
 
+  const baseColumns: Column<ContractRow>[] = [
+    {
+      key: 'student_name',
+      header: 'Student',
+      render: (row) => (
+        <div>
+          <p className="font-medium text-slate-900">{row.student_name || '-'}</p>
+          <p className="text-xs text-slate-500">{row.index_number}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'original_filename',
+      header: 'File',
+      render: (row) => (
+        <ContractViewDownloadActions
+          role="supervisor"
+          contractId={row.id}
+          fileLabel={row.original_filename || 'Contract'}
+          layout="stacked"
+          onError={(msg) => setError(msg)}
+        />
+      ),
+    },
+    { key: 'status', header: 'Status', align: 'center' },
+    {
+      key: 'submission_date',
+      header: 'Submitted',
+      render: (row) =>
+        row.submission_date
+          ? new Date(row.submission_date).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-',
+    },
+  ];
+
   const columnsWithActions: Column<ContractRow>[] = [
-    ...columns,
+    ...baseColumns,
     {
       key: 'actions',
       header: 'Actions',

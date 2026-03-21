@@ -26,6 +26,29 @@ if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') ===
     exit;
 }
 
+// Route: supervisor contract file download (assigned students only)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'contracts' && ($segments[2] ?? '') === 'download') {
+    if (empty($_GET['id']) && !empty($segments[3]) && ctype_digit($segments[3])) {
+        $_GET['id'] = (int)$segments[3];
+    }
+    require __DIR__ . '/supervisor_contracts_download.php';
+    exit;
+}
+
+// Route: admin report file download (basename in segment 3, URL-encoded)
+if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') === 'reports' && ($segments[2] ?? '') === 'download' && !empty($segments[3])) {
+    $_GET['name'] = rawurldecode($segments[3]);
+    require __DIR__ . '/admin_reports_download.php';
+    exit;
+}
+
+// Route: supervisor report file download (assigned students only)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'reports' && ($segments[2] ?? '') === 'download' && !empty($segments[3])) {
+    $_GET['name'] = rawurldecode($segments[3]);
+    require __DIR__ . '/supervisor_reports_download.php';
+    exit;
+}
+
 // Route: student profile photo (serve image, no JSON)
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'profile' && ($segments[2] ?? '') === 'photo') {
     require __DIR__ . '/student_profile_photo.php';
@@ -128,7 +151,7 @@ if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') ===
     exit;
 }
 
-// Route: admin reports (file list)
+// Route: admin reports (file list) — not /admin/reports/download/* (handled above)
 if (!empty($segments[0]) && $segments[0] === 'admin' && ($segments[1] ?? '') === 'reports') {
     require __DIR__ . '/admin_reports.php';
     exit;
@@ -283,6 +306,12 @@ if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') =
 // Route: student contract (GET status, POST upload) — uses student_contracts table only
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'contract') {
     require __DIR__ . '/student_contract.php';
+    exit;
+}
+
+// Route: student report upload
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'report') {
+    require __DIR__ . '/student_report.php';
     exit;
 }
 

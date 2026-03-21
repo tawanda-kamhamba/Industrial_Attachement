@@ -3,6 +3,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 
 interface ContractRow {
   id: number;
@@ -14,30 +15,6 @@ interface ContractRow {
   original_filename: string;
   contract_file: string;
 }
-
-const columns: Column<ContractRow>[] = [
-  { key: 'index_number', header: 'Index Number' },
-  { key: 'student_name', header: 'Student Name' },
-  { key: 'status', header: 'Status' },
-  { key: 'submission_date', header: 'Submitted At' },
-  {
-    key: 'original_filename',
-    header: 'File',
-    render: (row) =>
-      row.contract_file ? (
-        <a
-          href={`/api/admin/contracts/download?id=${row.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary-600 hover:underline"
-        >
-          {row.original_filename || 'View'}
-        </a>
-      ) : (
-        row.original_filename
-      ),
-  },
-];
 
 export function ManageContracts() {
   const [rows, setRows] = useState<ContractRow[]>([]);
@@ -96,8 +73,31 @@ export function ManageContracts() {
     }
   };
 
+  const baseColumns: Column<ContractRow>[] = [
+    { key: 'index_number', header: 'Index Number' },
+    { key: 'student_name', header: 'Student Name' },
+    { key: 'status', header: 'Status' },
+    { key: 'submission_date', header: 'Submitted At' },
+    {
+      key: 'original_filename',
+      header: 'File',
+      render: (row) =>
+        row.contract_file ? (
+          <ContractViewDownloadActions
+            role="admin"
+            contractId={row.id}
+            fileLabel={row.original_filename || 'Contract'}
+            layout="stacked"
+            onError={(msg) => setError(msg)}
+          />
+        ) : (
+          row.original_filename
+        ),
+    },
+  ];
+
   const columnsWithActions: Column<ContractRow>[] = [
-    ...columns,
+    ...baseColumns,
     {
       key: 'id',
       header: 'Actions',

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { api } from '@/services/api';
+import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 
 interface ReportRow {
   name: string;
@@ -9,31 +10,33 @@ interface ReportRow {
   modified: string;
 }
 
-const columns: Column<ReportRow>[] = [
-  { key: 'name', header: 'File Name' },
-  { key: 'size', header: 'Size (bytes)' },
-  { key: 'modified', header: 'Modified' },
-  {
-    key: 'name',
-    header: 'Download',
-    align: 'center',
-    render: (row) => (
-      <a
-        href={`/iasms/submit_report/uploads/${encodeURIComponent(row.name)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary-600 hover:underline"
-      >
-        Download
-      </a>
-    ),
-  },
-];
-
 export function SubmittedReports() {
   const [rows, setRows] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const columns: Column<ReportRow>[] = useMemo(
+    () => [
+      { key: 'name', header: 'File Name' },
+      { key: 'size', header: 'Size (bytes)' },
+      { key: 'modified', header: 'Modified' },
+      {
+        key: 'actions',
+        header: 'View / download',
+        align: 'center',
+        render: (row) => (
+          <ReportViewDownloadActions
+            role="admin"
+            storageFilename={row.name}
+            displayLabel={row.name}
+            layout="actions-only"
+            onError={(msg) => setError(msg)}
+          />
+        ),
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     api

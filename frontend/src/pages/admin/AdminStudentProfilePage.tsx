@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
+import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 
 interface LecturerLite {
   id: number;
@@ -45,7 +47,8 @@ interface StudentProfileData {
     company_address: string;
   } | null;
   contract: {
-    id: number;
+    /** Present when API returns normalized contract (required to open PDF). */
+    id?: number;
     original_filename: string;
     status: string;
     submission_date: string | null;
@@ -54,6 +57,8 @@ interface StudentProfileData {
   orientation: { id: number; completed_at: string | null } | null;
   logbook: { count: number; latest_week: number | null };
   report_submitted: boolean;
+  report_files?: string[];
+  report_original_filenames?: string[];
 }
 
 function StatCard({
@@ -174,6 +179,13 @@ export function AdminStudentProfilePage() {
         : 'Pending';
   const contractColor: 'green' | 'red' | 'amber' | 'slate' =
     !contract ? 'slate' : contract.status === 'approved' ? 'green' : contract.status === 'rejected' ? 'red' : 'amber';
+
+  const contractFileId =
+    contract &&
+    Number.isInteger(Number(contract.id)) &&
+    Number(contract.id) >= 1
+      ? Number(contract.id)
+      : null;
 
   return (
     <div className="space-y-8">
@@ -439,7 +451,27 @@ export function AdminStudentProfilePage() {
           <dl className="grid gap-2 sm:grid-cols-2">
             <div>
               <dt className="text-xs text-slate-500">File</dt>
-              <dd className="font-medium text-slate-800">{contract.original_filename || '—'}</dd>
+              <dd className="font-medium text-slate-800">
+                {contract.original_filename ? (
+                  contractFileId != null ? (
+                    <ContractViewDownloadActions
+                      role="admin"
+                      contractId={contractFileId}
+                      fileLabel={contract.original_filename}
+                      layout="stacked"
+                      onError={(msg) => window.alert(msg)}
+                    />
+                  ) : (
+                    <span className="text-sm text-amber-700">
+                      Contract file is listed but the record id is invalid. Fix{' '}
+                      <code className="text-xs">student_contracts.id</code> in the database (see{' '}
+                      <code className="text-xs">sql/fix_student_contracts_ids.sql</code>).
+                    </span>
+                  )
+                ) : (
+                  '—'
+                )}
+              </dd>
             </div>
             {contract.submission_date && (
               <div>
@@ -455,6 +487,34 @@ export function AdminStudentProfilePage() {
                 <dd className="text-sm text-slate-700">{contract.admin_comment}</dd>
               </div>
             )}
+          </dl>
+        </Card>
+      )}
+
+      {/* Report details (if submitted) */}
+      {data.report_submitted && (data.report_files?.length ?? 0) > 0 && (
+        <Card padding="lg" className="border-slate-200 bg-white">
+          <CardHeader title="Report details" />
+          <dl className="grid gap-2 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-slate-500">Files</dt>
+              <dd className="mt-1 flex flex-col gap-1">
+                {(data.report_files ?? []).map((filename, idx) => {
+                  const label = data.report_original_filenames?.[idx] ?? filename;
+                  return (
+                    <div key={`${filename}-${idx}`} className="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                      <ReportViewDownloadActions
+                        role="admin"
+                        storageFilename={filename}
+                        displayLabel={label}
+                        layout="actions-only"
+                        onError={(msg) => window.alert(msg)}
+                      />
+                    </div>
+                  );
+                })}
+              </dd>
+            </div>
           </dl>
         </Card>
       )}

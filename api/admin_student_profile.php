@@ -51,13 +51,26 @@ if ($ar && mysqli_num_rows($ar) === 1) {
     $assump = mysqli_fetch_assoc($ar);
 }
 
-// Contract (latest)
+// Contract (latest) — explicit shape so JSON always includes numeric `id` (raw fetch can omit/alias oddly on some setups)
 $contract = null;
 $cq = "SELECT id, original_filename, status, submission_date, admin_comment
        FROM student_contracts WHERE index_number='$idx' ORDER BY submission_date DESC LIMIT 1";
 $cr = mysqli_query($conn, $cq);
-if ($cr && mysqli_num_rows($cr) === 1) {
-    $contract = mysqli_fetch_assoc($cr);
+if ($cr && mysqli_num_rows($cr) > 0) {
+    $crow = mysqli_fetch_assoc($cr);
+    if (is_array($crow)) {
+        $rawId = $crow['id'] ?? $crow['ID'] ?? null;
+        $cid = $rawId !== null && $rawId !== '' ? (int)$rawId : 0;
+        if ($cid > 0) {
+            $contract = [
+                'id' => $cid,
+                'original_filename' => $crow['original_filename'] ?? '',
+                'status' => $crow['status'] ?? 'pending',
+                'submission_date' => $crow['submission_date'] ?? null,
+                'admin_comment' => $crow['admin_comment'] ?? null,
+            ];
+        }
+    }
 }
 
 // Orientation (summary for this student)
@@ -78,23 +91,67 @@ if ($lr && ($row = mysqli_fetch_assoc($lr))) {
     $logbook['latest_week'] = $row['max_week'] !== null ? (int)$row['max_week'] : null;
 }
 
-// Report: whether student has submitted
-$report_submitted = false;
-$uploads_dir = dirname(__DIR__) . '/submit_report/uploads';
-if (is_dir($uploads_dir)) {
-    $files = array_diff(scandir($uploads_dir), ['.', '..']);
-    $base_want = $index_number;
-    $base_alt = str_replace(['/', '\\'], ['_', '_'], $index_number);
-    foreach ($files as $f) {
-        $path = $uploads_dir . DIRECTORY_SEPARATOR . $f;
-        if (!is_file($path)) continue;
-        $base = pathinfo($f, PATHINFO_FILENAME);
-        if ($base === $base_want || $base === $base_alt) {
-            $report_submitted = true;
-            break;
+// Report: submitted flag + viewable filenames
+mysqli_query(
+    $conn,
+    "CREATE TABLE IF NOT EXISTS student_reports (
+      id INT(11) NOT NULL AUTO_INCREMENT,
+      student_name VARCHAR(255) NOT NULL,
+      index_number VARCHAR(100) NOT NULL,
+      report_files_json LONGTEXT NOT NULL,
+      original_filenames_json LONGTEXT NOT NULL,
+      submission_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+      admin_comment TEXT,
+      PRIMARY KEY (id),
+      UNIQUE KEY index_number_unique (index_number)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1"
+);
+
+$report_files = [];
+$report_original_filenames = [];
+
+// Table-driven (new) submissions
+$r = @mysqli_query(
+    $conn,
+    "SELECT report_files_json, original_filenames_json
+     FROM student_reports
+     WHERE index_number='$idx'
+     LIMIT 1"
+);
+if ($r && mysqli_num_rows($r) > 0) {
+    $row = mysqli_fetch_assoc($r);
+    $filesJson = $row['report_files_json'] ?? '[]';
+    $origJson = $row['original_filenames_json'] ?? '[]';
+
+    $decodedFiles = json_decode($filesJson, true);
+    if (is_array($decodedFiles)) $report_files = array_values(array_filter(array_map('strval', $decodedFiles)));
+
+    $decodedOrig = json_decode($origJson, true);
+    if (is_array($decodedOrig)) $report_original_filenames = array_values(array_filter(array_map('strval', $decodedOrig)));
+}
+
+// Legacy fallback (older uploads before the table existed)
+if (empty($report_files)) {
+    $uploads_dir = dirname(__DIR__) . '/submit_report/uploads';
+    if (is_dir($uploads_dir)) {
+        $files = array_diff(scandir($uploads_dir), ['.', '..']);
+        $base_want = $index_number;
+        $base_alt = str_replace(['/', '\\'], ['_', '_'], $index_number);
+        foreach ($files as $f) {
+            $path = $uploads_dir . DIRECTORY_SEPARATOR . $f;
+            if (!is_file($path)) continue;
+            $base = pathinfo($f, PATHINFO_FILENAME);
+            if ($base === $base_want || $base === $base_alt) {
+                $report_files[] = $f;
+                $report_original_filenames[] = $f;
+                break;
+            }
         }
     }
 }
+
+$report_submitted = !empty($report_files);
 
 $out = [
     'index_number' => $index_number,
@@ -104,6 +161,8 @@ $out = [
     'orientation' => $orientation,
     'logbook' => $logbook,
     'report_submitted' => $report_submitted,
+    'report_files' => $report_files,
+    'report_original_filenames' => $report_original_filenames,
 ];
 
 echo json_encode($out);
