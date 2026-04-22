@@ -1,5 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { useEffect, useMemo, useState } from 'react';
+import { api } from './services/api';
 
 // Layouts
 import { AdminLayout } from './layouts/AdminLayout';
@@ -64,6 +66,63 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
+type StudentRegistrationStatus = { registered: boolean };
+type StudentAssumptionStatus = { submitted?: boolean; registered?: boolean };
+
+function StudentOnboardingGuard({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  const isStudent = user?.role === 'student';
+
+  const [loading, setLoading] = useState(true);
+  const [getStartedComplete, setGetStartedComplete] = useState(false);
+
+  const allowedWhenIncomplete = useMemo(() => {
+    return new Set([
+      '/student',
+      '/student/instructions',
+      '/student/register',
+      '/student/assumption',
+      '/student/profile',
+    ]);
+  }, []);
+
+  const refresh = async () => {
+    if (!isStudent) return;
+    setLoading(true);
+    try {
+      const [reg, asm] = await Promise.all([
+        api.get<StudentRegistrationStatus>('/student/registration').catch(() => ({ registered: false })),
+        api.get<StudentAssumptionStatus>('/student/assumption').catch(() => ({ submitted: false })),
+      ]);
+      setGetStartedComplete(Boolean(reg?.registered) && Boolean(asm?.submitted));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isStudent) return;
+    refresh().catch(() => undefined);
+    const onUpdate = () => refresh().catch(() => undefined);
+    window.addEventListener('studentOnboardingUpdated', onUpdate);
+    return () => window.removeEventListener('studentOnboardingUpdated', onUpdate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStudent, user?.indexNumber]);
+
+  if (!isStudent) return <>{children}</>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+
+  if (!getStartedComplete) {
+    const path = location.pathname;
+    if (!allowedWhenIncomplete.has(path)) {
+      return <Navigate to="/student/instructions" replace />;
+    }
+  }
+
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <Routes>
@@ -121,7 +180,9 @@ export default function App() {
         path="/student"
         element={
           <ProtectedRoute role="student">
-            <StudentLayout />
+            <StudentOnboardingGuard>
+              <StudentLayout />
+            </StudentOnboardingGuard>
           </ProtectedRoute>
         }
       >

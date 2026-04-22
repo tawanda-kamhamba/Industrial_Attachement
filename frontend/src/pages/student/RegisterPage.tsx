@@ -98,6 +98,7 @@ export function RegisterPage() {
         setStatus('success');
         setMessage(res.message ?? 'Registration submitted successfully.');
         setData((prev) => (prev ? { ...prev, registered: true } : { registered: true }));
+        window.dispatchEvent(new Event('studentOnboardingUpdated'));
       } else {
         setStatus('error');
         setMessage(res.error ?? 'Registration failed.');

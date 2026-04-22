@@ -121,6 +121,9 @@ type StudentSupervisorResponse = {
   };
 };
 
+type StudentRegistrationStatus = { registered: boolean };
+type StudentAssumptionStatus = { submitted?: boolean; registered?: boolean };
+
 export function StudentDashboard() {
   const { user } = useAuth();
   const [query, setQuery] = useState('');
@@ -128,11 +131,26 @@ export function StudentDashboard() {
   const [assignedSupervisor, setAssignedSupervisor] = useState<StudentSupervisorResponse['assigned'] | null>(null);
   const [otherAssignedSupervisor, setOtherAssignedSupervisor] = useState<StudentSupervisorResponse['other_assigned'] | null>(null);
   const [cardsLoading, setCardsLoading] = useState(true);
+  const [onboardingLoading, setOnboardingLoading] = useState(true);
+  const [getStartedComplete, setGetStartedComplete] = useState(false);
   const photoVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(PROFILE_PHOTO_CACHE_KEY) ?? '' : '';
   const profilePhotoUrl = user?.role === 'student'
     ? `/api/student/profile/photo?t=${photoVersion}`
     : null;
   const initials = (user?.name ?? 'Student').trim().split(/\s+/).map((s) => s[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+  const refreshOnboarding = async () => {
+    setOnboardingLoading(true);
+    try {
+      const [reg, asm] = await Promise.all([
+        api.get<StudentRegistrationStatus>('/student/registration').catch(() => ({ registered: false })),
+        api.get<StudentAssumptionStatus>('/student/assumption').catch(() => ({ submitted: false })),
+      ]);
+      setGetStartedComplete(Boolean(reg?.registered) && Boolean(asm?.submitted));
+    } finally {
+      setOnboardingLoading(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +171,14 @@ export function StudentDashboard() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    refreshOnboarding().catch(() => undefined);
+    const onUpdate = () => refreshOnboarding().catch(() => undefined);
+    window.addEventListener('studentOnboardingUpdated', onUpdate);
+    return () => window.removeEventListener('studentOnboardingUpdated', onUpdate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredLinks = useMemo(() => {
@@ -381,6 +407,12 @@ export function StudentDashboard() {
           </p>
         </div>
 
+        {!onboardingLoading && !getStartedComplete ? (
+          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Finish the <span className="font-semibold">Get started</span> steps (Registration + Assumption of Duty) to unlock the other sections.
+          </div>
+        ) : null}
+
         {groupedLinks.length === 0 ? (
           <Card className="border border-slate-200 bg-white">
             <div className="text-center">
@@ -403,40 +435,71 @@ export function StudentDashboard() {
                 </div>
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {group.items.map((link) => (
-                    <Card
-                      key={link.to}
-                      className="group flex flex-col border border-slate-200 bg-white transition-all hover:border-primary-200 hover:shadow-md"
-                    >
-                      <div className="flex-1">
-                        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {link.category}
-                        </div>
-                        <h4 className="font-semibold text-slate-900 group-hover:text-primary-700 transition-colors">
-                          {link.label}
-                        </h4>
-                        <p className="mt-1.5 text-sm text-slate-500">{link.description}</p>
-                      </div>
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        {link.external ? (
-                          <a
-                            href={link.to}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                          >
-                            Open
-                            <span className="text-slate-400" aria-hidden>↗</span>
-                          </a>
-                        ) : (
-                          <Link to={link.to}>
-                            <Button variant="outline" size="sm">Open</Button>
-                          </Link>
-                        )}
-                        <span className="text-slate-300 group-hover:text-primary-300 transition-colors" aria-hidden>
-                          →
-                        </span>
-                      </div>
-                    </Card>
+                    (() => {
+                      const locked = !onboardingLoading && !getStartedComplete && link.category !== 'Get started';
+                      const cardClasses = locked
+                        ? 'border-slate-200 bg-white opacity-60'
+                        : 'border-slate-200 bg-white transition-all hover:border-primary-200 hover:shadow-md';
+
+                      const CardInner = (
+                        <>
+                          <div className="flex-1">
+                            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                              {link.category}
+                              {locked ? (
+                                <>
+                                  <span className="text-slate-400" aria-hidden>•</span>
+                                  <span className="text-amber-700">Locked</span>
+                                </>
+                              ) : null}
+                            </div>
+                            <h4 className="font-semibold text-slate-900 transition-colors">
+                              {link.label}
+                            </h4>
+                            <p className="mt-1.5 text-sm text-slate-500">{link.description}</p>
+                          </div>
+                          <div className="mt-4 flex items-center justify-between gap-3">
+                            <span
+                              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium ${
+                                locked
+                                  ? 'border-slate-200 bg-slate-50 text-slate-500'
+                                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                              }`}
+                            >
+                              {locked ? 'Complete Get started' : 'Open'}
+                            </span>
+                            <span className="text-slate-300 transition-colors" aria-hidden>
+                              →
+                            </span>
+                          </div>
+                        </>
+                      );
+
+                      return (
+                        <Card
+                          key={link.to}
+                          className={`group flex flex-col ${cardClasses}`}
+                        >
+                          {locked ? (
+                            <div
+                              className="flex h-full flex-col"
+                              aria-disabled="true"
+                              title="Complete Get started first"
+                            >
+                              {CardInner}
+                            </div>
+                          ) : link.external ? (
+                            <a href={link.to} target="_blank" rel="noopener noreferrer" className="flex h-full flex-col">
+                              {CardInner}
+                            </a>
+                          ) : (
+                            <Link to={link.to} className="flex h-full flex-col">
+                              {CardInner}
+                            </Link>
+                          )}
+                        </Card>
+                      );
+                    })()
                   ))}
                 </div>
               </div>

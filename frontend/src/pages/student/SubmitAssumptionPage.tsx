@@ -131,6 +131,7 @@ export function SubmitAssumptionPage() {
         setMessage(res.message ?? 'Assumption of duty form submitted successfully.');
         setSubmitted(true);
         setAssumption(form);
+        window.dispatchEvent(new Event('studentOnboardingUpdated'));
       } else {
         setStatus('error');
         setMessage(res.error ?? 'Submission failed.');
