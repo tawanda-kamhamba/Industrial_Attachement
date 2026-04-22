@@ -23,6 +23,24 @@ if ($first_name === '' || $last_name === '' || $index_number === '' || $password
     return;
 }
 
+$looks_like_alphanumeric = (bool)preg_match('/[A-Za-z]/', $index_number);
+if ($looks_like_alphanumeric) {
+    $col = mysqli_query($conn, "SHOW COLUMNS FROM registered_students LIKE 'index_number'");
+    if ($col) {
+        $col_row = mysqli_fetch_assoc($col) ?: [];
+        $type = strtolower((string)($col_row['Type'] ?? ''));
+        if ($type !== '' && (str_starts_with($type, 'int') || str_starts_with($type, 'bigint') || str_starts_with($type, 'smallint'))) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Registration number format not supported by current database schema.',
+                'hint' => "Fix: change registered_students.index_number from $type to VARCHAR (e.g. VARCHAR(50)) so values like '{$index_number}' do not become 0.",
+            ]);
+            return;
+        }
+    }
+}
+
 $idx = mysqli_real_escape_string($conn, $index_number);
 $check = mysqli_query($conn, "SELECT index_number FROM registered_students WHERE index_number='$idx' LIMIT 1");
 if ($check && mysqli_num_rows($check) > 0) {
@@ -36,9 +54,21 @@ $lname = mysqli_real_escape_string($conn, $last_name);
 $pwd = mysqli_real_escape_string($conn, $password);
 $insert = "INSERT INTO registered_students (first_name, last_name, index_number, password) VALUES ('$fname','$lname','$idx','$pwd')";
 
-if (mysqli_query($conn, $insert)) {
-    echo json_encode(['success' => true, 'message' => 'Registration successful. You can now sign in.']);
-} else {
+try {
+    if (mysqli_query($conn, $insert)) {
+        echo json_encode(['success' => true, 'message' => 'Registration successful. You can now sign in.']);
+        return;
+    }
+
+    $errno = mysqli_errno($conn);
+    $err = mysqli_error($conn);
+    error_log("registered_students insert failed (errno=$errno): $err");
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Unable to register. Please try again.']);
+} catch (mysqli_sql_exception $e) {
+    error_log("registered_students insert exception: " . $e->getMessage());
+    $is_local = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+    $debug = $is_local ? ['db_error' => $e->getMessage()] : [];
+    http_response_code(500);
+    echo json_encode(array_merge(['success' => false, 'error' => 'Unable to register. Please try again.'], $debug));
 }

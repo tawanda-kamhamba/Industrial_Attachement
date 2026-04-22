@@ -32,7 +32,7 @@ $last_name = $user_row['last_name'] ?? '';
 
 // GET: return current registration if any
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $q = "SELECT index_number, first_name, last_name, other_name, programme, level, session, faculty
+    $q = "SELECT index_number, first_name, last_name, other_name, programme, level, `session`, faculty
           FROM industrial_registration WHERE index_number='$idx' LIMIT 1";
     $res = mysqli_query($conn, $q);
     if (!$res || mysqli_num_rows($res) === 0) {
@@ -93,11 +93,17 @@ if ($check && mysqli_num_rows($check) > 0) {
     return;
 }
 
-$insert = "INSERT INTO industrial_registration (first_name, last_name, other_name, level, programme, session, faculty, index_number)
+$insert = "INSERT INTO industrial_registration (first_name, last_name, other_name, level, programme, `session`, faculty, index_number)
            VALUES ('$first_esc', '$last_esc', '$other_esc', '$level_esc', '$programme_esc', '$session_esc', '$faculty_esc', '$idx')";
 
 if (!mysqli_query($conn, $insert)) {
-    echo json_encode(['success' => false, 'error' => 'Registration failed. Please try again.']);
+    $errno = mysqli_errno($conn);
+    $err = mysqli_error($conn);
+    error_log("industrial_registration insert failed (errno=$errno): $err");
+
+    $is_local = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+    $debug = $is_local ? ['errno' => $errno, 'db_error' => $err] : [];
+    echo json_encode(array_merge(['success' => false, 'error' => 'Registration failed. Please try again.'], $debug));
     return;
 }
 

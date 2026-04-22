@@ -30,13 +30,18 @@ if(isset($_POST["btn_signin"])){
 }
 
 if(isset($_POST["btn_signup"])){
-  $reg_first_name = $_POST["txt_signup_firstname"];
-  $reg_last_name = $_POST["txt_signup_lastname"];
-  $reg_index_number = $_POST["txt_signup_indexnumber"];
-  $reg_password = $_POST["txt_signup_password"];
+  $reg_first_name = trim((string)($_POST["txt_signup_firstname"] ?? ""));
+  $reg_last_name = trim((string)($_POST["txt_signup_lastname"] ?? ""));
+  $reg_index_number = trim((string)($_POST["txt_signup_indexnumber"] ?? ""));
+  $reg_password = trim((string)($_POST["txt_signup_password"] ?? ""));
 
   if($reg_first_name !="" && $reg_last_name!="" && $reg_index_number!="" && $reg_password!=""){
-  $check_existence = "SELECT * FROM registered_students WHERE index_number='$reg_index_number'";
+  $reg_first_name_esc = mysqli_real_escape_string($conn, $reg_first_name);
+  $reg_last_name_esc = mysqli_real_escape_string($conn, $reg_last_name);
+  $reg_index_number_esc = mysqli_real_escape_string($conn, $reg_index_number);
+  $reg_password_esc = mysqli_real_escape_string($conn, $reg_password);
+
+  $check_existence = "SELECT * FROM registered_students WHERE index_number='$reg_index_number_esc'";
   $execute_check_existence = mysqli_query($conn,$check_existence);
   $data_existence = mysqli_num_rows($execute_check_existence);
 
@@ -45,7 +50,7 @@ if(isset($_POST["btn_signup"])){
       echo "<script>alert('$message')</script>";
 
   }else{
-    $register_student_query = "INSERT INTO registered_students (first_name,last_name,index_number,password) VALUES ('$reg_first_name','$reg_last_name','$reg_index_number','$reg_password')";
+    $register_student_query = "INSERT INTO registered_students (first_name,last_name,index_number,password) VALUES ('$reg_first_name_esc','$reg_last_name_esc','$reg_index_number_esc','$reg_password_esc')";
     if($execute_register_student = mysqli_query($conn,$register_student_query)){
 
       setcookie("student_first_name",$reg_first_name,time() + (86400 * 30),"/");
@@ -54,7 +59,12 @@ if(isset($_POST["btn_signup"])){
 
       header("Location:instructions_page/instructions_page.php");
     }else{
-      $error_message ="Unable to register due to errors";
+      $errno = mysqli_errno($conn);
+      $err = mysqli_error($conn);
+      error_log("registered_students insert failed (errno=$errno): $err");
+
+      $is_local = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+      $error_message = $is_local ? "Unable to register: ($errno) $err" : "Unable to register due to errors";
       echo "<script>alert('$error_message')</script>";
     }
   }
