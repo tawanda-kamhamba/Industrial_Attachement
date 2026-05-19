@@ -219,6 +219,12 @@ if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? ''
     exit;
 }
 
+// Route: supervisor final grades (elogbook/report marks + computed final)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'final-grades') {
+    require __DIR__ . '/supervisor_final_grades.php';
+    exit;
+}
+
 // Route: supervisor student profile (full details for one assigned student)
 if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'student-profile' && !empty($segments[2])) {
     require __DIR__ . '/supervisor_student_profile.php';
@@ -270,6 +276,18 @@ if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? ''
 // Route: supervisor assessment passwords (GET status, POST set visiting/company password)
 if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'assessment-passwords') {
     require __DIR__ . '/supervisor_assessment_passwords.php';
+    exit;
+}
+
+// Route: supervisor notifications (GET)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'notifications' && ($segments[2] ?? '') === '') {
+    require __DIR__ . '/supervisor_notifications.php';
+    exit;
+}
+
+// Route: supervisor notifications mark-read (POST)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'notifications' && ($segments[2] ?? '') === 'mark-read') {
+    require __DIR__ . '/supervisor_notifications_mark_read.php';
     exit;
 }
 

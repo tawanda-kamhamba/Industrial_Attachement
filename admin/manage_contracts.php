@@ -65,13 +65,18 @@ if (isset($_POST['action'])) {
             $alert_type = "danger";
         }
     } elseif ($action == 'reject') {
-        $update_query = "UPDATE student_contracts SET status='rejected', admin_comment='$admin_comment' WHERE id=$contract_id";
-        if (mysqli_query($conn, $update_query)) {
-            $message = "Contract rejected.";
-            $alert_type = "info";
-        } else {
-            $message = "Error updating contract.";
+        if (trim($_POST['admin_comment'] ?? '') === '') {
+            $message = "Rejection reason is required.";
             $alert_type = "danger";
+        } else {
+            $update_query = "UPDATE student_contracts SET status='rejected', admin_comment='$admin_comment' WHERE id=$contract_id";
+            if (mysqli_query($conn, $update_query)) {
+                $message = "Contract rejected.";
+                $alert_type = "info";
+            } else {
+                $message = "Error updating contract.";
+                $alert_type = "danger";
+            }
         }
     }
     

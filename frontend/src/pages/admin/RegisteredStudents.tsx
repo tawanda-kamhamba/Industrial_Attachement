@@ -4,6 +4,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { ClassGradeBadge, MarkCell } from '@/components/ClassGradeBadge';
 
 interface StudentRow {
   index_number: string;
@@ -12,6 +13,8 @@ interface StudentRow {
   programme: string;
   level: string;
   session: string;
+  final_mark: number | null;
+  letter_grade: string | null;
 }
 
 const columns: Column<StudentRow>[] = [
@@ -43,6 +46,18 @@ const columns: Column<StudentRow>[] = [
   { key: 'programme', header: 'Programme' },
   { key: 'level', header: 'Level' },
   { key: 'session', header: 'Session' },
+  {
+    key: 'final_mark',
+    header: 'Final mark',
+    align: 'center',
+    render: (row) => <MarkCell value={row.final_mark} />,
+  },
+  {
+    key: 'letter_grade',
+    header: 'Class',
+    align: 'center',
+    render: (row) => <ClassGradeBadge grade={row.letter_grade} />,
+  },
   {
     key: 'actions',
     header: 'Actions',

@@ -12,7 +12,10 @@ interface ContractStatus {
   submission_date?: string | null;
   original_filename?: string;
   admin_comment?: string;
+  can_resubmit?: boolean;
 }
+
+const loadContractStatus = () => api.get<ContractStatus>('/student/contract');
 
 export function SubmitContractPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -23,12 +26,16 @@ export function SubmitContractPage() {
   const [status, setStatus] = useState<StatusType>('idle');
   const [message, setMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    api
-      .get<ContractStatus>('/student/contract')
+  const refreshStatus = () => {
+    setLoadingStatus(true);
+    return loadContractStatus()
       .then((data) => setContractStatus(data))
       .catch(() => setContractStatus({ submitted: false }))
       .finally(() => setLoadingStatus(false));
+  };
+
+  useEffect(() => {
+    refreshStatus().catch(() => undefined);
   }, []);
 
   const handleChooseFile = () => {
@@ -86,12 +93,7 @@ export function SubmitContractPage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      setContractStatus({
-        submitted: true,
-        status: 'pending',
-        submission_date: new Date().toISOString(),
-        original_filename: file.name,
-      });
+      await refreshStatus();
     } catch (err) {
       console.error(err);
       setStatus('error');
@@ -121,8 +123,8 @@ export function SubmitContractPage() {
           Submit Industrial Attachment Contract
         </h1>
         <p className="mt-2 text-primary-100 max-w-2xl text-sm md:text-base">
-          Upload a signed copy of your industrial attachment contract. Once submitted, the contract will be
-          reviewed by the administration and cannot be changed.
+          Upload a signed copy of your industrial attachment contract. It will be reviewed by your supervisor
+          or the administration.
         </p>
       </div>
 
@@ -134,7 +136,7 @@ export function SubmitContractPage() {
 
       {loadingStatus ? (
         <p className="text-slate-500">Loading contract status…</p>
-      ) : contractStatus?.submitted ? (
+      ) : contractStatus?.submitted && !contractStatus.can_resubmit ? (
         <Card padding="lg" className="bg-white">
           <h2 className="text-lg font-semibold text-slate-800">Contract submission status</h2>
           <p className="mt-2 text-slate-600">You have already submitted your industrial attachment contract.</p>
@@ -158,20 +160,41 @@ export function SubmitContractPage() {
               <span className="text-sm text-slate-500">File: {contractStatus.original_filename}</span>
             )}
           </div>
-          {contractStatus.admin_comment && (
+          {contractStatus.status === 'rejected' && contractStatus.admin_comment ? (
+            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+              <p className="font-semibold">Reason for rejection</p>
+              <p className="mt-1 whitespace-pre-wrap">{contractStatus.admin_comment}</p>
+            </div>
+          ) : contractStatus.admin_comment ? (
             <p className="mt-3 text-sm text-slate-600">
-              <span className="font-medium">Admin comment:</span> {contractStatus.admin_comment}
+              <span className="font-medium">Reviewer comment:</span> {contractStatus.admin_comment}
             </p>
-          )}
+          ) : null}
           <p className="mt-3 text-sm text-slate-500">
             {contractStatus.status === 'approved'
               ? 'Your contract has been approved. You may proceed with your industrial attachment.'
               : contractStatus.status === 'rejected'
-              ? 'Your contract was rejected. Please contact the administration for more details.'
+              ? 'Your contract was rejected. Review the reason above. If resubmission was enabled, use the form below.'
               : 'Your contract is being reviewed. You will be notified once it is approved.'}
           </p>
         </Card>
-      ) : (
+      ) : null}
+
+      {contractStatus?.submitted && contractStatus.can_resubmit ? (
+        <Card padding="lg" className="border-amber-200 bg-amber-50/50">
+          <h2 className="text-lg font-semibold text-amber-900">Resubmission requested</h2>
+          <p className="mt-2 text-sm text-amber-900/90">
+            Your supervisor or administrator has asked you to upload a new contract PDF. Use the form below.
+          </p>
+          {contractStatus.admin_comment ? (
+            <p className="mt-2 text-sm text-amber-950">
+              <span className="font-medium">Note:</span> {contractStatus.admin_comment}
+            </p>
+          ) : null}
+        </Card>
+      ) : null}
+
+      {!loadingStatus && (!contractStatus?.submitted || contractStatus.can_resubmit) ? (
       <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <Card padding="lg" className="flex flex-col justify-between bg-white">
           <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center hover:border-primary-300 hover:bg-primary-50/40">
@@ -179,7 +202,7 @@ export function SubmitContractPage() {
               <span className="text-2xl">⬆</span>
             </div>
             <h2 className="mt-4 text-lg font-semibold text-slate-800">
-              Select Contract PDF to Upload
+              {contractStatus?.can_resubmit ? 'Upload replacement contract PDF' : 'Select Contract PDF to Upload'}
             </h2>
             <p className="mt-2 text-sm text-slate-500">
               Supported format: <span className="font-medium">PDF</span> only. Maximum size{' '}
@@ -225,7 +248,10 @@ export function SubmitContractPage() {
               <li>• Contract must be signed by the student, company supervisor, and institution representative.</li>
               <li>• Ensure all required terms and conditions are included.</li>
               <li className="text-amber-700">
-                • <span className="font-semibold">Important:</span> Once submitted, the contract cannot be changed.
+                • <span className="font-semibold">Important:</span>{' '}
+                {contractStatus?.can_resubmit
+                  ? 'This will replace your previous upload and reset review to pending.'
+                  : 'After submission, changes require supervisor or admin approval to resubmit.'}
               </li>
             </ul>
           </Card>
@@ -238,12 +264,16 @@ export function SubmitContractPage() {
               </p>
             </div>
             <Button type="submit" size="lg" disabled={uploading} className="whitespace-nowrap">
-              {uploading ? 'Submitting…' : 'Submit Contract'}
+              {uploading
+                ? 'Submitting…'
+                : contractStatus?.can_resubmit
+                ? 'Resubmit Contract'
+                : 'Submit Contract'}
             </Button>
           </Card>
         </div>
       </form>
-      )}
+      ) : null}
     </div>
   );
 }

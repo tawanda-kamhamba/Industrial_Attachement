@@ -3,6 +3,7 @@
  * Admin reports list.
  * Reports are stored in student_reports table and actual files live in submit_report/uploads/.
  */
+require_once __DIR__ . '/grading_helpers.php';
 
 // Ensure table exists (same schema as upload endpoint).
 mysqli_query(
@@ -47,6 +48,8 @@ if ($res) {
             }
             $list[] = [
                 'name' => $filename,
+                'index_number' => $idx,
+                'student_name' => $row['student_name'] ?? '',
                 'size' => filesize($path),
                 'modified' => date('Y-m-d H:i:s', filemtime($path)),
             ];
@@ -76,5 +79,9 @@ if (empty($list) && is_dir($uploadsDir)) {
 usort($list, function ($a, $b) {
     return strcmp($b['modified'], $a['modified']);
 });
+
+$indexes = array_values(array_unique(array_filter(array_column($list, 'index_number'))));
+$grades = iasms_load_final_grades_for_indexes($conn, $indexes);
+iasms_attach_grades_to_rows($list, $grades);
 
 echo json_encode($list);

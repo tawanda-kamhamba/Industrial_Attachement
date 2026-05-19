@@ -4,16 +4,21 @@ import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
+import { ContractRejectDialog } from '@/components/ContractRejectDialog';
+import { ContractResubmitDialog } from '@/components/ContractResubmitDialog';
+import {
+  ContractStatusActions,
+  type ContractAction,
+  type ContractActionRow,
+} from '@/components/ContractStatusActions';
 
-interface ContractRow {
-  id: number;
-  index_number: string;
-  student_name: string;
-  status: string;
+interface ContractRow extends ContractActionRow {
   submission_date: string | null;
   admin_comment: string;
   original_filename: string;
 }
+
+type DialogTarget = { id: number; studentLabel: string };
 
 export function SupervisorContracts() {
   const [rows, setRows] = useState<ContractRow[]>([]);
@@ -21,6 +26,8 @@ export function SupervisorContracts() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<DialogTarget | null>(null);
+  const [resubmitTarget, setResubmitTarget] = useState<DialogTarget | null>(null);
 
   const fetchContracts = () => {
     setLoading(true);
@@ -36,10 +43,20 @@ export function SupervisorContracts() {
     fetchContracts();
   }, [statusFilter]);
 
-  const handleAction = async (contractId: number, action: 'approve' | 'reject') => {
+  const studentLabel = (row: ContractActionRow) =>
+    `${row.student_name || 'Student'} (${row.index_number})`;
+
+  const handleAction = async (contractId: number, action: ContractAction, comment = '') => {
     setActionLoading(contractId);
+    setError(null);
     try {
-      await api.post('/supervisor/contracts', { action, contract_id: contractId, comment: '' });
+      await api.post('/supervisor/contracts', {
+        action,
+        contract_id: contractId,
+        comment,
+      });
+      setRejectTarget(null);
+      setResubmitTarget(null);
       fetchContracts();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Action failed');
@@ -87,6 +104,16 @@ export function SupervisorContracts() {
             })
           : '-',
     },
+    {
+      key: 'admin_comment',
+      header: 'Comment / reason',
+      render: (row) =>
+        row.admin_comment ? (
+          <span className="text-sm text-slate-700">{row.admin_comment}</span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        ),
+    },
   ];
 
   const columnsWithActions: Column<ContractRow>[] = [
@@ -95,40 +122,54 @@ export function SupervisorContracts() {
       key: 'actions',
       header: 'Actions',
       align: 'center',
-      render: (row) =>
-        row.status === 'pending' ? (
-          <span className="flex justify-center gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={actionLoading !== null}
-              onClick={() => handleAction(row.id, 'approve')}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={actionLoading !== null}
-              onClick={() => handleAction(row.id, 'reject')}
-            >
-              Reject
-            </Button>
-          </span>
-        ) : (
-          <span className="text-slate-500 text-xs capitalize">{row.status}</span>
-        ),
+      render: (row) => (
+        <ContractStatusActions
+          row={row}
+          loading={actionLoading !== null}
+          onAction={handleAction}
+          onRejectClick={(r) =>
+            setRejectTarget({ id: r.id, studentLabel: studentLabel(r) })
+          }
+          onAllowResubmitClick={(r) =>
+            setResubmitTarget({ id: r.id, studentLabel: studentLabel(r) })
+          }
+        />
+      ),
     },
   ];
 
   return (
     <div className="space-y-6">
+      <ContractRejectDialog
+        open={rejectTarget !== null}
+        studentLabel={rejectTarget?.studentLabel}
+        submitting={rejectTarget !== null && actionLoading === rejectTarget.id}
+        onCancel={() => {
+          if (actionLoading === null) setRejectTarget(null);
+        }}
+        onConfirm={(reason) => {
+          if (rejectTarget) handleAction(rejectTarget.id, 'reject', reason);
+        }}
+      />
+      <ContractResubmitDialog
+        open={resubmitTarget !== null}
+        studentLabel={resubmitTarget?.studentLabel}
+        submitting={resubmitTarget !== null && actionLoading === resubmitTarget.id}
+        onCancel={() => {
+          if (actionLoading === null) setResubmitTarget(null);
+        }}
+        onConfirm={(note) => {
+          if (resubmitTarget) handleAction(resubmitTarget.id, 'allow_resubmit', note);
+        }}
+      />
+
       <div>
         <h1 className="text-2xl font-display font-bold text-slate-900">Student Contracts</h1>
         <p className="mt-1 text-slate-500">
-          View and approve contracts submitted by students assigned to you.
+          Review contracts, change status, or allow students to upload again.
         </p>
       </div>
+
       <Card>
         <CardHeader title="Contracts" />
         <div className="mb-4 flex items-center gap-3 px-4 pt-3">
@@ -163,4 +204,3 @@ export function SupervisorContracts() {
     </div>
   );
 }
-

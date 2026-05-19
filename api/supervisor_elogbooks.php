@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/supervisor_helpers.php';
+require_once __DIR__ . '/grading_helpers.php';
 
 if (($_SESSION['role'] ?? '') !== 'supervisor') {
     http_response_code(401);
@@ -40,6 +41,14 @@ while ($row = mysqli_fetch_assoc($res)) {
         'last_updated' => $row['last_updated'] ?? null,
     ];
 }
+
+$indexes = array_column($list, 'index_number');
+$grades = iasms_load_final_grades_for_indexes(
+    $conn,
+    $indexes,
+    str_replace(' ', '', (string)($_SESSION['name'] ?? '')) ?: null
+);
+iasms_attach_grades_to_rows($list, $grades);
 
 echo json_encode($list);
 

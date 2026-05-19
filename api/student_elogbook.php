@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/notification_helpers.php';
+
 // POST: save or update e-logbook entry for current student (session required)
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     echo json_encode(['error' => 'Unauthorized']);
@@ -41,13 +43,6 @@ $thursday_job = mysqli_real_escape_string($conn, $body['thursday_job_assigned'] 
 $thursday_skill = mysqli_real_escape_string($conn, $body['thursday_skill_acquired'] ?? '');
 $friday_job = mysqli_real_escape_string($conn, $body['friday_job_assigned'] ?? '');
 $friday_skill = mysqli_real_escape_string($conn, $body['friday_skill_acquired'] ?? '');
-
-if ($monday_job === '' || $monday_skill === '' || $tuesday_job === '' || $tuesday_skill === '' ||
-    $wednesday_job === '' || $wednesday_skill === '' || $thursday_job === '' || $thursday_skill === '' ||
-    $friday_job === '' || $friday_skill === '') {
-    echo json_encode(['success' => false, 'error' => 'All fields are required']);
-    return;
-}
 
 $check = mysqli_query($conn, "SELECT id FROM elogbook_entries WHERE index_number='$idx' AND week_number=$week_number LIMIT 1");
 $exists = $check && mysqli_num_rows($check) > 0;

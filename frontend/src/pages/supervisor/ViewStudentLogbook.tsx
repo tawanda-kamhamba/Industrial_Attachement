@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { SUPERVISOR_ELOGBOOK_COMMENT_TEMPLATES } from '@/constants/supervisorElogbookCommentTemplates';
 
 interface LogbookEntry {
   id: number;
@@ -101,6 +102,16 @@ export function ViewStudentLogbook() {
 
   const entries = data.entries ?? [];
 
+  const applyCommentTemplate = (weekNumber: number, templateText: string) => {
+    setCommentDrafts((prev) => {
+      const current = (prev[weekNumber] ?? '').trim();
+      const nextText =
+        current.length > 0 ? `${current}\n\n${templateText}` : templateText;
+      return { ...prev, [weekNumber]: nextText };
+    });
+    setCommentError(null);
+  };
+
   const submitSupervisorComment = async (weekNumber: unknown) => {
     const parsedWeek = typeof weekNumber === 'number' ? weekNumber : Number.parseInt(String(weekNumber), 10);
     if (!Number.isFinite(parsedWeek) || parsedWeek < 1) {
@@ -197,6 +208,22 @@ export function ViewStudentLogbook() {
                   <label className="text-sm font-medium text-slate-700" htmlFor={`sup-comment-${entry.week_number}`}>
                     Supervisor comment (Week {entry.week_number})
                   </label>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-slate-500">Quick comments</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {SUPERVISOR_ELOGBOOK_COMMENT_TEMPLATES.map((template) => (
+                        <button
+                          key={template.label}
+                          type="button"
+                          title={template.text}
+                          onClick={() => applyCommentTemplate(entry.week_number, template.text)}
+                          className="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 transition hover:border-primary-400 hover:bg-primary-50 hover:text-primary-800"
+                        >
+                          {template.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <textarea
                     id={`sup-comment-${entry.week_number}`}
                     value={commentDrafts[entry.week_number] ?? (entry.supervisor_comment ?? '')}
