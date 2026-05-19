@@ -25,13 +25,14 @@ export function AdminLayout() {
     <div className="min-h-screen bg-slate-50">
       <div className="no-print">
         <TopBar
+          pinned
           displayName={user?.name ?? 'Admin'}
           onLogout={logout}
         />
         <Sidebar items={adminSidebarItems} basePath="/admin" onLogout={logout} />
       </div>
-      <main className="pl-56 pt-14 min-h-screen">
-        <div className="p-6">
+      <main className="ml-56 min-h-screen pt-14">
+        <div className="px-6 pb-6 pt-3">
           <Outlet />
         </div>
       </main>

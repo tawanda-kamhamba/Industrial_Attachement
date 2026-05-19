@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/notification_helpers.php';
+
 $index_number = isset($segments[1]) ? urldecode($segments[1]) : '';
 if ($index_number === '') {
     echo json_encode(['error' => 'Index number required']);
@@ -51,4 +53,12 @@ while ($row = mysqli_fetch_assoc($res)) {
         'updated_at' => $row['updated_at'] ?? null,
     ];
 }
+if (
+    isset($_SESSION['role'], $_SESSION['index_number'])
+    && $_SESSION['role'] === 'student'
+    && $_SESSION['index_number'] === $index_number
+) {
+    iasms_ensure_elogbook_missing_reminders($conn, $index_number);
+}
+
 echo json_encode(['index_number' => $index_number, 'entries' => $entries]);

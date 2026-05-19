@@ -4,6 +4,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { MarkCell } from '@/components/ClassGradeBadge';
 
 interface LogbookRow {
   index_number: string;
@@ -11,6 +12,7 @@ interface LogbookRow {
   total_weeks: number;
   first_submission: string | null;
   last_updated: string | null;
+  elogbook_mark: number | null;
 }
 
 const columns: Column<LogbookRow>[] = [
@@ -18,7 +20,13 @@ const columns: Column<LogbookRow>[] = [
   { key: 'student_name', header: 'Student Name' },
   { key: 'total_weeks', header: 'Weeks Completed' },
   {
-    key: 'index_number',
+    key: 'elogbook_mark',
+    header: 'Final e-logbook mark',
+    align: 'center',
+    render: (row) => <MarkCell value={row.elogbook_mark} />,
+  },
+  {
+    key: 'view',
     header: 'View',
     align: 'center',
     render: (row) => (

@@ -103,7 +103,7 @@ export function InstructionsPage() {
   const translateX = -slideIndex * SLIDE_STEP;
 
   return (
-    <div className="-m-6 min-h-screen bg-surface text-slate-800" ref={containerRef} tabIndex={0}>
+    <div className="-mx-6 -mb-6 -mt-3 min-h-screen bg-surface text-slate-800" ref={containerRef} tabIndex={0}>
       {/* Hero / banner */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-slate-50 px-6 pt-8 pb-12 border-b border-slate-200">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(0,112,196,0.08),transparent)]" />

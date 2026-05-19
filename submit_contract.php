@@ -11,6 +11,7 @@ if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] === 'http://localh
 }
 
 include 'database_connection/database_connection.php';
+require_once __DIR__ . '/api/notification_helpers.php';
 
 $student_fname = $_COOKIE["student_first_name"];
 $student_lname = $_COOKIE["student_last_name"];
@@ -61,6 +62,13 @@ if(isset($_POST["submit_contract"])){
                                    VALUES ('$student_full_name', '$student_index_number', '$upload_path', '$file_name', 'pending')";
 
                     if(mysqli_query($conn, $insert_query)){
+                        $contract_id = (int)mysqli_insert_id($conn);
+                        iasms_notify_supervisors_contract_submitted(
+                            $conn,
+                            $student_index_number,
+                            $student_full_name,
+                            $contract_id > 0 ? $contract_id : null
+                        );
                         $message = "Contract submitted successfully! Your contract is pending approval.";
                         $status = "success";
                         $has_submitted = true;

@@ -117,6 +117,12 @@ export function SupervisorScoresPage() {
         <p className="mt-1 text-slate-500">
           Company supervisor scores (read-only) and your first/second visit scores for assigned students.
         </p>
+        <Link
+          to="/supervisor/final-grades"
+          className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
+        >
+          Enter e-logbook & report marks and view final grades →
+        </Link>
       </div>
       <Card>
         <CardHeader title="Scores by student" />

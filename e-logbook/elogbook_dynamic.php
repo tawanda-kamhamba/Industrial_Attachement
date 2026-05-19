@@ -26,16 +26,12 @@ if(isset($_POST["btn_save"]) || isset($_POST["btn_update"])){
     $friday_job_assigned = $_POST["job_assigned_5"] ?? "";
     $friday_skill_acquired = $_POST["skill_acquired_5"] ?? "";
 
-    if($monday_job_assigned!=""&& $monday_skill_acquired!=""&& $tuesday_job_assigned!=""
-    &&$tuesday_skill_acquired!=""&&$wednesday_job_assigned!=""&&$wednesday_skill_acquired!=""
-    &&$thursday_job_assigned!=""&&$thursday_skill_acquired!=""&&$friday_job_assigned!=""&&$friday_skill_acquired!=""){
+    // Check if entry exists
+    $check_query = "SELECT id FROM elogbook_entries WHERE index_number='$student_index_number' AND week_number='$current_week'";
+    $check_result = mysqli_query($conn, $check_query);
+    $exists = mysqli_num_rows($check_result) > 0;
 
-        // Check if entry exists
-        $check_query = "SELECT id FROM elogbook_entries WHERE index_number='$student_index_number' AND week_number='$current_week'";
-        $check_result = mysqli_query($conn, $check_query);
-        $exists = mysqli_num_rows($check_result) > 0;
-
-        if($exists && isset($_POST["btn_update"])){
+    if($exists && isset($_POST["btn_update"])){
             // Update existing entry
             $update_query = "UPDATE elogbook_entries SET
                 monday_job_assigned='$monday_job_assigned',
@@ -75,10 +71,12 @@ if(isset($_POST["btn_save"]) || isset($_POST["btn_update"])){
                 $message = "Error saving week $current_week.";
                 $status = "error";
             }
-        }
-    } else {
-        $message = "You need to fill all fields";
-        $status = "error";
+    } elseif($exists && isset($_POST["btn_save"])){
+        $message = "Week $current_week already exists. Use Update to save changes.";
+        $status = "warning";
+    } elseif(!$exists && isset($_POST["btn_update"])){
+        $message = "No data for week $current_week yet. Use Save to create an entry.";
+        $status = "warning";
     }
 }
 

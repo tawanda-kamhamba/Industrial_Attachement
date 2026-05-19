@@ -4,17 +4,22 @@ import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
+import { ContractRejectDialog } from '@/components/ContractRejectDialog';
+import { ContractResubmitDialog } from '@/components/ContractResubmitDialog';
+import {
+  ContractStatusActions,
+  type ContractAction,
+  type ContractActionRow,
+} from '@/components/ContractStatusActions';
 
-interface ContractRow {
-  id: number;
-  index_number: string;
-  student_name: string;
-  status: string;
+interface ContractRow extends ContractActionRow {
   submission_date: string | null;
   admin_comment: string;
   original_filename: string;
   contract_file: string;
 }
+
+type DialogTarget = { id: number; studentLabel: string };
 
 export function ManageContracts() {
   const [rows, setRows] = useState<ContractRow[]>([]);
@@ -22,6 +27,8 @@ export function ManageContracts() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<DialogTarget | null>(null);
+  const [resubmitTarget, setResubmitTarget] = useState<DialogTarget | null>(null);
 
   const fetchContracts = () => {
     setLoading(true);
@@ -37,7 +44,10 @@ export function ManageContracts() {
     fetchContracts();
   }, [statusFilter]);
 
-  const handleAction = async (contractId: number, action: 'approve' | 'reject') => {
+  const studentLabel = (row: ContractActionRow) =>
+    `${row.student_name || 'Student'} (${row.index_number})`;
+
+  const postAction = async (contractId: number, action: ContractAction, adminComment = '') => {
     const id = Number(contractId);
     if (!Number.isInteger(id) || id < 1) {
       setError('Invalid contract id. Please refresh the page.');
@@ -46,12 +56,11 @@ export function ManageContracts() {
     setActionLoading(contractId);
     setError(null);
     try {
-      // Send in URL so backend gets them even if POST body is not forwarded (e.g. dev proxy)
       const query = `?contract_id=${id}&action=${encodeURIComponent(action)}`;
       const form = new URLSearchParams();
       form.set('contract_id', String(id));
       form.set('action', action);
-      form.set('admin_comment', '');
+      form.set('admin_comment', adminComment);
       const res = await fetch(`/api/admin/contracts${query}`, {
         method: 'POST',
         credentials: 'include',
@@ -65,6 +74,8 @@ export function ManageContracts() {
       if (!data.success) {
         throw new Error(data.error || 'Action failed');
       }
+      setRejectTarget(null);
+      setResubmitTarget(null);
       fetchContracts();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Action failed');
@@ -94,6 +105,16 @@ export function ManageContracts() {
           row.original_filename
         ),
     },
+    {
+      key: 'admin_comment',
+      header: 'Comment / reason',
+      render: (row) =>
+        row.admin_comment ? (
+          <span className="text-sm text-slate-700">{row.admin_comment}</span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        ),
+    },
   ];
 
   const columnsWithActions: Column<ContractRow>[] = [
@@ -103,37 +124,49 @@ export function ManageContracts() {
       header: 'Actions',
       align: 'center',
       render: (row) => (
-        row.status === 'pending' ? (
-          <span className="flex justify-center gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={actionLoading !== null}
-              onClick={() => handleAction(row.id, 'approve')}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={actionLoading !== null}
-              onClick={() => handleAction(row.id, 'reject')}
-            >
-              Reject
-            </Button>
-          </span>
-        ) : (
-          <span className="text-slate-500">{row.status}</span>
-        )
+        <ContractStatusActions
+          row={row}
+          loading={actionLoading !== null}
+          onAction={postAction}
+          onRejectClick={(r) =>
+            setRejectTarget({ id: r.id, studentLabel: studentLabel(r) })
+          }
+          onAllowResubmitClick={(r) =>
+            setResubmitTarget({ id: r.id, studentLabel: studentLabel(r) })
+          }
+        />
       ),
     },
   ];
 
   return (
     <div className="space-y-6">
+      <ContractRejectDialog
+        open={rejectTarget !== null}
+        studentLabel={rejectTarget?.studentLabel}
+        submitting={rejectTarget !== null && actionLoading === rejectTarget.id}
+        onCancel={() => {
+          if (actionLoading === null) setRejectTarget(null);
+        }}
+        onConfirm={(reason) => {
+          if (rejectTarget) postAction(rejectTarget.id, 'reject', reason);
+        }}
+      />
+      <ContractResubmitDialog
+        open={resubmitTarget !== null}
+        studentLabel={resubmitTarget?.studentLabel}
+        submitting={resubmitTarget !== null && actionLoading === resubmitTarget.id}
+        onCancel={() => {
+          if (actionLoading === null) setResubmitTarget(null);
+        }}
+        onConfirm={(note) => {
+          if (resubmitTarget) postAction(resubmitTarget.id, 'allow_resubmit', note);
+        }}
+      />
+
       <div>
         <h1 className="text-2xl font-display font-bold text-slate-900">View Contracts</h1>
-        <p className="mt-1 text-slate-500">Approve or reject student contracts</p>
+        <p className="mt-1 text-slate-500">Review contracts, change status, or allow resubmission</p>
       </div>
       <Card>
         <CardHeader title="Contracts" />
@@ -148,7 +181,9 @@ export function ManageContracts() {
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
-          <Button variant="outline" size="sm" onClick={fetchContracts}>Refresh</Button>
+          <Button variant="outline" size="sm" onClick={fetchContracts}>
+            Refresh
+          </Button>
         </div>
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (

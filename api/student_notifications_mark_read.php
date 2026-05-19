@@ -1,29 +1,15 @@
 <?php
 // Student notifications mark-read (POST): marks notifications as read for the currently logged-in student.
 
+require_once __DIR__ . '/notification_helpers.php';
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     echo json_encode(['error' => 'Unauthorized']);
     http_response_code(401);
     return;
 }
 
-// Ensure notifications table exists (older installs may not have it yet).
-$create = "CREATE TABLE IF NOT EXISTS student_notifications (
-    id INT(11) NOT NULL AUTO_INCREMENT,
-    recipient_index_number VARCHAR(100) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    message TEXT NULL,
-    week_number INT(11) NULL,
-    supervisor_name VARCHAR(255) NULL,
-    elogbook_entry_id INT(11) NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    read_at TIMESTAMP NULL DEFAULT NULL,
-    PRIMARY KEY (id),
-    INDEX idx_recipient (recipient_index_number),
-    INDEX idx_recipient_read (recipient_index_number, read_at)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1";
-@mysqli_query($conn, $create);
+iasms_ensure_student_notifications_table($conn);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

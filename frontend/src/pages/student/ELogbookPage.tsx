@@ -4,20 +4,13 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
-
-interface LogbookEntry {
+import type { ElogbookExportEntry } from '@/utils/elogbookFormat';
+import { printElogbook } from '@/utils/elogbookExport';
+interface LogbookEntry extends ElogbookExportEntry {
   id: number;
-  week_number: number;
-  monday_job_assigned: string;
-  monday_skill_acquired: string;
-  tuesday_job_assigned: string;
-  tuesday_skill_acquired: string;
-  wednesday_job_assigned: string;
-  wednesday_skill_acquired: string;
-  thursday_job_assigned: string;
-  thursday_skill_acquired: string;
-  friday_job_assigned: string;
-  friday_skill_acquired: string;
+  student_name?: string;
+  index_number?: string;
+  created_at?: string | null;
 }
 
 interface ElogbookResponse {
@@ -81,21 +74,26 @@ export function ELogbookPage() {
 
   const [currentWeek, setCurrentWeek] = useState(1);
   const [form, setForm] = useState(emptyWeek());
+  const [exporting, setExporting] = useState(false);
+  const [studentName, setStudentName] = useState('');
 
   useEffect(() => {
     if (!indexNumber) return;
     api
       .get<ElogbookResponse>(`/elogbook/${encodeURIComponent(indexNumber)}`)
       .then((res) => {
-        setEntries(res.entries ?? []);
-        const maxWeek = res.entries?.length
+        const list = res.entries ?? [];
+        setEntries(list);
+        const first = list[0];
+        setStudentName(first?.student_name ?? user?.name ?? '');
+        const maxWeek = list.length
           ? Math.max(...res.entries.map((e) => e.week_number))
           : 0;
         if (maxWeek >= 1) setCurrentWeek(maxWeek);
       })
       .catch(() => setEntries([]))
       .finally(() => setLoading(false));
-  }, [indexNumber]);
+  }, [indexNumber, user?.name]);
 
   const currentEntry = entries.find((e) => e.week_number === currentWeek);
 
@@ -134,15 +132,6 @@ export function ELogbookPage() {
       friday_skill_acquired: stripBulletPrefixes(form.friday_skill_acquired),
     };
 
-    const filled = DAYS.every(
-      (d) =>
-        (cleanedForm[d.jobKey as keyof typeof cleanedForm] as string)?.trim() &&
-        (cleanedForm[d.skillKey as keyof typeof cleanedForm] as string)?.trim()
-    );
-    if (!filled) {
-      setMessage({ type: 'error', text: 'All fields are required.' });
-      return;
-    }
     setSubmitting(true);
     setMessage(null);
     try {
@@ -198,14 +187,78 @@ export function ELogbookPage() {
     : [];
   const weekNumbers = Array.from(new Set([...weekNumbersFromEntries, currentWeek])).sort((a, b) => a - b);
   const hasCurrentWeekData = !!currentEntry;
+  const sortedEntries = [...entries].sort((a, b) => a.week_number - b.week_number);
+  const canExport = sortedEntries.length > 0;
+
+  const exportMeta = () => ({
+    studentName: studentName || user?.name || 'Student',
+    indexNumber,
+    entries: sortedEntries,
+  });
+
+  const handleDownloadPdf = async () => {
+    if (!canExport) return;
+    setExporting(true);
+    setMessage(null);
+    try {
+      const { downloadElogbookPdf } = await import('@/utils/elogbookPdfExport');
+      downloadElogbookPdf(exportMeta());
+      setMessage({ type: 'success', text: 'Your logbook PDF has been downloaded.' });
+    } catch (e) {
+      setMessage({ type: 'error', text: e instanceof Error ? e.message : 'PDF download failed.' });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handlePrint = () => {
+    if (!canExport) return;
+    setExporting(true);
+    setMessage(null);
+    try {
+      printElogbook(exportMeta());
+      setMessage({
+        type: 'success',
+        text: 'Print dialog opened. Choose your printer or “Save as PDF”, then confirm.',
+      });
+    } catch (e) {
+      setMessage({ type: 'error', text: e instanceof Error ? e.message : 'Could not open print dialog.' });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-display font-bold text-slate-900">E-Logbook</h1>
-        <Link to="/student">
-          <Button variant="outline" size="sm">Back to Dashboard</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!canExport || exporting}
+            onClick={() => {
+              handleDownloadPdf().catch(() => undefined);
+            }}
+            title={canExport ? 'Download all weeks as a PDF file' : 'Save at least one week first'}
+          >
+            {exporting ? 'Preparing PDF…' : 'Download PDF'}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!canExport || exporting}
+            onClick={handlePrint}
+            title={canExport ? 'Print or save as PDF via your browser' : 'Save at least one week first'}
+          >
+            Print
+          </Button>
+          <Link to="/student">
+            <Button variant="outline" size="sm">Back to Dashboard</Button>
+          </Link>
+        </div>
       </div>
 
       {message && (
@@ -242,6 +295,9 @@ export function ELogbookPage() {
 
       <Card className="p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-slate-800">Week {currentWeek}</h2>
+        <p className="mb-4 text-sm text-slate-600">
+          Fill in your daily job assigned and skill acquired for each day of the week.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="overflow-x-auto">
             <table className="min-w-full border border-slate-200 text-sm">

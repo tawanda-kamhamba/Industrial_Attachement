@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/supervisor_helpers.php';
+require_once __DIR__ . '/contract_helpers.php';
 
 if (($_SESSION['role'] ?? '') !== 'supervisor') {
     http_response_code(401);
@@ -23,32 +24,23 @@ $in_list = "'" . implode(
     )
 ) . "'";
 
-// POST: approve or reject contract (for assigned students only)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $raw = file_get_contents('php://input');
     $body = json_decode($raw, true) ?: [];
-    $action = $body['action'] ?? '';
+    $action = (string)($body['action'] ?? '');
     $contract_id = (int)($body['contract_id'] ?? 0);
-    $comment = isset($body['comment']) ? mysqli_real_escape_string($conn, (string)$body['comment']) : '';
+    $comment_raw = trim((string)($body['comment'] ?? $body['admin_comment'] ?? ''));
 
-    if ($contract_id < 1 || !in_array($action, ['approve', 'reject'], true)) {
-        echo json_encode(['success' => false, 'error' => 'Invalid action or contract id']);
-        return;
-    }
-
-    $status = $action === 'approve' ? 'approved' : 'rejected';
-
-    // Only update contracts belonging to assigned students
-    $q = "UPDATE student_contracts
-          SET status='$status', admin_comment='$comment'
-          WHERE id=$contract_id AND index_number IN ($in_list)";
-    if (mysqli_query($conn, $q) && mysqli_affected_rows($conn) > 0) {
+    $result = iasms_apply_contract_status_action($conn, $contract_id, $action, $comment_raw, $in_list);
+    if ($result['success']) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Update failed or not allowed']);
+        echo json_encode(['success' => false, 'error' => $result['error'] ?? 'Update failed']);
     }
     return;
 }
+
+iasms_ensure_student_contracts_columns($conn);
 
 $status = isset($_GET['status']) ? mysqli_real_escape_string($conn, (string)$_GET['status']) : '';
 $where = "index_number IN ($in_list)";
@@ -56,7 +48,7 @@ if ($status !== '') {
     $where .= " AND status = '$status'";
 }
 
-$q = "SELECT id, student_name, index_number, original_filename, status, submission_date, admin_comment
+$q = "SELECT id, student_name, index_number, original_filename, status, submission_date, admin_comment, allow_resubmit
       FROM student_contracts
       WHERE $where
       ORDER BY submission_date DESC
@@ -72,8 +64,8 @@ while ($row = mysqli_fetch_assoc($res)) {
         'status' => $row['status'] ?? 'pending',
         'submission_date' => $row['submission_date'] ?? null,
         'admin_comment' => $row['admin_comment'] ?? '',
+        'allow_resubmit' => (int)($row['allow_resubmit'] ?? 0) === 1,
     ];
 }
 
 echo json_encode($list);
-

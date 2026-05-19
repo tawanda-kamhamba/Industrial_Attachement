@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/supervisor_helpers.php';
+require_once __DIR__ . '/grading_helpers.php';
 
 if (($_SESSION['role'] ?? '') !== 'supervisor') {
     http_response_code(401);
@@ -99,6 +100,14 @@ if (empty($list) && is_dir($uploadsDir)) {
 usort($list, static function (array $a, array $b): int {
     return strcmp($b['modified'], $a['modified']);
 });
+
+$indexes = array_values(array_unique(array_filter(array_column($list, 'index_number'))));
+$grades = iasms_load_final_grades_for_indexes(
+    $conn,
+    $indexes,
+    str_replace(' ', '', (string)($_SESSION['name'] ?? '')) ?: null
+);
+iasms_attach_grades_to_rows($list, $grades);
 
 echo json_encode($list);
 

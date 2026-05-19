@@ -21,13 +21,14 @@ export function StudentLayout() {
   return (
     <div className="min-h-screen bg-surface">
       <TopBar
+        pinned
         displayName={user?.name ?? 'Student'}
         onLogout={logout}
         profileLink="/student/profile"
         profilePhotoUrl={profilePhotoUrl}
       />
-      <main className="pt-14 min-h-screen">
-        <div className="p-6">
+      <main className="min-h-screen pt-14">
+        <div className="px-6 pb-6 pt-3">
           <Outlet />
         </div>
       </main>

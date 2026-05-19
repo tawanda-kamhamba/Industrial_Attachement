@@ -8,6 +8,8 @@ interface TopBarProps {
   displayName: string;
   logoUrl?: string;
   onLogout?: () => void;
+  /** Keep header visible while scrolling (fixed to viewport top). */
+  pinned?: boolean;
   searchPlaceholder?: string;
   /** Link for avatar/name (e.g. /student/profile). When set, avatar and name are clickable. */
   profileLink?: string;
@@ -27,10 +29,25 @@ type StudentNotification = {
   read_at: string | null;
 };
 
+type SupervisorNotification = {
+  id: number;
+  type: string;
+  title: string;
+  message: string | null;
+  student_index_number: string | null;
+  student_name: string | null;
+  contract_id: number | null;
+  created_at: string | null;
+  read_at: string | null;
+};
+
+type InboxNotification = StudentNotification | SupervisorNotification;
+
 export function TopBar({
   displayName,
   logoUrl = '/img/header_log.png',
   onLogout,
+  pinned = false,
   searchPlaceholder = 'Search logbook, forms, and more',
   profileLink,
   profilePhotoUrl,
@@ -39,10 +56,12 @@ export function TopBar({
 
   const { user } = useAuth();
   const isStudent = user?.role === 'student';
+  const isSupervisor = user?.role === 'supervisor';
+  const hasNotifications = isStudent || isSupervisor;
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
-  const [notifications, setNotifications] = useState<StudentNotification[]>([]);
+  const [notifications, setNotifications] = useState<InboxNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const notifBoxRef = useRef<HTMLDivElement | null>(null);
 
@@ -53,21 +72,29 @@ export function TopBar({
   }, [unreadCount]);
 
   const loadNotifications = async () => {
-    if (!isStudent) return;
+    if (!hasNotifications) return;
     setLoadingNotifs(true);
     try {
-      const res = await api.get<{ unread_count: number; notifications: StudentNotification[] }>(
-        '/student/notifications'
-      );
-      setNotifications(res.notifications ?? []);
-      setUnreadCount(res.unread_count ?? 0);
+      if (isStudent) {
+        const res = await api.get<{ unread_count: number; notifications: StudentNotification[] }>(
+          '/student/notifications'
+        );
+        setNotifications(res.notifications ?? []);
+        setUnreadCount(res.unread_count ?? 0);
+      } else if (isSupervisor) {
+        const res = await api.get<{ unread_count: number; notifications: SupervisorNotification[] }>(
+          '/supervisor/notifications'
+        );
+        setNotifications(res.notifications ?? []);
+        setUnreadCount(res.unread_count ?? 0);
+      }
     } finally {
       setLoadingNotifs(false);
     }
   };
 
   useEffect(() => {
-    if (!isStudent) {
+    if (!hasNotifications) {
       setNotifications([]);
       setUnreadCount(0);
       setNotifOpen(false);
@@ -75,7 +102,7 @@ export function TopBar({
     }
     loadNotifications().catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStudent, user?.indexNumber]);
+  }, [hasNotifications, isStudent, isSupervisor, user?.indexNumber, user?.staffId]);
 
   useEffect(() => {
     if (!notifOpen) return;
@@ -89,9 +116,12 @@ export function TopBar({
   }, [notifOpen]);
 
   const markNotificationRead = async (id: number) => {
-    if (!isStudent) return;
+    if (!hasNotifications) return;
     try {
-      await api.post('/student/notifications/mark-read', { notification_ids: [id] });
+      const path = isStudent
+        ? '/student/notifications/mark-read'
+        : '/supervisor/notifications/mark-read';
+      await api.post(path, { notification_ids: [id] });
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
       );
@@ -99,6 +129,27 @@ export function TopBar({
     } catch {
       // Best-effort; don't block UI.
     }
+  };
+
+  const isStudentNotification = (n: InboxNotification): n is StudentNotification =>
+    !('student_index_number' in n);
+
+  const notificationMeta = (n: InboxNotification) => {
+    if (isStudentNotification(n)) {
+      return (
+        <>
+          {n.week_number ? <span>Week {n.week_number}</span> : null}
+          {n.supervisor_name ? <span>From {n.supervisor_name}</span> : null}
+        </>
+      );
+    }
+    const sn = n as SupervisorNotification;
+    return (
+      <>
+        {sn.student_name ? <span>{sn.student_name}</span> : null}
+        {sn.student_index_number ? <span>({sn.student_index_number})</span> : null}
+      </>
+    );
   };
 
   const avatarContent = profilePhotoUrl ? (
@@ -145,7 +196,11 @@ export function TopBar({
   );
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-slate-200 bg-white px-4 shadow-card">
+    <header
+      className={`${
+        pinned ? 'fixed top-0 left-0 right-0 z-50' : 'sticky top-0 z-40'
+      } flex h-14 items-center gap-4 border-b border-slate-200 bg-white px-4 shadow-card`}
+    >
       <div className="flex shrink-0 items-center">
         {logoUrl && (
           <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain" />
@@ -171,21 +226,20 @@ export function TopBar({
             title="Notifications"
             aria-label="Notifications"
             onClick={() => {
-              if (!isStudent) return;
+              if (!hasNotifications) return;
               setNotifOpen((o) => !o);
-              // Refresh when opening so the dropdown shows the latest comment.
               if (!notifOpen) loadNotifications().catch(() => undefined);
             }}
           >
             &#128276;
-            {isStudent && unreadCountText && (
+            {hasNotifications && unreadCountText && (
               <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-semibold leading-4 text-white">
                 {unreadCountText}
               </span>
             )}
           </button>
 
-          {isStudent && notifOpen && (
+          {hasNotifications && notifOpen && (
             <div className="absolute right-0 z-50 mt-2 w-[360px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
               <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
                 <div className="text-sm font-semibold text-slate-800">Notifications</div>
@@ -228,8 +282,7 @@ export function TopBar({
                             {n.message ?? ''}
                           </div>
                           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                            {n.week_number ? <span>Week {n.week_number}</span> : null}
-                            {n.supervisor_name ? <span>From {n.supervisor_name}</span> : null}
+                            {notificationMeta(n)}
                             {n.created_at ? <span>· {new Date(n.created_at).toLocaleString()}</span> : null}
                           </div>
                         </div>

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/grading_helpers.php';
+
 $filter = isset($_GET['filter']) ? mysqli_real_escape_string($conn, $_GET['filter']) : '';
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
@@ -28,4 +30,9 @@ while ($row = mysqli_fetch_assoc($res)) {
         'session' => $row['session'] ?? '',
     ];
 }
+
+$indexes = array_column($list, 'index_number');
+$grades = iasms_load_final_grades_for_indexes($conn, $indexes);
+iasms_attach_grades_to_rows($list, $grades);
+
 echo json_encode($list);
