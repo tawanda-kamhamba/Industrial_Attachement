@@ -12,6 +12,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'supervisor') {
     exit;
 }
 
+require_once __DIR__ . '/supervisor_helpers.php';
+
 // Ensure visit_number column exists on visiting_supervisor_grade (allows first and second visit scores)
 $colCheck = mysqli_query($conn, "SHOW COLUMNS FROM visiting_supervisor_grade LIKE 'visit_number'");
 if (!$colCheck || mysqli_num_rows($colCheck) === 0) {
@@ -28,19 +30,31 @@ if ($index_number === '') {
     exit;
 }
 
-$visit_number = (int)($body['visitNumber'] ?? 1);
+if (!iasms_supervisor_can_access_student_index($conn, $index_number)) {
+    echo json_encode(['error' => 'Student not assigned to you']);
+    http_response_code(403);
+    exit;
+}
+
+$visit_number = (int)($body['visitNumber'] ?? $body['visit_number'] ?? 1);
 if ($visit_number !== 1 && $visit_number !== 2) {
     $visit_number = 1;
 }
 
 $idx = mysqli_real_escape_string($conn, $index_number);
+if ($idx === false || $idx === '') {
+    echo json_encode(['error' => 'Invalid index number']);
+    http_response_code(400);
+    exit;
+}
 
 // Supervisor name (for username column)
 $supervisor_name = (string)($_SESSION['name'] ?? '');
 if ($supervisor_name === '') {
     $supervisor_name = 'Supervisor';
 }
-$user = mysqli_real_escape_string($conn, str_replace(' ', '', $supervisor_name));
+$supervisor_user = str_replace(' ', '', $supervisor_name);
+$user = mysqli_real_escape_string($conn, $supervisor_user);
 
 // Map body fields (mirrors student_supervisor_grade.php)
 $s1 = mysqli_real_escape_string($conn, (string)($body['specificSkill1'] ?? ''));
@@ -76,13 +90,24 @@ $grade_score = $s1v + $s2v + $s3v + $s4v + $s5v
 
 // Visiting supervisor only (institutional supervisor). Update existing row if this supervisor already scored this student+visit.
 $table = 'visiting_supervisor_grade';
-$col = 'visiting_supervisor_grade';
 
-$existing = mysqli_query($conn, "SELECT id FROM $table WHERE username='$user' AND user_index='$idx' AND visit_number=$visit_number LIMIT 1");
-$existingRow = $existing && mysqli_num_rows($existing) > 0 ? mysqli_fetch_assoc($existing) : null;
+// Resolve existing row by bound parameters (avoids quoting/encoding mismatches on user_index).
+$existingId = 0;
+$stmtFind = mysqli_prepare($conn, "SELECT id FROM `$table` WHERE username = ? AND user_index = ? AND visit_number = ? LIMIT 1");
+if (!$stmtFind) {
+    echo json_encode(['error' => 'Database error']);
+    http_response_code(500);
+    exit;
+}
+mysqli_stmt_bind_param($stmtFind, 'ssi', $supervisor_user, $index_number, $visit_number);
+mysqli_stmt_execute($stmtFind);
+mysqli_stmt_bind_result($stmtFind, $foundId);
+if (mysqli_stmt_fetch($stmtFind)) {
+    $existingId = (int)$foundId;
+}
+mysqli_stmt_close($stmtFind);
 
-if ($existingRow && isset($existingRow['id'])) {
-    $existingId = (int)$existingRow['id'];
+if ($existingId > 0) {
     $upd = "UPDATE `$table` SET
         `specific_skill_1`='$s1', `specific_skill_1_score`=$s1v,
         `specific_skill_2`='$s2', `specific_skill_2_score`=$s2v,
@@ -157,20 +182,33 @@ if ($existingRow && isset($existingRow['id'])) {
     }
 }
 
-// Update industrial_registration: visit 1 -> visiting_supervisor_grade, visit 2 -> visiting_supervisor_grade_2 (add column if missing)
-$chk = mysqli_query($conn, "SELECT 1 FROM industrial_registration WHERE index_number='$idx' LIMIT 1");
-if ($chk && mysqli_num_rows($chk) === 1) {
-    if ($visit_number === 1) {
-        mysqli_query($conn, "UPDATE industrial_registration SET `$col` = '$grade_score' WHERE index_number = '$idx'");
-    } else {
-        $col2Check = mysqli_query($conn, "SHOW COLUMNS FROM industrial_registration LIKE 'visiting_supervisor_grade_2'");
-        if (!$col2Check || mysqli_num_rows($col2Check) === 0) {
-            mysqli_query($conn, "ALTER TABLE industrial_registration ADD COLUMN visiting_supervisor_grade_2 INT(11) NULL DEFAULT NULL AFTER visiting_supervisor_grade");
+// Update industrial_registration for this student only (prepared + LIMIT 1).
+$stmtReg = mysqli_prepare($conn, "SELECT 1 FROM industrial_registration WHERE index_number = ? LIMIT 1");
+if ($stmtReg) {
+    mysqli_stmt_bind_param($stmtReg, 's', $index_number);
+    mysqli_stmt_execute($stmtReg);
+    mysqli_stmt_store_result($stmtReg);
+    $hasReg = mysqli_stmt_num_rows($stmtReg) === 1;
+    mysqli_stmt_close($stmtReg);
+
+    if ($hasReg) {
+        if ($visit_number === 1) {
+            $stmtUp = mysqli_prepare($conn, "UPDATE industrial_registration SET visiting_supervisor_grade = ? WHERE index_number = ? LIMIT 1");
+        } else {
+            $col2Check = mysqli_query($conn, "SHOW COLUMNS FROM industrial_registration LIKE 'visiting_supervisor_grade_2'");
+            if (!$col2Check || mysqli_num_rows($col2Check) === 0) {
+                mysqli_query($conn, "ALTER TABLE industrial_registration ADD COLUMN visiting_supervisor_grade_2 INT(11) NULL DEFAULT NULL AFTER visiting_supervisor_grade");
+            }
+            $stmtUp = mysqli_prepare($conn, "UPDATE industrial_registration SET visiting_supervisor_grade_2 = ? WHERE index_number = ? LIMIT 1");
         }
-        mysqli_query($conn, "UPDATE industrial_registration SET visiting_supervisor_grade_2 = '$grade_score' WHERE index_number = '$idx'");
+        if ($stmtUp) {
+            mysqli_stmt_bind_param($stmtUp, 'is', $grade_score, $index_number);
+            mysqli_stmt_execute($stmtUp);
+            mysqli_stmt_close($stmtUp);
+        }
     }
 }
 
-echo json_encode(['success' => true, 'grade' => $grade_score]);
+echo json_encode(['success' => true, 'grade' => $grade_score, 'index_number' => $index_number]);
 exit;
 

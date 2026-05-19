@@ -20,9 +20,9 @@ const PROGRAMMES = [
   'Secretaryship',
 ];
 
-const SESSIONS = ['', 'Morning', 'Evening', 'Weekend'];
+const SESSIONS = ['', ' August', 'December', 'January'];
 const FACULTIES = ['', 'AGR', 'ARTS', 'COM', 'CIE', 'EDU', 'ENG', 'LAW', 'MED', 'SCI', 'SOC', 'VET'];
-const LEVELS = ['', '100', '200', '300'];
+const LEVELS = ['', '1', '2', '3'];
 
 interface RegistrationData {
   registered: boolean;

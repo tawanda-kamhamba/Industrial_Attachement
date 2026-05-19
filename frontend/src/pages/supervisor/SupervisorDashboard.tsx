@@ -90,6 +90,11 @@ export function SupervisorDashboard() {
 
   const [gradingVisitNumber, setGradingVisitNumber] = useState<1 | 2 | undefined>(undefined);
 
+  const closeGradeModal = () => {
+    setGradingStudent(null);
+    setGradingVisitNumber(undefined);
+  };
+
   useEffect(() => {
     const state = location.state as { gradeStudentIndex?: string; visitNumber?: 1 | 2 } | null;
     const idx = state?.gradeStudentIndex;
@@ -265,7 +270,7 @@ export function SupervisorDashboard() {
       {gradingStudent && (
         <div
           className="fixed inset-0 z-40 flex justify-end bg-slate-900/50 backdrop-blur-sm"
-          onClick={(e) => e.target === e.currentTarget && setGradingStudent(null)}
+          onClick={(e) => e.target === e.currentTarget && closeGradeModal()}
         >
           <div className="flex h-full w-full max-w-3xl flex-col bg-white shadow-2xl animate-slide-up">
             <header className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
@@ -285,7 +290,7 @@ export function SupervisorDashboard() {
               </div>
               <button
                 type="button"
-                onClick={() => setGradingStudent(null)}
+                onClick={closeGradeModal}
                 className="ml-3 rounded-full border border-slate-300 bg-slate-50 p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
               >
                 <span className="block leading-none text-lg">×</span>
@@ -293,11 +298,9 @@ export function SupervisorDashboard() {
             </header>
             <div className="flex-1 overflow-y-auto px-6 py-4 bg-slate-50">
               <SupervisorScoreForm
+                key={`${gradingStudent.student_index}-v${gradingVisitNumber ?? 0}`}
                 indexNumber={gradingStudent.student_index}
-                onClose={() => {
-                  setGradingStudent(null);
-                  setGradingVisitNumber(undefined);
-                }}
+                onClose={closeGradeModal}
                 initialVisitNumber={gradingVisitNumber}
               />
             </div>

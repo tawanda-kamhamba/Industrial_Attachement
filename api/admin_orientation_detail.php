@@ -14,12 +14,6 @@ if ($id <= 0 && isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 }
 
-if ($id <= 0) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid checklist id']);
-    return;
-}
-
 $q = "SELECT * FROM orientation_checklist WHERE id = $id LIMIT 1";
 $res = mysqli_query($conn, $q);
 if (!$res || mysqli_num_rows($res) === 0) {

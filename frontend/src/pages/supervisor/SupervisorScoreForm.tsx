@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 
@@ -117,6 +117,8 @@ export function SupervisorScoreForm({
   onClose: () => void;
   initialVisitNumber?: 1 | 2;
 }) {
+  /** Unique radio groups so selections never leak to another form (e.g. student grade page). */
+  const radioScope = useId().replace(/:/g, '');
   const [form, setForm] = useState<FormState>(() => ({
     ...initialForm,
     visitNumber: initialVisitNumber ?? 1,
@@ -132,11 +134,69 @@ export function SupervisorScoreForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    const idx = String(indexNumber ?? '').trim();
+    if (!idx) {
+      setError('Missing student index. Close this form and open it again from the student row.');
+      return;
+    }
     setSubmitting(true);
     try {
+      const {
+        visitNumber,
+        specificSkill1,
+        specificSkill1Score,
+        specificSkill2,
+        specificSkill2Score,
+        specificSkill3,
+        specificSkill3Score,
+        specificSkill4,
+        specificSkill4Score,
+        specificSkill5,
+        specificSkill5Score,
+        abilityToCompleteWorkOnTime,
+        abilityToFollowInstructionsCarefully,
+        abilityToTakeInitiatives,
+        abilityToWorkWithLittleSupervision,
+        adherenceToOrganizationsRules,
+        adherenceToSafety,
+        resourcefulness,
+        attendanceToWork,
+        punctuality,
+        desireToWork,
+        willingnessToAcceptIdeas,
+        relationshipWithColleagues,
+        relationshipWithSuperiors,
+        abilityToControlEmotions,
+        generalRemarks,
+      } = form;
       await api.post<{ success: boolean; grade?: number }>('/supervisor/grade', {
-        index_number: indexNumber,
-        ...form,
+        index_number: idx,
+        visitNumber,
+        specificSkill1,
+        specificSkill1Score,
+        specificSkill2,
+        specificSkill2Score,
+        specificSkill3,
+        specificSkill3Score,
+        specificSkill4,
+        specificSkill4Score,
+        specificSkill5,
+        specificSkill5Score,
+        abilityToCompleteWorkOnTime,
+        abilityToFollowInstructionsCarefully,
+        abilityToTakeInitiatives,
+        abilityToWorkWithLittleSupervision,
+        adherenceToOrganizationsRules,
+        adherenceToSafety,
+        resourcefulness,
+        attendanceToWork,
+        punctuality,
+        desireToWork,
+        willingnessToAcceptIdeas,
+        relationshipWithColleagues,
+        relationshipWithSuperiors,
+        abilityToControlEmotions,
+        generalRemarks,
       });
       setSuccess(true);
     } catch (err: unknown) {
@@ -171,6 +231,7 @@ export function SupervisorScoreForm({
           <label className="inline-flex items-center gap-1">
             <input
               type="radio"
+              name={`${radioScope}-visit`}
               checked={form.visitNumber === 1}
               onChange={() => set('visitNumber', 1)}
               className="h-3.5 w-3.5"
@@ -180,6 +241,7 @@ export function SupervisorScoreForm({
           <label className="inline-flex items-center gap-1">
             <input
               type="radio"
+              name={`${radioScope}-visit`}
               checked={form.visitNumber === 2}
               onChange={() => set('visitNumber', 2)}
               className="h-3.5 w-3.5"
@@ -256,7 +318,7 @@ export function SupervisorScoreForm({
                       <td key={p} className={tableCellCenter}>
                         <input
                           type="radio"
-                          name={`skill-${n}`}
+                          name={`${radioScope}-skill-${n}`}
                           checked={
                             (form[`specificSkill${n}Score` as keyof FormState] as number) === p
                           }
@@ -285,7 +347,7 @@ export function SupervisorScoreForm({
                       <td key={p} className={tableCellCenter}>
                         <input
                           type="radio"
-                          name={`b-${key}`}
+                          name={`${radioScope}-b-${key}`}
                           checked={form[key] === p}
                           onChange={() => set(key, p as number)}
                           className="h-3.5 w-3.5"
@@ -310,7 +372,7 @@ export function SupervisorScoreForm({
                       <td key={p} className={tableCellCenter}>
                         <input
                           type="radio"
-                          name={`c-${key}`}
+                          name={`${radioScope}-c-${key}`}
                           checked={form[key] === p}
                           onChange={() => set(key, p as number)}
                           className="h-3.5 w-3.5"
@@ -335,7 +397,7 @@ export function SupervisorScoreForm({
                       <td key={p} className={tableCellCenter}>
                         <input
                           type="radio"
-                          name={`d-${key}`}
+                          name={`${radioScope}-d-${key}`}
                           checked={form[key] === p}
                           onChange={() => set(key, p as number)}
                           className="h-3.5 w-3.5"
