@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
@@ -11,6 +11,8 @@ import {
   type ContractAction,
   type ContractActionRow,
 } from '@/components/ContractStatusActions';
+import { TableFilters } from '@/components/ui/TableFilters';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ContractRow extends ContractActionRow {
   submission_date: string | null;
@@ -26,6 +28,8 @@ export function ManageContracts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [rejectTarget, setRejectTarget] = useState<DialogTarget | null>(null);
   const [resubmitTarget, setResubmitTarget] = useState<DialogTarget | null>(null);
@@ -117,6 +121,18 @@ export function ManageContracts() {
     },
   ];
 
+  const fieldGetters = {
+    index_number: (r: ContractRow) => r.index_number,
+    student_name: (r: ContractRow) => r.student_name,
+    company_name: (r: ContractRow) => r.original_filename,
+    status: (r: ContractRow) => r.status,
+  };
+
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   const columnsWithActions: Column<ContractRow>[] = [
     ...baseColumns,
     {
@@ -140,7 +156,7 @@ export function ManageContracts() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <ContractRejectDialog
         open={rejectTarget !== null}
         studentLabel={rejectTarget?.studentLabel}
@@ -165,31 +181,49 @@ export function ManageContracts() {
       />
 
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">View Contracts</h1>
-        <p className="mt-1 text-slate-500">Review contracts, change status, or allow resubmission</p>
+        <h1 className="page-title">View Contracts</h1>
+        <p className="page-subtitle">Review contracts, change status, or allow resubmission</p>
       </div>
       <Card>
         <CardHeader title="Contracts" />
-        <div className="mb-4 flex items-center gap-3">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
-            <option value="">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <Button variant="outline" size="sm" onClick={fetchContracts}>
-            Refresh
-          </Button>
-        </div>
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search contracts…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+          leading={
+            <>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                aria-label="Filter by status"
+              >
+                <option value="">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <Button variant="outline" size="sm" onClick={fetchContracts}>
+                Refresh
+              </Button>
+            </>
+          }
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
-          <DataTable columns={columnsWithActions} data={rows} keyField="id" emptyMessage="No contracts to review." />
+          <DataTable
+            columns={columnsWithActions}
+            data={filtered}
+            keyField="id"
+            emptyMessage={search.trim() ? 'No contracts match your search.' : 'No contracts to review.'}
+          />
         )}
       </Card>
     </div>

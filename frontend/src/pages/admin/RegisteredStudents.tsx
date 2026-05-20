@@ -98,14 +98,14 @@ export function RegisteredStudents() {
   const filteredRows = rows;
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Registered Students</h1>
-        <p className="mt-1 text-slate-500">View and search industrial registration records</p>
+        <h1 className="page-title">Registered Students</h1>
+        <p className="page-subtitle">View and search industrial registration records</p>
       </div>
       <Card>
         <CardHeader title="Students" />
-        <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="toolbar">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -124,7 +124,7 @@ export function RegisteredStudents() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search term..."
-            className="w-48 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="toolbar-input sm:min-w-[12rem]"
           />
           <Button variant="primary" size="sm" onClick={fetchStudents}>Search</Button>
         </div>

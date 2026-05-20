@@ -113,7 +113,7 @@ export function StudentProfileEditPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-display font-bold text-slate-900">Edit profile</h1>
+        <h1 className="page-title">Edit profile</h1>
         <Link to="/student" className="text-sm text-primary-600 hover:underline">
           ← Dashboard
         </Link>
@@ -131,7 +131,7 @@ export function StudentProfileEditPage() {
 
       <Card padding="lg">
         <CardHeader title="Account profile" />
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="page-stack">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <div className="relative">
               <ProfilePhotoLightbox

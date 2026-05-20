@@ -29,10 +29,10 @@ const defaultStats: AdminDashboardStats = {
 function ChartCardWrapper({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card padding="none" className="overflow-hidden border border-slate-200 bg-white shadow-sm print-chart-card">
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <div className="flex flex-col gap-2 border-b border-slate-100 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
         <h3 className="text-sm font-semibold text-slate-800 font-display">{title}</h3>
         <select
-          className="no-print rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
+          className="no-print w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:w-auto"
           aria-label="Time range"
         >
           <option>Monthly</option>
@@ -40,7 +40,7 @@ function ChartCardWrapper({ title, children }: { title: string; children: React.
           <option>Yearly</option>
         </select>
       </div>
-      <div className="p-5 print-chart-inner">{children}</div>
+      <div className="min-w-0 overflow-hidden p-3 sm:p-5 print-chart-inner">{children}</div>
     </Card>
   );
 }
@@ -84,20 +84,20 @@ export function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="page-stack min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="h-10 w-48 rounded-lg bg-slate-200 animate-pulse" />
+          <div className="h-10 w-48 max-w-full rounded-lg bg-slate-200 animate-pulse" />
           <div className="flex gap-2">
             <div className="h-9 w-24 rounded-lg bg-slate-200 animate-pulse" />
             <div className="h-9 w-20 rounded-lg bg-slate-200 animate-pulse" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="stat-grid-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="min-h-[7.5rem] rounded-2xl bg-white shadow-sm animate-pulse border border-slate-200" />
           ))}
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="chart-grid-2">
           <div className="h-80 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
           <div className="h-80 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
         </div>
@@ -140,7 +140,7 @@ export function AdminDashboard() {
   const printDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <div id="dashboard-export" className="dashboard-print-root space-y-8">
+    <div id="dashboard-export" className="dashboard-print-root page-stack min-w-0">
       {/* Print-only header: logo + Attachment Stats + date */}
       <div className="print-only border-b border-slate-200 pb-4" style={{ marginBottom: 0 }}>
         <div className="flex items-center justify-between">
@@ -190,7 +190,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Top row — 4 metric cards: 1 blue, 3 white with corner icon */}
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <section className="stat-grid-4">
         <StatCard
           title="Registered Students"
           value={s.registeredStudents}
@@ -219,7 +219,7 @@ export function AdminDashboard() {
       </section>
 
       {/* Second row — Reports, Assumptions, Scores */}
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <section className="stat-grid-3">
         <StatCard
           title="Reports Submitted"
           value={s.reportsSubmitted}
@@ -241,22 +241,21 @@ export function AdminDashboard() {
       </section>
 
       {/* Chart cards — 2 large cards per row with header + dropdown */}
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <section className="chart-grid-2">
         <ChartCardWrapper title="Students by faculty">
-          <BarChartCard data={facultyChartData} barColor="#0c8ee6" height={260} noWrapper />
+          <BarChartCard data={facultyChartData} barColor="#0c8ee6" noWrapper />
         </ChartCardWrapper>
         <div className="dashboard-print-region">
           <ChartCardWrapper title="Students by region">
-            <PieChartCard data={regionChartData} height={260} noWrapper />
+            <PieChartCard data={regionChartData} noWrapper />
           </ChartCardWrapper>
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <section className="chart-grid-2">
         <ChartCardWrapper title="Registrations by month">
           <LineChartCard
             data={charts.registrationsByMonth}
-            height={260}
             noWrapper
           />
         </ChartCardWrapper>
@@ -264,7 +263,6 @@ export function AdminDashboard() {
           <LineChartCard
             data={charts.submissionsTrend}
             strokeColor="#10b981"
-            height={260}
             noWrapper
           />
         </ChartCardWrapper>

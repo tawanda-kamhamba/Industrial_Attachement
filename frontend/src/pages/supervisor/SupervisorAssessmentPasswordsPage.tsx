@@ -77,10 +77,10 @@ export function SupervisorAssessmentPasswordsPage() {
   if (loading) return <p className="text-slate-500">Loading...</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Assessment passwords</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="page-title">Assessment passwords</h1>
+        <p className="page-subtitle">
           Set passwords used when opening the assessment forms from the student portal.
         </p>
         <p className="mt-2 rounded-lg border border-primary-200 bg-primary-50/50 px-4 py-2 text-sm font-medium text-slate-700">

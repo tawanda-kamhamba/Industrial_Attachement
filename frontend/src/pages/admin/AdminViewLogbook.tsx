@@ -78,11 +78,11 @@ export function AdminViewLogbook() {
   const entries = data.entries ?? [];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="page-stack">
+      <div className="page-header-row">
         <div>
-          <h1 className="text-2xl font-display font-bold text-slate-900">Student E-Logbook</h1>
-          <p className="mt-1 text-slate-500">Index: {data.index_number}</p>
+          <h1 className="page-title">Student E-Logbook</h1>
+          <p className="page-subtitle">Index: {data.index_number}</p>
         </div>
         <Link to="/admin/elogbooks">
           <Button variant="outline">Back to E-Logbooks</Button>

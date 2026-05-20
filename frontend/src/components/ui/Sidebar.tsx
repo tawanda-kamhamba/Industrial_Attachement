@@ -37,12 +37,15 @@ export function Sidebar({ items, basePath, onLogout, mobileOpen = false, onNavig
 
   return (
     <aside
-      className={`fixed left-0 top-14 z-30 flex h-[calc(100vh-3.5rem)] w-56 max-w-[min(100vw,16rem)] flex-col border-r border-slate-700 bg-surface-sidebar transition-transform duration-200 ease-out lg:translate-x-0 ${
+      className={`fixed bottom-0 left-0 top-14 z-30 flex w-[min(100vw,14rem)] flex-col border-r border-slate-700 bg-surface-sidebar shadow-xl transition-transform duration-200 ease-out lg:w-56 lg:max-w-none lg:translate-x-0 lg:shadow-none ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}
       aria-hidden={!mobileOpen ? undefined : false}
     >
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 overscroll-contain" aria-label="Sidebar">
+      <nav
+        className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain p-3"
+        aria-label="Sidebar"
+      >
         {items.map((item) =>
           item.isLogout ? (
             <button

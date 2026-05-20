@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { TableFilters } from '@/components/ui/TableFilters';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ScoreRow {
   student_index: string;
@@ -28,6 +30,8 @@ export function SupervisorScoresPage() {
   const [rows, setRows] = useState<ScoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api
@@ -36,6 +40,20 @@ export function SupervisorScoresPage() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, []);
+
+  const fieldGetters = {
+    index_number: (r: ScoreRow) => r.student_index,
+    student_name: (r: ScoreRow) => `${r.first_name} ${r.last_name}`,
+    first_name: (r: ScoreRow) => r.first_name,
+    last_name: (r: ScoreRow) => r.last_name,
+    company_name: (r: ScoreRow) => r.company_name,
+    company_region: (r: ScoreRow) => r.company_region,
+  };
+
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
 
   const columns: Column<ScoreRow>[] = [
     {
@@ -111,10 +129,10 @@ export function SupervisorScoresPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">All scores</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="page-title">All scores</h1>
+        <p className="page-subtitle">
           Company supervisor scores (read-only) and your first/second visit scores for assigned students.
         </p>
         <Link
@@ -126,16 +144,25 @@ export function SupervisorScoresPage() {
       </div>
       <Card>
         <CardHeader title="Scores by student" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search students…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
           <DataTable
             columns={columns}
-            data={rows}
+            data={filtered}
             keyField="student_index"
-            emptyMessage="No assigned students."
-            maxHeight="60vh"
+            emptyMessage={search.trim() ? 'No students match your search.' : 'No assigned students.'}
           />
         )}
       </Card>

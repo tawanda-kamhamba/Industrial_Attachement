@@ -14,10 +14,10 @@ export function ChangePassword() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Change Password</h1>
-        <p className="mt-1 text-slate-500">Update your admin password</p>
+        <h1 className="page-title">Change Password</h1>
+        <p className="page-subtitle">Update your admin password</p>
       </div>
       <Card className="max-w-md">
         <CardHeader title="New password" />

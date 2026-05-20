@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
 import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 import { MarkCell } from '@/components/ClassGradeBadge';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ReportRow {
   name: string;
@@ -14,10 +16,20 @@ interface ReportRow {
   report_mark: number | null;
 }
 
+const fieldGetters = {
+  index_number: (r: ReportRow) => r.index_number,
+  student_name: (r: ReportRow) => r.student_name,
+  first_name: (r: ReportRow) => r.student_name,
+  last_name: (r: ReportRow) => r.name,
+  company_name: (r: ReportRow) => r.name,
+};
+
 export function SubmittedReports() {
   const [rows, setRows] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   const columns: Column<ReportRow>[] = useMemo(
     () => [
@@ -66,19 +78,39 @@ export function SubmittedReports() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">View Submitted Reports</h1>
-        <p className="mt-1 text-slate-500">View and download student reports</p>
+        <h1 className="page-title">View Submitted Reports</h1>
+        <p className="page-subtitle">View and download student reports</p>
       </div>
       <Card>
         <CardHeader title="Reports" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search reports…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
-          <DataTable columns={columns} data={rows} keyField="name" emptyMessage="No reports submitted yet." />
+          <DataTable
+            columns={columns}
+            data={filtered}
+            keyField="name"
+            emptyMessage={search.trim() ? 'No reports match your search.' : 'No reports submitted yet.'}
+          />
         )}
       </Card>
     </div>

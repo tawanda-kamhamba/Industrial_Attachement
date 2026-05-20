@@ -2,9 +2,11 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
 import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 import { SupervisorMarkEntryCell } from '@/components/SupervisorMarkEntryCell';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ReportRow {
   name: string;
@@ -14,11 +16,21 @@ interface ReportRow {
   report_mark: number | null;
 }
 
+const fieldGetters = {
+  index_number: (r: ReportRow) => r.index_number,
+  student_name: (r: ReportRow) => r.name,
+  first_name: (r: ReportRow) => r.name,
+  last_name: (r: ReportRow) => r.name,
+  company_name: (r: ReportRow) => r.name,
+};
+
 export function SupervisorReports() {
   const [rows, setRows] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   const load = useCallback(() => {
     setLoading(true);
@@ -41,6 +53,11 @@ export function SupervisorReports() {
     load();
   }, [load]);
 
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   const columns: Column<ReportRow>[] = useMemo(
     () => [
       {
@@ -54,7 +71,7 @@ export function SupervisorReports() {
             >
               {row.index_number}
             </Link>
-            <p className="text-xs text-slate-500 break-all">{row.name}</p>
+            <p className="break-all text-xs text-slate-500">{row.name}</p>
           </div>
         ),
       },
@@ -92,10 +109,10 @@ export function SupervisorReports() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Student Reports</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="page-title">Student Reports</h1>
+        <p className="page-subtitle">
           View reports and enter the final report mark (0–100) for each assigned student.
         </p>
         <Link
@@ -107,6 +124,16 @@ export function SupervisorReports() {
       </div>
       <Card>
         <CardHeader title="Reports" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search reports…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {success && <p className="mb-2 text-sm text-emerald-700">{success}</p>}
         {loading ? (
@@ -114,9 +141,9 @@ export function SupervisorReports() {
         ) : (
           <DataTable
             columns={columns}
-            data={rows}
+            data={filtered}
             keyField="name"
-            emptyMessage="No reports from your assigned students yet."
+            emptyMessage={search.trim() ? 'No reports match your search.' : 'No reports from your assigned students yet.'}
           />
         )}
       </Card>

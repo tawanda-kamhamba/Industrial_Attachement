@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Card } from '@/components/ui/Card';
+import { ChartContainer } from '@/components/charts/ChartContainer';
 import type { ChartDataPoint } from '@/types';
 
 interface LineChartCardProps {
@@ -25,15 +26,16 @@ export function LineChartCard({
   data,
   dataKey = 'value',
   strokeColor = '#0c8ee6',
-  height = 280,
+  height: _height = 280,
   noWrapper = false,
 }: LineChartCardProps) {
   const chart = (
-    <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <ChartContainer>
+      <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data} margin={{ top: 8, right: 4, left: -8, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#64748b" />
-        <YAxis tick={{ fontSize: 12 }} stroke="#64748b" />
+        <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#64748b" interval="preserveStartEnd" />
+        <YAxis tick={{ fontSize: 11 }} stroke="#64748b" width={32} />
         <Tooltip
           contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}
           formatter={(value: number) => [value, 'Count']}
@@ -48,6 +50,7 @@ export function LineChartCard({
         />
       </LineChart>
     </ResponsiveContainer>
+    </ChartContainer>
   );
 
   if (noWrapper) return chart;

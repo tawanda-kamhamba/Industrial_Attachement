@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { SupervisorMarkEntryCell } from '@/components/SupervisorMarkEntryCell';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface LogbookRow {
   index_number: string;
@@ -15,11 +17,20 @@ interface LogbookRow {
   elogbook_mark: number | null;
 }
 
+const fieldGetters = {
+  index_number: (r: LogbookRow) => r.index_number,
+  student_name: (r: LogbookRow) => r.student_name,
+  first_name: (r: LogbookRow) => r.student_name,
+  last_name: (r: LogbookRow) => r.student_name,
+};
+
 export function SupervisorELogbooks() {
   const [rows, setRows] = useState<LogbookRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   const load = useCallback(() => {
     setLoading(true);
@@ -41,6 +52,11 @@ export function SupervisorELogbooks() {
     setSuccess('E-logbook mark saved.');
     load();
   }, [load]);
+
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
 
   const columns: Column<LogbookRow>[] = useMemo(
     () => [
@@ -92,10 +108,10 @@ export function SupervisorELogbooks() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Students&apos; E-Logbooks</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="page-title">Students&apos; E-Logbooks</h1>
+        <p className="page-subtitle">
           Review logbooks and enter the final e-logbook mark (0–100) for each assigned student.
         </p>
         <Link
@@ -107,6 +123,16 @@ export function SupervisorELogbooks() {
       </div>
       <Card>
         <CardHeader title="Logbooks" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search logbooks…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {success && <p className="mb-2 text-sm text-emerald-700">{success}</p>}
         {loading ? (
@@ -114,9 +140,11 @@ export function SupervisorELogbooks() {
         ) : (
           <DataTable
             columns={columns}
-            data={rows}
+            data={filtered}
             keyField="index_number"
-            emptyMessage="No e-logbook entries yet for your assigned students."
+            emptyMessage={
+              search.trim() ? 'No logbooks match your search.' : 'No e-logbook entries yet for your assigned students.'
+            }
           />
         )}
       </Card>

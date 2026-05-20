@@ -133,8 +133,8 @@ export function StudentProfilePage() {
       : null;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="page-stack min-w-0">
+      <div className="page-header-row">
         <Link to="/supervisor/dashboard" className="text-sm text-slate-600 hover:text-slate-900">
           ← Assigned students
         </Link>
@@ -173,7 +173,7 @@ export function StudentProfilePage() {
               </Link>
             </div>
           </div>
-          <dl className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+          <dl className="grid min-w-0 flex-1 grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Programme</dt>
               <dd className="mt-0.5 text-sm font-semibold text-slate-800">{reg?.programme || '—'}</dd>

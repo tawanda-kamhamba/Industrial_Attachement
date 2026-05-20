@@ -27,6 +27,8 @@ interface StatCardProps {
   icon?: React.ReactNode;
   /** Show arrow icon in corner (default true for light variant) */
   cornerIcon?: boolean;
+  /** Smaller padding and type — supervisor dashboards */
+  compact?: boolean;
   className?: string;
 }
 
@@ -38,6 +40,7 @@ export function StatCard({
   trend,
   icon,
   cornerIcon,
+  compact = false,
   className = '',
 }: StatCardProps) {
   const isLight = variant === 'light';
@@ -46,14 +49,30 @@ export function StatCard({
 
   return (
     <div
-      className={`flex min-h-[7.5rem] flex-col justify-between rounded-2xl p-5 shadow-card transition-all hover:shadow-cardHover ${variantStyles[variant]} ${className}`}
+      className={`flex min-w-0 flex-col justify-between shadow-card transition-all hover:shadow-cardHover ${variantStyles[variant]} ${
+        compact
+          ? 'min-h-0 rounded-xl p-3 sm:p-3.5'
+          : 'min-h-[6.5rem] rounded-2xl p-4 sm:min-h-[7.5rem] sm:p-5'
+      } ${className}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className={`text-sm font-medium leading-snug ${isLight ? 'text-slate-600' : 'opacity-90'}`}>{title}</p>
-        {corner && <div className={isLight ? 'text-slate-400' : 'opacity-90'}>{corner}</div>}
+      <div className="flex items-start justify-between gap-1.5">
+        <p
+          className={`font-medium leading-snug ${compact ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} ${isLight ? 'text-slate-600' : 'opacity-90'}`}
+        >
+          {title}
+        </p>
+        {corner && (
+          <div className={`shrink-0 ${compact ? 'scale-90' : ''} ${isLight ? 'text-slate-400' : 'opacity-90'}`}>
+            {corner}
+          </div>
+        )}
       </div>
       <div>
-        <p className={`mt-2 text-2xl font-bold tracking-tight font-display md:text-[1.75rem] ${isLight ? 'text-slate-900' : ''}`}>{value}</p>
+        <p
+          className={`font-bold tracking-tight font-display ${compact ? 'mt-1 text-lg sm:text-xl' : 'mt-2 text-xl sm:text-2xl md:text-[1.75rem]'} ${isLight ? 'text-slate-900' : ''}`}
+        >
+          {value}
+        </p>
         {trend && isLight && (
           <span className={`mt-1 inline-block text-xs font-medium ${trend.startsWith('-') ? 'text-red-600' : 'text-emerald-600'}`}>
             {trend}

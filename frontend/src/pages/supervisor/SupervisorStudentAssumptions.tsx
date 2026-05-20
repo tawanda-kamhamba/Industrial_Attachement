@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface AssumptionRow {
   index_number: string;
@@ -46,7 +48,7 @@ const columns: Column<AssumptionRow>[] = [
         {row.supervisor_email ? (
           <a
             href={`mailto:${row.supervisor_email}`}
-            className="text-xs text-primary-600 truncate hover:underline"
+            className="truncate text-xs text-primary-600 hover:underline"
             title={`Email ${row.supervisor_email}`}
           >
             {row.supervisor_email}
@@ -60,11 +62,25 @@ const columns: Column<AssumptionRow>[] = [
   { key: 'session', header: 'Session', align: 'center' },
 ];
 
+const fieldGetters = {
+  index_number: (r: AssumptionRow) => r.index_number,
+  student_name: (r: AssumptionRow) => `${r.first_name} ${r.last_name}`,
+  first_name: (r: AssumptionRow) => r.first_name,
+  last_name: (r: AssumptionRow) => r.last_name,
+  company_name: (r: AssumptionRow) => r.company_name,
+  company_region: (r: AssumptionRow) => r.company_region,
+  programme: (r: AssumptionRow) => r.programme,
+  level: (r: AssumptionRow) => r.level,
+  session: (r: AssumptionRow) => r.session,
+};
+
 export function SupervisorStudentAssumptions() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState<AssumptionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api
@@ -74,6 +90,11 @@ export function SupervisorStudentAssumptions() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;
@@ -82,15 +103,15 @@ export function SupervisorStudentAssumptions() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Student Assumptions</h1>
-        <p className="mt-1 text-slate-500">
+        <h1 className="page-title">Student Assumptions</h1>
+        <p className="page-subtitle">
           Company and company supervisor details for students assigned to you.
         </p>
       </div>
 
-      {!loading && rows.length > 0 && (
+      {!loading && filtered.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between gap-4">
             <h2 className="text-lg font-semibold text-slate-800">Company supervisor information</h2>
@@ -118,7 +139,7 @@ export function SupervisorStudentAssumptions() {
             className="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {rows.map((row) => (
+            {filtered.map((row) => (
               <div
                 key={row.index_number}
                 className="w-44 shrink-0 snap-start rounded-xl border border-primary-200 bg-primary-50/50 p-3 shadow-sm"
@@ -142,10 +163,7 @@ export function SupervisorStudentAssumptions() {
                     <dt className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Email</dt>
                     <dd className="truncate text-xs font-medium" title={row.supervisor_email || undefined}>
                       {row.supervisor_email ? (
-                        <a
-                          href={`mailto:${row.supervisor_email}`}
-                          className="text-primary-600 hover:underline"
-                        >
+                        <a href={`mailto:${row.supervisor_email}`} className="text-primary-600 hover:underline">
                           {row.supervisor_email}
                         </a>
                       ) : (
@@ -162,19 +180,30 @@ export function SupervisorStudentAssumptions() {
 
       <Card>
         <CardHeader title="Assumptions" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search assumptions…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
           <DataTable
             columns={columns}
-            data={rows}
+            data={filtered}
             keyField="index_number"
-            emptyMessage="No assumption records for your assigned students."
+            emptyMessage={
+              search.trim() ? 'No records match your search.' : 'No assumption records for your assigned students.'
+            }
           />
         )}
       </Card>
     </div>
   );
 }
-

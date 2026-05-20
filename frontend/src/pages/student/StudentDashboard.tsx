@@ -240,7 +240,7 @@ export function StudentDashboard() {
   return (
     <div className="page-stack min-w-0">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 px-6 py-8 text-white shadow-lg">
+      <div className="hero-banner bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute -right-14 -top-14 h-48 w-48 rounded-full bg-white/20 blur-2xl" />
           <div className="absolute -left-14 -bottom-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
@@ -277,7 +277,7 @@ export function StudentDashboard() {
             </ProfilePhotoLightbox>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/80">Student portal</p>
-              <h1 className="mt-1 text-2xl font-display font-bold tracking-tight sm:text-3xl">
+              <h1 className="mt-1 text-xl font-display font-bold tracking-tight sm:text-2xl md:text-3xl">
                 {getTimeBasedGreeting()} {user?.name ?? 'Student'}!
               </h1>
               <p className="mt-1.5 text-sm text-primary-100">
@@ -302,7 +302,7 @@ export function StudentDashboard() {
       </div>
 
       {/* Dashboard cards */}
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="stat-grid-4">
         <StatCard
           title="Tasks available"
           value={quickLinks.length}
@@ -462,7 +462,7 @@ export function StudentDashboard() {
             </div>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className="page-stack">
             {groupedLinks.map((group) => (
               <div key={group.category}>
                 <div className="mb-3 flex items-center justify-between">
