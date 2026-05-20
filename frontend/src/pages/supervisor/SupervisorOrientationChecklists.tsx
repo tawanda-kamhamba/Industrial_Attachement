@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { TableFilters } from '@/components/ui/TableFilters';
+import { filterRows, ORIENTATION_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ChecklistRow {
   id: number;
@@ -41,8 +43,6 @@ interface ChecklistDetail {
     wrl_coordinator: { name: string; date: string | null };
   };
 }
-
-type FilterBy = 'all' | 'Student Name' | 'Index Number';
 
 const columns: Column<ChecklistRow>[] = [
   {
@@ -97,7 +97,7 @@ export function SupervisorOrientationChecklists() {
   const [rows, setRows] = useState<ChecklistRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filterBy, setFilterBy] = useState<FilterBy>('all');
+  const [filterBy, setFilterBy] = useState('all');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<ChecklistDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -111,20 +111,14 @@ export function SupervisorOrientationChecklists() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = rows.filter((row) => {
-    if (!search.trim() || filterBy === 'all') return true;
-    const q = search.toLowerCase();
-    if (filterBy === 'Student Name') {
-      return (
-        row.student_name.toLowerCase().includes(q) ||
-        row.index_number.toLowerCase().includes(q)
-      );
-    }
-    if (filterBy === 'Index Number') {
-      return row.index_number.toLowerCase().includes(q);
-    }
-    return true;
-  });
+  const filtered = useMemo(
+    () =>
+      filterRows(rows, search, filterBy, {
+        student_name: (r) => r.student_name,
+        index_number: (r) => r.index_number,
+      }),
+    [rows, search, filterBy]
+  );
 
   const handleOpenDetail = async (id: number) => {
     setDetailLoading(true);
@@ -141,13 +135,13 @@ export function SupervisorOrientationChecklists() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-slate-900">
+          <h1 className="page-title">
             Orientation Checklists
           </h1>
-          <p className="mt-1 text-slate-500">
+          <p className="page-subtitle">
             Orientation status for students assigned to you.
           </p>
         </div>
@@ -162,32 +156,22 @@ export function SupervisorOrientationChecklists() {
 
       <Card>
         <CardHeader title="Student checklists" />
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="px-4 pt-3">
+          <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
             <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /> 100% complete
-            <span className="ml-3 inline-block h-2 w-2 rounded-full bg-amber-500" /> 60–99%
-            complete
-            <span className="ml-3 inline-block h-2 w-2 rounded-full bg-slate-400" /> &lt; 60%
-            complete
+            <span className="ml-3 inline-block h-2 w-2 rounded-full bg-amber-500" /> 60–99% complete
+            <span className="ml-3 inline-block h-2 w-2 rounded-full bg-slate-400" /> &lt; 60% complete
           </div>
-          <div className="flex gap-2">
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value as FilterBy)}
-              className="h-9 rounded-lg border border-slate-300 bg-white px-2 text-xs text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            >
-              <option value="all">Filter by…</option>
-              <option value="Student Name">Student name</option>
-              <option value="Index Number">Index number</option>
-            </select>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search students…"
-              className="h-9 w-40 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-700 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
-          </div>
+          <TableFilters
+            filterBy={filterBy}
+            onFilterByChange={setFilterBy}
+            filterOptions={ORIENTATION_FILTER_FIELDS}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search checklists…"
+            resultCount={filtered.length}
+            totalCount={rows.length}
+          />
         </div>
 
         {error && <p className="px-4 pt-3 text-sm text-red-600">{error}</p>}
@@ -216,7 +200,11 @@ export function SupervisorOrientationChecklists() {
               ]}
               data={filtered}
               keyField="id"
-              emptyMessage="No orientation checklists submitted yet for your assigned students."
+              emptyMessage={
+                search.trim()
+                  ? 'No checklists match your search.'
+                  : 'No orientation checklists submitted yet for your assigned students.'
+              }
             />
           )}
         </div>
@@ -320,7 +308,7 @@ export function SupervisorOrientationChecklists() {
               {detailLoading ? (
                 <p className="text-sm text-slate-500">Loading details…</p>
               ) : (
-                <div className="space-y-6">
+                <div className="page-stack">
                   {selected.sections.map((section) => (
                     <div key={section.title} className="space-y-2">
                       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">

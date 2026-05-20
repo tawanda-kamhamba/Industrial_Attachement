@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { MarkCell } from '@/components/ClassGradeBadge';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface LogbookRow {
   index_number: string;
@@ -37,10 +39,19 @@ const columns: Column<LogbookRow>[] = [
   },
 ];
 
+const fieldGetters = {
+  index_number: (r: LogbookRow) => r.index_number,
+  student_name: (r: LogbookRow) => r.student_name,
+  first_name: (r: LogbookRow) => r.student_name,
+  last_name: (r: LogbookRow) => r.student_name,
+};
+
 export function ELogbooks() {
   const [rows, setRows] = useState<LogbookRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api
@@ -50,19 +61,39 @@ export function ELogbooks() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">E-Logbooks</h1>
-        <p className="mt-1 text-slate-500">View student e-logbook submissions</p>
+        <h1 className="page-title">E-Logbooks</h1>
+        <p className="page-subtitle">View student e-logbook submissions</p>
       </div>
       <Card>
         <CardHeader title="Logbooks" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search logbooks…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
-          <DataTable columns={columns} data={rows} keyField="index_number" emptyMessage="No e-logbook entries yet." />
+          <DataTable
+            columns={columns}
+            data={filtered}
+            keyField="index_number"
+            emptyMessage={search.trim() ? 'No logbooks match your search.' : 'No e-logbook entries yet.'}
+          />
         )}
       </Card>
     </div>

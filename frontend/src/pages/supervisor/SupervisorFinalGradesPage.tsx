@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
+import { filterRows, FINAL_GRADE_FILTER_FIELDS } from '@/utils/tableSearch';
 import {
   type FinalGradesResponse,
   type FinalGradeStudent,
@@ -71,6 +73,7 @@ export function SupervisorFinalGradesPage() {
   const [drafts, setDrafts] = useState<Record<string, DraftMarks>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
 
   const load = useCallback(() => {
     return api
@@ -104,13 +107,20 @@ export function SupervisorFinalGradesPage() {
   };
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return students;
-    return students.filter((s) => {
-      const name = `${s.first_name} ${s.last_name}`.toLowerCase();
-      return name.includes(q) || s.student_index.toLowerCase().includes(q) || s.company_name.toLowerCase().includes(q);
+    let list = students;
+    if (filterBy === 'complete') list = list.filter((s) => s.is_complete);
+    else if (filterBy === 'incomplete') list = list.filter((s) => !s.is_complete);
+    else if (filterBy === 'pending_marks') {
+      list = list.filter((s) => s.elogbook_mark == null || s.report_mark == null);
+    }
+
+    const textFilterBy = ['complete', 'incomplete', 'pending_marks'].includes(filterBy) ? 'all' : filterBy;
+    return filterRows(list, search, textFilterBy, {
+      student_name: (s) => `${s.first_name} ${s.last_name}`,
+      index_number: (s) => s.student_index,
+      company_name: (s) => s.company_name ?? '',
     });
-  }, [students, search]);
+  }, [students, search, filterBy]);
 
   const stats = useMemo(() => {
     const complete = students.filter((s) => s.is_complete);
@@ -202,13 +212,13 @@ export function SupervisorFinalGradesPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-primary-600 via-primary-700 to-slate-900 px-6 py-8 text-white shadow-lg">
+    <div className="page-stack min-w-0">
+      <div className="hero-banner border border-slate-200/80 bg-gradient-to-br from-primary-600 via-primary-700 to-slate-900 shadow-lg">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(255,255,255,0.12),transparent)]" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-medium text-primary-100">Industrial attachment assessment</p>
-            <h1 className="mt-1 text-3xl font-display font-bold tracking-tight">Final grades</h1>
+        <div className="relative flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-wide text-primary-100 sm:text-sm">Industrial attachment assessment</p>
+            <h1 className="page-title mt-1 text-white">Final grades</h1>
             <p className="mt-2 max-w-xl text-sm text-primary-100/90">
               Enter e-logbook and report marks for each student. The system calculates the weighted final mark
               from both institutional visits, company supervisor score, report, and e-logbook (20% each).
@@ -246,17 +256,17 @@ export function SupervisorFinalGradesPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="stat-grid-compact">
         {[
           { label: 'Assigned students', value: stats.total, sub: 'On your list' },
           { label: 'Complete finals', value: stats.complete, sub: 'All 5 components' },
           { label: 'Class average', value: stats.avg ?? '—', sub: 'Completed only' },
           { label: 'Pending your marks', value: stats.pendingMarks, sub: 'E-logbook or report' },
         ].map((item) => (
-          <Card key={item.label} className="border-slate-200/80 bg-white">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{item.label}</p>
-            <p className="mt-1 text-2xl font-display font-bold text-slate-900">{item.value}</p>
-            <p className="text-xs text-slate-500">{item.sub}</p>
+          <Card key={item.label} padding="sm" className="border-slate-200/80 bg-white">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500 sm:text-xs">{item.label}</p>
+            <p className="mt-0.5 text-lg font-display font-bold text-slate-900 sm:text-xl">{item.value}</p>
+            <p className="text-[10px] text-slate-500 sm:text-xs">{item.sub}</p>
           </Card>
         ))}
       </div>
@@ -287,39 +297,47 @@ export function SupervisorFinalGradesPage() {
         </p>
       </Card>
 
-      <Card padding="none" className="overflow-hidden">
-        <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-slate-900 font-display">Student final marks</h2>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name or index…"
-              className="w-full max-w-xs rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 sm:w-64"
-            />
-          </div>
+      <Card padding="none" className="flex min-w-0 flex-col overflow-hidden">
+        <div className="shrink-0 border-b border-slate-200 bg-slate-50/80 px-3 py-3 sm:px-5 sm:py-4">
+          <h2 className="mb-3 text-base font-semibold text-slate-900 font-display sm:text-lg">Student final marks</h2>
+          <TableFilters
+            filterBy={filterBy}
+            onFilterByChange={setFilterBy}
+            filterOptions={FINAL_GRADE_FILTER_FIELDS}
+            search={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search students…"
+            resultCount={filtered.length}
+            totalCount={students.length}
+          />
         </div>
 
-        {filtered.length === 0 ? (
-          <p className="p-8 text-center text-slate-500">No students match your search.</p>
+        {students.length === 0 ? (
+          <p className="p-8 text-center text-slate-500">No students have been assigned to you yet.</p>
+        ) : filtered.length === 0 ? (
+          <p className="p-8 text-center text-slate-500">No students match your search or filter.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[960px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <th className="px-4 py-3 sm:px-6">Student</th>
-                  <th className="px-3 py-3 text-center">1st visit</th>
-                  <th className="px-3 py-3 text-center">2nd visit</th>
-                  <th className="px-3 py-3 text-center">Company</th>
-                  <th className="px-3 py-3 text-center">Report</th>
-                  <th className="px-3 py-3 text-center">E-logbook</th>
-                  <th className="px-3 py-3 text-center">Final</th>
-                  <th className="px-3 py-3 text-center">Class</th>
-                  <th className="px-4 py-3 text-center sm:px-6">Save</th>
+          <div
+            className="table-scroll-panel table-scroll-panel-tall border-t border-slate-100"
+            role="region"
+            aria-label="Student final marks table"
+            tabIndex={0}
+          >
+            <table className="w-full min-w-[48rem] divide-y divide-slate-200 text-left text-sm">
+              <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_0_rgb(226_232_240)]">
+                <tr className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="whitespace-nowrap px-3 py-2.5 text-left sm:px-4">Student</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">1st visit</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">2nd visit</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">Company</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">Report</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">E-logbook</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">Final</th>
+                  <th className="whitespace-nowrap px-2 py-2.5 text-center">Class</th>
+                  <th className="whitespace-nowrap px-3 py-2.5 text-center sm:px-4">Save</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 bg-white">
                 {filtered.map((s) => {
                   const draft = drafts[s.student_index] ?? { elogbook: '', report: '' };
                   const preview = previewRow(s);
@@ -327,7 +345,7 @@ export function SupervisorFinalGradesPage() {
 
                   return (
                     <tr key={s.student_index} className="bg-white transition hover:bg-slate-50/50">
-                      <td className="px-4 py-4 sm:px-6">
+                      <td className="px-3 py-3 sm:px-4">
                         <Link
                           to={`/supervisor/student/${encodeURIComponent(s.student_index)}`}
                           className="group block"
@@ -346,16 +364,16 @@ export function SupervisorFinalGradesPage() {
                           </p>
                         )}
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <ReadonlyScore value={s.first_visit_grade} />
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <ReadonlyScore value={s.second_visit_grade} />
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <ReadonlyScore value={s.company_supervisor_grade} />
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <MarkInput
                           label="Report mark"
                           value={draft.report}
@@ -367,7 +385,7 @@ export function SupervisorFinalGradesPage() {
                           }
                         />
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <MarkInput
                           label="E-logbook mark"
                           value={draft.elogbook}
@@ -379,15 +397,15 @@ export function SupervisorFinalGradesPage() {
                           }
                         />
                       </td>
-                      <td className="px-3 py-4 text-center">
-                        <span className="text-base font-bold tabular-nums text-primary-700">
+                      <td className="px-2 py-3 text-center">
+                        <span className="text-sm font-bold tabular-nums text-primary-700 sm:text-base">
                           {preview.final != null ? preview.final : '—'}
                         </span>
                       </td>
-                      <td className="px-3 py-4 text-center">
+                      <td className="px-2 py-3 text-center">
                         <GradeBadge grade={preview.classGrade} />
                       </td>
-                      <td className="px-4 py-4 text-center sm:px-6">
+                      <td className="px-3 py-3 text-center sm:px-4">
                         <Button
                           size="sm"
                           variant="primary"

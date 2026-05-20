@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card } from '@/components/ui/Card';
+import { ChartContainer } from '@/components/charts/ChartContainer';
 import type { ChartDataPoint } from '@/types';
 
 /** Modern donut style: pink, purples, teal, greenish-teal, olive (matches reference image) */
@@ -136,7 +137,7 @@ export function PieChartCard({
   dataKey = 'value',
   nameKey = 'name',
   colors = DEFAULT_COLORS,
-  height = 280,
+  height: _height = 280,
   noWrapper = false,
   donutStyle = true,
   showRegionList = true,
@@ -144,10 +145,10 @@ export function PieChartCard({
   const filterId = `pie-shadow-${useId().replace(/:/g, '')}`;
   const total = data.reduce((sum, d) => sum + Number((d as Record<string, unknown>)[dataKey] ?? 0), 0);
   const showList = showRegionList && donutStyle && data.length > 0 && total > 0;
-  const chartHeight = showList ? 200 : height;
 
   const chart = (
-    <ResponsiveContainer width="100%" height={chartHeight}>
+    <ChartContainer tall={showList}>
+    <ResponsiveContainer width="100%" height="100%">
       <PieChart>
         <defs>
           <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
@@ -207,14 +208,13 @@ export function PieChartCard({
         {!donutStyle && <Legend />}
       </PieChart>
     </ResponsiveContainer>
+    </ChartContainer>
   );
 
   const content = showList ? (
-    <div className="flex gap-4">
-      <div className="min-w-0 flex-1" style={{ minHeight: chartHeight }}>
-        {chart}
-      </div>
-      <div className="w-40 shrink-0 border-l border-slate-100 pl-4">
+    <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:gap-4">
+      <div className="min-w-0 flex-1">{chart}</div>
+      <div className="min-w-0 w-full shrink-0 border-t border-slate-100 pt-4 lg:w-44 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0 xl:w-52">
         <RegionList data={data} nameKey={nameKey} dataKey={dataKey} colors={colors} compact />
       </div>
     </div>

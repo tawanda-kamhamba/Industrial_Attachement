@@ -12,6 +12,8 @@ import type { ChartDataPoint } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import { getTimeBasedGreeting } from '@/utils/greeting';
+import { TableFilters } from '@/components/ui/TableFilters';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 const defaultStats: SupervisorDashboardStats = {
   totalStudents: 0,
@@ -74,6 +76,8 @@ export function SupervisorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gradingStudent, setGradingStudent] = useState<StudentSummary | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -118,6 +122,19 @@ export function SupervisorDashboard() {
     [s.firstVisitWithScoresheet, s.secondVisitWithScoresheet]
   );
 
+  const filteredStudents = useMemo(
+    () =>
+      filterRows(students, search, filterBy, {
+        index_number: (s) => s.student_index,
+        student_name: (s) => `${s.first_name} ${s.last_name}`,
+        first_name: (s) => s.first_name,
+        last_name: (s) => s.last_name,
+        company_name: (s) => s.company_name,
+        company_region: (s) => s.company_region ?? s.attachment_region ?? '',
+      }),
+    [students, search, filterBy]
+  );
+
   const regionChartData: ChartDataPoint[] = useMemo(() => {
     const byRegion: Record<string, number> = {};
     students.forEach((st) => {
@@ -131,14 +148,14 @@ export function SupervisorDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="page-stack min-w-0">
         <div className="h-28 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-300 animate-pulse" />
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="stat-grid-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="min-h-[7.5rem] rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
           ))}
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="chart-grid-2">
           <div className="h-64 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
           <div className="h-64 rounded-2xl bg-white border border-slate-200 shadow-sm animate-pulse" />
         </div>
@@ -153,9 +170,9 @@ export function SupervisorDashboard() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 px-6 py-8 text-white shadow-lg">
+        <div className="hero-banner bg-gradient-to-br from-slate-700 to-slate-900 shadow-lg">
           <div className="relative">
-            <h1 className="text-2xl font-display font-bold tracking-tight">Supervisor Dashboard</h1>
+            <h1 className="page-title text-white">Supervisor Dashboard</h1>
             <p className="mt-1 text-sm text-slate-300">Something went wrong</p>
           </div>
         </div>
@@ -174,16 +191,16 @@ export function SupervisorDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack min-w-0">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 px-6 py-8 text-white shadow-lg">
+      <div className="hero-banner bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute -right-14 -top-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -left-14 -bottom-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
         </div>
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary-100">Institutional Supervisor</p>
-          <h1 className="mt-1 text-2xl font-display font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 text-xl font-display font-bold tracking-tight sm:text-2xl md:text-3xl">
             {getTimeBasedGreeting()}, {user?.name ?? 'Supervisor'}!
           </h1>
           <p className="mt-2 text-sm text-primary-100">
@@ -194,50 +211,50 @@ export function SupervisorDashboard() {
 
       {/* Summary stats — 1 primary, 3 light */}
       <section>
-        <div className="mb-4 flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-slate-800 font-display">Visit summary</h2>
+        <div className="section-heading mb-4">
+          <h2 className="text-base font-semibold text-slate-800 font-display sm:text-lg">Visit summary</h2>
           <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
             Live stats
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="stat-grid-compact">
           <StatCard
             title="Total Assigned Students"
             value={s.totalStudents}
             variant="primary"
             subtitle="In your list"
             cornerIcon={false}
+            compact
           />
-          <StatCard title="First Visits" value={s.firstVisits} variant="light" subtitle="Completed" />
-          <StatCard title="Second Visits" value={s.secondVisits} variant="light" subtitle="Completed" />
+          <StatCard title="First Visits" value={s.firstVisits} variant="light" subtitle="Completed" compact />
+          <StatCard title="Second Visits" value={s.secondVisits} variant="light" subtitle="Completed" compact />
           <StatCard
             title="Scoresheets (1st / 2nd)"
             value={`${s.firstVisitWithScoresheet} / ${s.secondVisitWithScoresheet}`}
             variant="light"
             subtitle="Submitted"
+            compact
           />
         </div>
       </section>
 
       {/* Charts: assigned students only — side by side */}
       <section>
-        <div className="mb-4 flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-slate-800 font-display">Assigned students overview</h2>
+        <div className="section-heading mb-4">
+          <h2 className="text-base font-semibold text-slate-800 font-display sm:text-lg">Assigned students overview</h2>
           <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
             Your students only
           </span>
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="chart-grid-2">
           <BarChartCard
             title="Visit scoresheets submitted"
             data={visitScoresData}
             barColor="#10b981"
-            height={240}
           />
           <PieChartCard
             title="Students by region"
             data={regionChartData}
-            height={240}
             showRegionList={true}
           />
         </div>
@@ -245,23 +262,36 @@ export function SupervisorDashboard() {
 
       {/* Assigned students table */}
       <section>
-        <div className="mb-4 flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-slate-800 font-display">Assigned Students</h2>
+        <div className="section-heading mb-4">
+          <h2 className="text-base font-semibold text-slate-800 font-display sm:text-lg">Assigned Students</h2>
           <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
             {students.length} student{students.length !== 1 ? 's' : ''}
           </span>
         </div>
         <Card className="overflow-hidden border border-slate-200 bg-white shadow-sm">
-          <div className="p-5">
+          <div className="p-3 sm:p-5">
+            <TableFilters
+              filterBy={filterBy}
+              onFilterByChange={setFilterBy}
+              filterOptions={STUDENT_FILTER_FIELDS}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search assigned students…"
+              resultCount={filteredStudents.length}
+              totalCount={students.length}
+            />
             <DataTable
               columns={columns}
-              data={students.map((st) => ({
+              data={filteredStudents.map((st) => ({
                 ...st,
                 onGrade: (student: StudentSummary) => setGradingStudent(student),
               })) as (StudentSummary & { onGrade?: (s: StudentSummary) => void })[]}
-              maxHeight="60vh"
               keyField="student_index"
-              emptyMessage="No students have been assigned to you yet."
+              emptyMessage={
+                search.trim() || filterBy !== 'all'
+                  ? 'No students match your search.'
+                  : 'No students have been assigned to you yet.'
+              }
             />
           </div>
         </Card>
@@ -269,11 +299,11 @@ export function SupervisorDashboard() {
 
       {gradingStudent && (
         <div
-          className="fixed inset-0 z-40 flex justify-end bg-slate-900/50 backdrop-blur-sm"
+          className="fixed inset-0 z-40 flex items-end justify-center bg-slate-900/50 backdrop-blur-sm sm:items-stretch sm:justify-end"
           onClick={(e) => e.target === e.currentTarget && closeGradeModal()}
         >
-          <div className="flex h-full w-full max-w-3xl flex-col bg-white shadow-2xl animate-slide-up">
-            <header className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
+          <div className="flex max-h-[92vh] w-full max-w-3xl flex-col rounded-t-2xl bg-white shadow-2xl animate-slide-up sm:h-full sm:max-h-none sm:rounded-none">
+            <header className="flex items-start justify-between gap-3 border-b border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary-600/80">
                   Visiting score
@@ -296,7 +326,7 @@ export function SupervisorDashboard() {
                 <span className="block leading-none text-lg">×</span>
               </button>
             </header>
-            <div className="flex-1 overflow-y-auto px-6 py-4 bg-slate-50">
+            <div className="flex-1 overflow-y-auto px-4 py-4 bg-slate-50 sm:px-6">
               <SupervisorScoreForm
                 key={`${gradingStudent.student_index}-v${gradingVisitNumber ?? 0}`}
                 indexNumber={gradingStudent.student_index}

@@ -19,7 +19,7 @@ export function StudentLayout() {
       : undefined;
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="fixed inset-0 z-0 flex min-w-0 flex-col overflow-hidden bg-surface">
       <TopBar
         pinned
         displayName={user?.name ?? 'Student'}
@@ -28,8 +28,8 @@ export function StudentLayout() {
         profilePhotoUrl={profilePhotoUrl}
         profilePhotoEnlargeable
       />
-      <main className="min-h-screen w-full min-w-0 pt-14">
-        <div className="mx-auto w-full max-w-[1600px] px-3 pb-6 pt-3 sm:px-4 md:px-6">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-14">
+        <div className="mx-auto w-full max-w-[1600px] px-3 pb-6 pt-3 sm:px-4 md:px-6 lg:pb-8">
           <Outlet />
         </div>
       </main>

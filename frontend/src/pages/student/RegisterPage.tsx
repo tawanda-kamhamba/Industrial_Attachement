@@ -171,7 +171,7 @@ export function RegisterPage() {
           </div>
         </Card>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="page-stack">
           <Card padding="lg" className="bg-white space-y-6">
             <h2 className="text-base font-semibold text-slate-800">Your details</h2>
             <div className="grid gap-4 sm:grid-cols-2">

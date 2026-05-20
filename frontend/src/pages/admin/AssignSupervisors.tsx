@@ -115,10 +115,10 @@ export function AssignSupervisors() {
   if (!data) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Assign Supervisors</h1>
-        <p className="mt-1 text-slate-500">Assign institutional supervisors by province and faculty. Add lecturers first, then assign first and second supervisor per cell.</p>
+        <h1 className="page-title">Assign Supervisors</h1>
+        <p className="page-subtitle">Assign institutional supervisors by province and faculty. Add lecturers first, then assign first and second supervisor per cell.</p>
       </div>
 
       {message && (
@@ -130,11 +130,11 @@ export function AssignSupervisors() {
       {/* Student stats by region */}
       <Card>
         <CardHeader title="Students per province (from assumptions)" />
-        <div className="flex flex-wrap gap-3">
+        <div className="region-pills-grid">
           {(data.regions ?? REGIONS).map((region) => (
             <div
               key={region}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-center"
+              className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center sm:px-4"
             >
               <div className="text-xs font-medium uppercase text-slate-500">{region}</div>
               <div className="text-xl font-semibold text-slate-800">{(data.regionStats ?? {})[region] ?? 0}</div>
@@ -146,8 +146,8 @@ export function AssignSupervisors() {
       {/* Registered lecturers */}
       <Card>
         <CardHeader title="Registered lecturers" />
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-slate-200 text-sm">
+        <div className="max-h-[min(60vh,32rem)] overflow-auto rounded-lg border border-slate-200">
+          <table className="min-w-full text-sm">
             <thead>
               <tr className="bg-slate-50">
                 <th className="border-b border-slate-200 px-3 py-2 text-left font-medium text-slate-700">Name</th>
@@ -310,7 +310,7 @@ export function AssignSupervisors() {
               </button>
               {activeRegion === region && (
                 <div className="border-t border-slate-200 bg-white p-4">
-                  <div className="overflow-x-auto">
+                  <div className="max-h-[min(60vh,24rem)] overflow-auto rounded-lg border border-slate-100">
                     <table className="min-w-full text-sm">
                       <thead>
                         <tr className="border-b border-slate-200">

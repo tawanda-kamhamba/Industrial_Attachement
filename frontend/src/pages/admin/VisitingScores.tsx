@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
+import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
+import { filterRows, STUDENT_FILTER_FIELDS } from '@/utils/tableSearch';
 
 interface ScoreRow {
   index_number: string;
@@ -45,10 +47,22 @@ const columns: Column<ScoreRow>[] = [
   },
 ];
 
+const fieldGetters = {
+  index_number: (r: ScoreRow) => r.index_number,
+  student_name: (r: ScoreRow) => `${r.first_name} ${r.last_name}`,
+  first_name: (r: ScoreRow) => r.first_name,
+  last_name: (r: ScoreRow) => r.last_name,
+  programme: (r: ScoreRow) => r.programme,
+  level: (r: ScoreRow) => r.level,
+  session: (r: ScoreRow) => r.session,
+};
+
 export function VisitingScores() {
   const [rows, setRows] = useState<ScoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterBy, setFilterBy] = useState('all');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     api
@@ -58,19 +72,39 @@ export function VisitingScores() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(
+    () => filterRows(rows, search, filterBy, fieldGetters),
+    [rows, search, filterBy]
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="page-stack min-w-0">
       <div>
-        <h1 className="text-2xl font-display font-bold text-slate-900">Visiting Supervisors Score</h1>
-        <p className="mt-1 text-slate-500">First and second visit scores from visiting supervisors</p>
+        <h1 className="page-title">Visiting Supervisors Score</h1>
+        <p className="page-subtitle">First and second visit scores from visiting supervisors</p>
       </div>
       <Card>
         <CardHeader title="Scores" />
+        <TableFilters
+          filterBy={filterBy}
+          onFilterByChange={setFilterBy}
+          filterOptions={STUDENT_FILTER_FIELDS}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search scores…"
+          resultCount={filtered.length}
+          totalCount={rows.length}
+        />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (
-          <DataTable columns={columns} data={rows} keyField="index_number" emptyMessage="No visiting scores yet." />
+          <DataTable
+            columns={columns}
+            data={filtered}
+            keyField="index_number"
+            emptyMessage={search.trim() ? 'No scores match your search.' : 'No visiting scores yet.'}
+          />
         )}
       </Card>
     </div>

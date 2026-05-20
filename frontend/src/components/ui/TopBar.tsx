@@ -243,20 +243,20 @@ export function TopBar({
           </span>
         </button>
       ) : null}
-      <div className="flex min-w-0 shrink-0 items-center">
+      <div className={`min-w-0 shrink-0 items-center ${showMenuButton ? 'hidden sm:flex' : 'flex'}`}>
         {logoUrl && (
-          <img src={logoUrl} alt="Logo" className="h-7 w-auto max-w-[120px] object-contain sm:h-8" />
+          <img src={logoUrl} alt="Logo" className="h-7 w-auto max-w-[100px] object-contain sm:h-8 sm:max-w-[120px]" />
         )}
       </div>
-      <div className="hidden min-w-0 flex-1 items-center justify-center md:flex">
-        <div className="relative w-full max-w-md px-1">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden>
+      <div className="flex min-w-0 flex-1 items-center justify-center md:px-1">
+        <div className="relative w-full min-w-0 max-w-full sm:max-w-md">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 sm:left-4" aria-hidden>
             &#8981;
           </span>
           <input
-            type="text"
+            type="search"
             placeholder={searchPlaceholder}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-1 focus:ring-primary-500"
+            className="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-1 focus:ring-primary-500 sm:py-2 sm:pl-9 sm:pr-3"
           />
         </div>
       </div>
@@ -339,7 +339,7 @@ export function TopBar({
         </div>
         <button
           type="button"
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:inline-flex"
           title="Help"
           aria-label="Help"
         >
