@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
+import { SearchField } from '@/components/ui/SearchField';
 
 interface TopBarProps {
   title?: string;
@@ -228,7 +229,7 @@ export function TopBar({
     <header
       className={`${
         pinned ? 'fixed top-0 left-0 right-0 z-50' : 'sticky top-0 z-40'
-      } flex h-14 min-w-0 items-center gap-2 border-b border-slate-200 bg-white px-3 shadow-card sm:gap-3 sm:px-4`}
+      } flex min-h-14 min-w-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-white px-3 py-2 shadow-card sm:flex-nowrap sm:gap-3 sm:px-4 sm:py-0`}
     >
       {showMenuButton ? (
         <button
@@ -248,17 +249,12 @@ export function TopBar({
           <img src={logoUrl} alt="Logo" className="h-7 w-auto max-w-[100px] object-contain sm:h-8 sm:max-w-[120px]" />
         )}
       </div>
-      <div className="flex min-w-0 flex-1 items-center justify-center md:px-1">
-        <div className="relative w-full min-w-0 max-w-full sm:max-w-md">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 sm:left-4" aria-hidden>
-            &#8981;
-          </span>
-          <input
-            type="search"
-            placeholder={searchPlaceholder}
-            className="w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-1 focus:ring-primary-500 sm:py-2 sm:pl-9 sm:pr-3"
-          />
-        </div>
+      <div className="w-full min-w-0 basis-full sm:basis-auto sm:flex-1 sm:px-1 md:px-2">
+        <SearchField
+          placeholder={searchPlaceholder}
+          aria-label="Search"
+          className="mx-auto w-full max-w-full sm:max-w-md"
+        />
       </div>
       <div className="ml-auto flex min-w-0 shrink-0 items-center gap-0.5 sm:gap-2">
         <div className="relative" ref={notifBoxRef}>

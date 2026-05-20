@@ -64,13 +64,13 @@ export function AppShell({
         {mobileNavOpen ? (
           <button
             type="button"
-            className="fixed inset-0 top-14 z-20 bg-slate-900/50 backdrop-blur-[1px] lg:hidden"
+            className="fixed inset-0 top-[5.25rem] z-20 bg-slate-900/50 backdrop-blur-[1px] sm:top-14 lg:hidden"
             aria-label="Close menu"
             onClick={() => setMobileNavOpen(false)}
           />
         ) : null}
       </div>
-      <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden pt-14">
+      <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden pt-[5.25rem] sm:pt-14">
         <Sidebar
           items={sidebarItems}
           basePath={basePath}

@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/ui/StatCard';
+import { SearchField } from '@/components/ui/SearchField';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import { getTimeBasedGreeting } from '@/utils/greeting';
@@ -245,8 +246,8 @@ export function StudentDashboard() {
           <div className="absolute -right-14 -top-14 h-48 w-48 rounded-full bg-white/20 blur-2xl" />
           <div className="absolute -left-14 -bottom-14 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
         </div>
-        <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-5">
+        <div className="relative flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
             <ProfilePhotoLightbox
               src={profilePhotoLoaded ? profilePhotoUrl : null}
               className="shrink-0 cursor-zoom-in rounded-2xl border-0 bg-transparent p-0 ring-2 ring-white/30 ring-offset-0 transition hover:ring-white/50"
@@ -285,18 +286,14 @@ export function StudentDashboard() {
               </p>
             </div>
           </div>
-          <div className="w-full sm:w-auto">
-            <div className="relative w-full sm:w-[360px]">
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/80" aria-hidden>
-                ⌕
-              </span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search tasks (logbook, report, contract...)"
-                className="w-full rounded-xl border border-white/20 bg-white/10 py-2.5 pl-9 pr-3 text-sm text-white outline-none placeholder:text-white/70 backdrop-blur focus:border-white/40 focus:bg-white/15"
-              />
-            </div>
+          <div className="w-full min-w-0 sm:max-w-[360px] sm:shrink-0">
+            <SearchField
+              variant="hero"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search tasks (logbook, report, contract...)"
+              aria-label="Search tasks"
+            />
           </div>
         </div>
       </div>
@@ -308,7 +305,7 @@ export function StudentDashboard() {
           value={quickLinks.length}
           variant="primary"
           subtitle="Forms & pages you can access"
-          className="!p-4"
+          className="h-full !p-4"
         />
 
         <StatCard
@@ -316,11 +313,11 @@ export function StudentDashboard() {
           value={cardsLoading ? '—' : `${totalAssessmentsReceived} / ${assessmentsExpected}`}
           variant="info"
           subtitle={assessmentsSubtitle}
-          className="!p-4"
+          className="h-full !p-4 [&_p:last-child]:line-clamp-3"
         />
 
-        <Card className="border border-slate-200 bg-white" padding="sm">
-          <div className="flex items-start justify-between gap-4">
+        <Card className="flex h-full min-h-[6.5rem] flex-col border border-slate-200 bg-white sm:min-h-[7.5rem]" padding="sm">
+          <div className="flex flex-1 items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-800">Institutional supervisor</p>
               {cardsLoading ? (
@@ -366,7 +363,7 @@ export function StudentDashboard() {
           </div>
         </Card>
 
-        <Card className="border border-slate-200 bg-white" padding="sm">
+        <Card className="flex h-full min-h-[6.5rem] flex-col border border-slate-200 bg-white sm:min-h-[7.5rem]" padding="sm">
           <div className="flex items-start justify-between gap-3">
             <p className="text-sm font-semibold text-slate-800">Quick info</p>
             <Link to="/student/instructions" aria-label="Help">
@@ -379,12 +376,14 @@ export function StudentDashboard() {
               </Button>
             </Link>
           </div>
+          <div className="mt-auto">
           <p className="mt-1 text-xs text-slate-500">Index number</p>
           <p className="mt-0.5 font-display text-base font-semibold text-slate-900">{user?.indexNumber ?? '—'}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link to="/student/profile">
               <Button variant="outline" size="sm">Edit profile</Button>
             </Link>
+          </div>
           </div>
         </Card>
       </section>

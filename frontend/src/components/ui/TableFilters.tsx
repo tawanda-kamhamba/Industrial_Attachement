@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { SearchField } from '@/components/ui/SearchField';
 
 export type TableFilterOption = { value: string; label: string };
 
@@ -44,13 +45,12 @@ export function TableFilters({
           </option>
         ))}
       </select>
-      <input
-        type="search"
+      <SearchField
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={searchPlaceholder}
-        className="toolbar-input min-w-0 sm:min-w-[12rem]"
         aria-label="Search table"
+        className="min-w-0 flex-1 sm:min-w-[12rem] sm:max-w-md"
       />
       {showCount ? (
         <span className="text-xs text-slate-500 sm:ml-auto">
