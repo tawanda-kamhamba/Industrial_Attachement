@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/ui/StatCard';
 import { useAuth } from '@/hooks/useAuth';
@@ -93,8 +94,15 @@ const supervisorAssessmentLinks = [
 ];
 
 type StudentGradesResponse = {
-  visitingSupervisorGrade: number | null;
-  companySupervisorGrade: number | null;
+  assessmentsReceived?: number;
+  assessmentsExpected?: number;
+  firstVisitReceived?: boolean;
+  secondVisitReceived?: boolean;
+  companyReceived?: boolean;
+  firstVisitGrade?: number | null;
+  secondVisitGrade?: number | null;
+  companySupervisorGrade?: number | null;
+  visitingSupervisorGrade?: number | null;
   visitingDate?: string | null;
   companyDate?: string | null;
 };
@@ -137,7 +145,12 @@ export function StudentDashboard() {
   const profilePhotoUrl = user?.role === 'student'
     ? `/api/student/profile/photo?t=${photoVersion}`
     : null;
+  const [profilePhotoLoaded, setProfilePhotoLoaded] = useState(false);
   const initials = (user?.name ?? 'Student').trim().split(/\s+/).map((s) => s[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+  useEffect(() => {
+    setProfilePhotoLoaded(false);
+  }, [profilePhotoUrl]);
 
   const refreshOnboarding = async () => {
     setOnboardingLoading(true);
@@ -152,25 +165,27 @@ export function StudentDashboard() {
     }
   };
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadDashboardCards = async () => {
     setCardsLoading(true);
-    Promise.all([
-      api.get<StudentGradesResponse>('/student/grades').catch(() => null),
-      api.get<StudentSupervisorResponse>('/student/supervisor').catch(() => null),
-    ])
-      .then(([g, sup]) => {
-        if (cancelled) return;
-        setGrades(g);
-        setAssignedSupervisor(sup?.assigned ?? null);
-        setOtherAssignedSupervisor(sup?.other_assigned ?? null);
-      })
-      .finally(() => {
-        if (!cancelled) setCardsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const [g, sup] = await Promise.all([
+        api.get<StudentGradesResponse>('/student/grades').catch(() => null),
+        api.get<StudentSupervisorResponse>('/student/supervisor').catch(() => null),
+      ]);
+      setGrades(g);
+      setAssignedSupervisor(sup?.assigned ?? null);
+      setOtherAssignedSupervisor(sup?.other_assigned ?? null);
+    } finally {
+      setCardsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardCards().catch(() => undefined);
+    const onFocus = () => loadDashboardCards().catch(() => undefined);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -200,14 +215,30 @@ export function StudentDashboard() {
       .filter((g) => g.items.length > 0);
   }, [filteredLinks]);
 
+  const assessmentsExpected = grades?.assessmentsExpected ?? 3;
+
   const totalAssessmentsReceived = useMemo(() => {
-    const v = grades?.visitingSupervisorGrade;
-    const c = grades?.companySupervisorGrade;
-    return (typeof v === 'number' ? 1 : 0) + (typeof c === 'number' ? 1 : 0);
+    if (typeof grades?.assessmentsReceived === 'number') {
+      return grades.assessmentsReceived;
+    }
+    const first = grades?.firstVisitReceived ?? typeof grades?.firstVisitGrade === 'number';
+    const second = grades?.secondVisitReceived ?? typeof grades?.secondVisitGrade === 'number';
+    const company = grades?.companyReceived ?? typeof grades?.companySupervisorGrade === 'number';
+    return (first ? 1 : 0) + (second ? 1 : 0) + (company ? 1 : 0);
   }, [grades]);
 
+  const assessmentsSubtitle = useMemo(() => {
+    if (cardsLoading) return 'Loading your grades…';
+    const parts = [
+      `1st institutional visit: ${grades?.firstVisitReceived ? 'received' : 'pending'}`,
+      `2nd institutional visit: ${grades?.secondVisitReceived ? 'received' : 'pending'}`,
+      `company supervisor: ${grades?.companyReceived ? 'received' : 'pending'}`,
+    ];
+    return parts.join(' · ');
+  }, [cardsLoading, grades]);
+
   return (
-    <div className="space-y-8">
+    <div className="page-stack min-w-0">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 px-6 py-8 text-white shadow-lg">
         <div className="absolute inset-0 opacity-30">
@@ -216,27 +247,34 @@ export function StudentDashboard() {
         </div>
         <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-5">
-            <div className="relative flex h-16 w-16 shrink-0 overflow-hidden rounded-2xl ring-2 ring-white/30">
-              {profilePhotoUrl ? (
-                <img
-                  src={profilePhotoUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    el.style.display = 'none';
-                    const fallback = el.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div
-                className="flex h-full w-full items-center justify-center bg-white/15 text-xl font-semibold"
-                style={profilePhotoUrl ? { display: 'none' } : undefined}
-              >
-                {initials}
+            <ProfilePhotoLightbox
+              src={profilePhotoLoaded ? profilePhotoUrl : null}
+              className="shrink-0 cursor-zoom-in rounded-2xl border-0 bg-transparent p-0 ring-2 ring-white/30 ring-offset-0 transition hover:ring-white/50"
+            >
+              <div className="relative flex h-16 w-16 overflow-hidden rounded-2xl">
+                {profilePhotoUrl ? (
+                  <img
+                    src={profilePhotoUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onLoad={() => setProfilePhotoLoaded(true)}
+                    onError={(e) => {
+                      setProfilePhotoLoaded(false);
+                      const el = e.currentTarget;
+                      el.style.display = 'none';
+                      const fallback = el.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="flex h-full w-full items-center justify-center bg-white/15 text-xl font-semibold"
+                  style={profilePhotoLoaded ? { display: 'none' } : undefined}
+                >
+                  {initials}
+                </div>
               </div>
-            </div>
+            </ProfilePhotoLightbox>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white/80">Student portal</p>
               <h1 className="mt-1 text-2xl font-display font-bold tracking-tight sm:text-3xl">
@@ -275,9 +313,9 @@ export function StudentDashboard() {
 
         <StatCard
           title="Assessments received"
-          value={cardsLoading ? '—' : `${totalAssessmentsReceived} / 2`}
+          value={cardsLoading ? '—' : `${totalAssessmentsReceived} / ${assessmentsExpected}`}
           variant="info"
-          subtitle={cardsLoading ? 'Loading your grades…' : 'Visiting + company supervisor'}
+          subtitle={assessmentsSubtitle}
           className="!p-4"
         />
 

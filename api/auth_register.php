@@ -56,7 +56,24 @@ $insert = "INSERT INTO registered_students (first_name, last_name, index_number,
 
 try {
     if (mysqli_query($conn, $insert)) {
-        echo json_encode(['success' => true, 'message' => 'Registration successful. You can now sign in.']);
+        $_SESSION['role'] = 'student';
+        $_SESSION['user_id'] = $index_number;
+        $_SESSION['name'] = $first_name . ' ' . $last_name;
+        $_SESSION['index_number'] = $index_number;
+        $exp = time() + (86400 * 30);
+        setcookie('student_first_name', $first_name, $exp, '/');
+        setcookie('student_last_name', $last_name, $exp, '/');
+        setcookie('student_index_number', $index_number, $exp, '/');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Registration successful.',
+            'user' => [
+                'id' => $index_number,
+                'name' => $first_name . ' ' . $last_name,
+                'role' => 'student',
+                'indexNumber' => $index_number,
+            ],
+        ]);
         return;
     }
 

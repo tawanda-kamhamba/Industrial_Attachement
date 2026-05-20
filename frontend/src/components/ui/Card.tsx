@@ -8,14 +8,14 @@ interface CardProps {
 
 const paddingMap = {
   none: '',
-  sm: 'p-4',
-  md: 'p-6',
-  lg: 'p-8',
+  sm: 'p-3 sm:p-4',
+  md: 'p-4 sm:p-6',
+  lg: 'p-5 sm:p-6 md:p-8',
 };
 
 export function Card({ children, className = '', padding = 'md' }: CardProps) {
   return (
-    <div className={`rounded-xl border border-slate-200 bg-surface-card shadow-card ${paddingMap[padding]} ${className}`}>
+    <div className={`min-w-0 rounded-xl border border-slate-200 bg-surface-card shadow-card ${paddingMap[padding]} ${className}`}>
       {children}
     </div>
   );
@@ -23,8 +23,8 @@ export function Card({ children, className = '', padding = 'md' }: CardProps) {
 
 export function CardHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-4 flex items-center justify-between">
-      <h2 className="text-lg font-semibold text-slate-800 font-display">{title}</h2>
+    <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="text-base font-semibold text-slate-800 font-display sm:text-lg">{title}</h2>
       {action}
     </div>
   );

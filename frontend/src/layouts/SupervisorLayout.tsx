@@ -1,6 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import { TopBar } from '@/components/ui/TopBar';
-import { Sidebar, type SidebarItem } from '@/components/ui/Sidebar';
+import { AppShell } from '@/components/layout/AppShell';
+import type { SidebarItem } from '@/components/ui/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 const supervisorSidebarItems: SidebarItem[] = [
@@ -21,14 +20,12 @@ export function SupervisorLayout() {
   const displayName = user?.staffId ? `${user.name} (${user.staffId})` : user?.name ?? 'Supervisor';
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <TopBar pinned displayName={displayName} onLogout={logout} />
-      <Sidebar items={supervisorSidebarItems} basePath="/supervisor" onLogout={logout} />
-      <main className="ml-56 min-h-screen pt-14">
-        <div className="px-6 pb-6 pt-3">
-          <Outlet />
-        </div>
-      </main>
-    </div>
+    <AppShell
+      sidebarItems={supervisorSidebarItems}
+      basePath="/supervisor"
+      onLogout={logout}
+      displayName={displayName}
+      searchPlaceholder="Search students, logbooks, reports…"
+    />
   );
 }

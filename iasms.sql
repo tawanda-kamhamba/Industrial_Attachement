@@ -81,7 +81,7 @@ INSERT INTO `assigned_lecturers` (`id`, `regions`, `first_supervisor_agr`, `seco
 --
 
 CREATE TABLE `company_supervisor_grade` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
   `user_index` varchar(100) NOT NULL,
   `specific_skill_1` varchar(100) NOT NULL,

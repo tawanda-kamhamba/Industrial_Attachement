@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
 const labelClass = 'block text-sm font-medium text-slate-700';
 
 export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () => void; onCancel: () => void }) {
+  const navigate = useNavigate();
+  const { applyLoggedInUser, login } = useAuth();
   const [full_name, setFull_name] = useState('');
   const [staff_id, setStaff_id] = useState('');
   const [email, setEmail] = useState('');
@@ -14,7 +18,7 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
   const [password, setPassword] = useState('');
   const [confirm_password, setConfirm_password] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [signupCompleteManualLogin, setSignupCompleteManualLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +34,12 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
     }
     setLoading(true);
     try {
-      const data = await api.post<{ success: boolean; error?: string; message?: string }>('/auth/supervisor-register', {
+      const data = await api.post<{
+        success: boolean;
+        error?: string;
+        message?: string;
+        user?: { id: string; name: string; role: 'supervisor'; staffId: string };
+      }>('/auth/supervisor-register', {
         full_name: full_name.trim(),
         staff_id: staff_id.trim(),
         email: email.trim(),
@@ -39,8 +48,20 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
         confirm_password,
       });
       if (data.success) {
-        setSuccess(true);
-        onSuccess?.();
+        if (data.user) {
+          applyLoggedInUser(data.user);
+          onSuccess?.();
+          navigate('/supervisor/dashboard', { replace: true });
+          return;
+        }
+        const loggedIn = await login('supervisor', { staffId: staff_id.trim(), password });
+        if (loggedIn) {
+          onSuccess?.();
+          navigate('/supervisor/dashboard', { replace: true });
+          return;
+        }
+        setSignupCompleteManualLogin(true);
+        setError('Account created, but automatic sign-in failed. Please sign in with your Staff ID and password.');
       } else {
         setError(data.error ?? 'Sign up failed.');
       }
@@ -52,13 +73,14 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
     }
   };
 
-  if (success) {
+  if (signupCompleteManualLogin) {
     return (
       <div className="rounded-2xl border border-slate-700 bg-slate-900/95 p-6 text-center">
         <p className="text-primary-300 font-medium">Account created.</p>
-        <p className="mt-1 text-sm text-slate-400">You can now sign in with your Staff ID and password.</p>
+        <p className="mt-1 text-sm text-slate-400">Please sign in with your Staff ID and password.</p>
+        {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
         <Button type="button" onClick={onCancel} className="mt-4" variant="outline">
-          Close
+          Go to sign in
         </Button>
       </div>
     );
@@ -141,7 +163,7 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
       {error && <p className="text-sm text-red-400">{error}</p>}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <Button type="submit" disabled={loading}>
-          {loading ? 'Signing up…' : 'Sign Up'}
+          {loading ? 'Creating account…' : 'Sign Up'}
         </Button>
         <button type="button" onClick={onCancel} className="text-sm text-slate-400 hover:text-slate-200 hover:underline">
           Cancel

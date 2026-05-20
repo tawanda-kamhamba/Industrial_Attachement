@@ -37,10 +37,10 @@ export function DataTable<T extends object>({
   }
 
   const scrollWrapperStyle = maxHeight ? { maxHeight } : undefined;
-  const scrollWrapperClass = `overflow-x-auto ${maxHeight ? 'overflow-y-auto' : ''} rounded-lg`;
+  const scrollWrapperClass = `overflow-x-auto overscroll-x-contain ${maxHeight ? 'overflow-y-auto' : ''} rounded-lg`;
 
   return (
-    <div className={`overflow-hidden rounded-lg border border-slate-200 ${className}`}>
+    <div className={`min-w-0 overflow-hidden rounded-lg border border-slate-200 ${className}`}>
       <div className={scrollWrapperClass} style={scrollWrapperStyle}>
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="sticky top-0 z-10 bg-slate-50">
@@ -48,7 +48,7 @@ export function DataTable<T extends object>({
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
-                  className={`px-4 py-3 font-medium text-slate-700 ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}`}
+                  className={`whitespace-nowrap px-2 py-2.5 text-xs font-medium text-slate-700 sm:px-4 sm:py-3 sm:text-sm ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}`}
                 >
                   {col.header}
                 </th>
@@ -66,7 +66,7 @@ export function DataTable<T extends object>({
                   {columns.map((col) => (
                     <td
                       key={String(col.key)}
-                      className={`px-4 py-3 text-slate-800 ${
+                      className={`px-2 py-2.5 text-xs text-slate-800 sm:px-4 sm:py-3 sm:text-sm ${
                         col.align === 'center'
                           ? 'text-center'
                           : col.align === 'right'
