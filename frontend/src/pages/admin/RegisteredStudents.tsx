@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
+import { SearchField } from '@/components/ui/SearchField';
 import { api } from '@/services/api';
 import { ClassGradeBadge, MarkCell } from '@/components/ClassGradeBadge';
 
@@ -119,12 +120,12 @@ export function RegisteredStudents() {
             <option value="level">Level</option>
             <option value="session">Session</option>
           </select>
-          <input
-            type="text"
+          <SearchField
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search term..."
-            className="toolbar-input sm:min-w-[12rem]"
+            aria-label="Search students"
+            className="min-w-0 flex-1 sm:min-w-[12rem] sm:max-w-md"
           />
           <Button variant="primary" size="sm" onClick={fetchStudents}>Search</Button>
         </div>

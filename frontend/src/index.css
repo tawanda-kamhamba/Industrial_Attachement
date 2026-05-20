@@ -71,11 +71,17 @@
     @apply mb-4 flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center;
   }
   .toolbar-input {
-    @apply min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm;
+    @apply min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-1 focus:ring-primary-500;
   }
-  /* Dashboard / summary stat grids (sidebar-aware) */
+  /* Dashboard / summary stat grids — 4 cols when section is wide (container + viewport fallback) */
   .stat-grid-4 {
-    @apply grid grid-cols-1 gap-3 min-w-0 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4;
+    container-type: inline-size;
+    @apply grid min-w-0 grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4;
+  }
+  @container (min-width: 52rem) {
+    .stat-grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
   .stat-grid-compact {
     @apply grid grid-cols-2 gap-2 min-w-0 sm:gap-3 lg:grid-cols-4;

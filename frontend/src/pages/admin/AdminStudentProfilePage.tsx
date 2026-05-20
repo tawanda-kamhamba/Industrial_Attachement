@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
+import { SearchField } from '@/components/ui/SearchField';
 
 interface LecturerLite {
   id: number;
@@ -347,11 +348,12 @@ export function AdminStudentProfilePage() {
               <div className="grid gap-4 lg:grid-cols-3">
                 <div className="lg:col-span-1">
                   <label className="block text-sm font-medium text-slate-700">Search supervisor</label>
-                  <input
+                  <SearchField
                     value={supervisorFilter}
                     onChange={(e) => setSupervisorFilter(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                    className="mt-1"
                     placeholder="Type a name, faculty, region…"
+                    aria-label="Search supervisor"
                   />
                 </div>
                 <div className="lg:col-span-2">

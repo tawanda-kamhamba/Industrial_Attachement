@@ -28,7 +28,7 @@ export function StudentLayout() {
         profilePhotoUrl={profilePhotoUrl}
         profilePhotoEnlargeable
       />
-      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-14">
+      <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-[5.25rem] sm:pt-14">
         <div className="mx-auto w-full max-w-[1600px] px-3 pb-6 pt-3 sm:px-4 md:px-6 lg:pb-8">
           <Outlet />
         </div>
