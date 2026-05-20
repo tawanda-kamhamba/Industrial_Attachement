@@ -26,9 +26,10 @@ export function StudentLayout() {
         onLogout={logout}
         profileLink="/student/profile"
         profilePhotoUrl={profilePhotoUrl}
+        profilePhotoEnlargeable
       />
-      <main className="min-h-screen pt-14">
-        <div className="px-6 pb-6 pt-3">
+      <main className="min-h-screen w-full min-w-0 pt-14">
+        <div className="mx-auto w-full max-w-[1600px] px-3 pb-6 pt-3 sm:px-4 md:px-6">
           <Outlet />
         </div>
       </main>

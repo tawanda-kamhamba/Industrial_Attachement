@@ -7,6 +7,7 @@ interface AuthContextValue {
   loading: boolean;
   error: string | null;
   login: (role: User['role'], payload: { name?: string; staffId?: string; indexNumber?: string; password?: string }) => Promise<boolean>;
+  applyLoggedInUser: (apiUser: NonNullable<LoginResponse['user']>) => void;
   logout: () => Promise<void>;
   clearError: () => void;
   refreshUser: () => Promise<void>;
@@ -90,6 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
+  const applyLoggedInUser = useCallback((apiUser: NonNullable<LoginResponse['user']>) => {
+    const u = mapApiUserToUser(apiUser);
+    setUser(u);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    setError(null);
+  }, []);
+
   const clearError = useCallback(() => setError(null), []);
 
   const refreshUser = useCallback(async () => {
@@ -137,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout, clearError, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, error, login, applyLoggedInUser, logout, clearError, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

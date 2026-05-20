@@ -15,6 +15,49 @@ function iasms_final_grade_weights(): array
     ];
 }
 
+/** Ensure company_supervisor_grade.id is PRIMARY KEY + AUTO_INCREMENT (older DBs may lack this). */
+function iasms_ensure_company_supervisor_grade_autoincrement(mysqli $conn): void
+{
+    $tableCheck = @mysqli_query($conn, "SHOW TABLES LIKE 'company_supervisor_grade'");
+    if (!$tableCheck || mysqli_num_rows($tableCheck) === 0) {
+        return;
+    }
+
+    $colCheck = @mysqli_query($conn, "SHOW COLUMNS FROM company_supervisor_grade WHERE Field = 'id'");
+    if (!$colCheck || mysqli_num_rows($colCheck) === 0) {
+        return;
+    }
+
+    $col = mysqli_fetch_assoc($colCheck) ?: [];
+    $extra = strtolower((string)($col['Extra'] ?? ''));
+    if (strpos($extra, 'auto_increment') !== false) {
+        return;
+    }
+
+    // Duplicate or zero ids cause #1062 when enabling AUTO_INCREMENT — resequence first.
+    $pkCheck = @mysqli_query($conn, "SHOW KEYS FROM company_supervisor_grade WHERE Key_name = 'PRIMARY'");
+    if ($pkCheck && mysqli_num_rows($pkCheck) > 0) {
+        @mysqli_query($conn, 'ALTER TABLE company_supervisor_grade DROP PRIMARY KEY');
+    }
+
+    @mysqli_query($conn, 'SET @iasms_csg_id := 0');
+    @mysqli_query(
+        $conn,
+        'UPDATE company_supervisor_grade SET `id` = (@iasms_csg_id := @iasms_csg_id + 1) ORDER BY `date` ASC, `id` ASC'
+    );
+
+    $next = 1;
+    $maxRes = @mysqli_query($conn, 'SELECT COALESCE(MAX(`id`), 0) + 1 AS n FROM company_supervisor_grade');
+    if ($maxRes && ($maxRow = mysqli_fetch_assoc($maxRes))) {
+        $next = max(1, (int)($maxRow['n'] ?? 1));
+    }
+
+    @mysqli_query(
+        $conn,
+        "ALTER TABLE company_supervisor_grade MODIFY `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, AUTO_INCREMENT=$next"
+    );
+}
+
 function iasms_ensure_supervisor_student_marks_table(mysqli $conn): void
 {
     @mysqli_query(
@@ -296,4 +339,75 @@ function iasms_attach_grades_to_rows(array &$rows, array $gradesByIndex, string 
         $row['report_mark'] = $g['report_mark'];
     }
     unset($row);
+}
+
+/**
+ * Student dashboard: assessments actually received (scoresheet submitted).
+ * Ignores industrial_registration placeholder zeros set at attachment registration.
+ *
+ * @return array<string, mixed>
+ */
+function iasms_student_assessments_received(mysqli $conn, string $index_number): array
+{
+    iasms_ensure_company_supervisor_grade_autoincrement($conn);
+
+    $idx_esc = mysqli_real_escape_string($conn, $index_number);
+
+    $colCheck = mysqli_query($conn, "SHOW COLUMNS FROM visiting_supervisor_grade LIKE 'visit_number'");
+    if (!$colCheck || mysqli_num_rows($colCheck) === 0) {
+        @mysqli_query($conn, "ALTER TABLE visiting_supervisor_grade ADD COLUMN visit_number TINYINT(1) NOT NULL DEFAULT 1 AFTER user_index");
+    }
+
+    $first_received = false;
+    $second_received = false;
+    $first_grade = null;
+    $second_grade = null;
+
+    $vq = "SELECT visit_number, grade FROM visiting_supervisor_grade WHERE user_index='$idx_esc'";
+    $vr = mysqli_query($conn, $vq);
+    if ($vr) {
+        while ($vrow = mysqli_fetch_assoc($vr)) {
+            if ($vrow['grade'] === null || $vrow['grade'] === '') {
+                continue;
+            }
+            $vn = (int)($vrow['visit_number'] ?? 1);
+            $g = (float)$vrow['grade'];
+            if ($vn === 2) {
+                $second_received = true;
+                $second_grade = $g;
+            } else {
+                $first_received = true;
+                $first_grade = $g;
+            }
+        }
+    }
+
+    $company_received = false;
+    $company_grade = null;
+    $company_date = null;
+    $cq = "SELECT grade, date FROM company_supervisor_grade WHERE user_index='$idx_esc' ORDER BY date DESC LIMIT 1";
+    $cr = mysqli_query($conn, $cq);
+    if ($cr && ($crow = mysqli_fetch_assoc($cr))) {
+        if ($crow['grade'] !== null && $crow['grade'] !== '') {
+            $company_received = true;
+            $company_grade = (float)$crow['grade'];
+            $company_date = $crow['date'] ?? null;
+        }
+    }
+
+    $assessments_received = ($first_received ? 1 : 0) + ($second_received ? 1 : 0) + ($company_received ? 1 : 0);
+
+    return [
+        'assessmentsReceived' => $assessments_received,
+        'assessmentsExpected' => 3,
+        'firstVisitReceived' => $first_received,
+        'secondVisitReceived' => $second_received,
+        'companyReceived' => $company_received,
+        'firstVisitGrade' => $first_grade,
+        'secondVisitGrade' => $second_grade,
+        'companySupervisorGrade' => $company_grade,
+        'visitingSupervisorGrade' => $first_grade,
+        'visitingDate' => null,
+        'companyDate' => $company_date,
+    ];
 }

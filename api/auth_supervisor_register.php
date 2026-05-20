@@ -49,7 +49,25 @@ $insert = "INSERT INTO visiting_lecturers
   VALUES ('$name_safe', '', '$phone_safe', '', '', '$email_safe', '$staff_id_safe', '$pwd_safe')";
 
 if (mysqli_query($conn, $insert)) {
-    echo json_encode(['success' => true, 'message' => 'Account created. You can now sign in.']);
+    $new_id = (int)mysqli_insert_id($conn);
+    session_regenerate_id(true);
+    $_SESSION['role'] = 'supervisor';
+    $_SESSION['user_id'] = (string)$new_id;
+    $_SESSION['name'] = $full_name;
+    $_SESSION['staff_id'] = $staff_id;
+    require_once __DIR__ . '/supervisor_staff_cookie.php';
+    iasms_set_supervisor_staff_cookie($staff_id);
+    iasms_set_supervisor_id_cookie((string)$new_id);
+    echo json_encode([
+        'success' => true,
+        'message' => 'Account created.',
+        'user' => [
+            'id' => 'sup-' . $new_id,
+            'name' => $full_name,
+            'role' => 'supervisor',
+            'staffId' => $staff_id,
+        ],
+    ]);
 } else {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Unable to create account. Please try again.']);

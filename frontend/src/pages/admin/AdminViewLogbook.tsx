@@ -19,6 +19,9 @@ interface LogbookEntry {
   friday_skill_acquired: string;
   created_at: string | null;
   updated_at: string | null;
+  supervisor_comment?: string | null;
+  supervisor_commenter?: string | null;
+  supervisor_commented_at?: string | null;
 }
 
 interface ElogbookResponse {
@@ -108,6 +111,19 @@ export function AdminViewLogbook() {
                 </dl>
                 {entry.updated_at && (
                   <p className="mt-2 text-xs text-slate-400">Updated: {entry.updated_at}</p>
+                )}
+
+                {entry.supervisor_comment && (
+                  <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+                    <div className="text-xs text-slate-500">
+                      Supervisor comment
+                      {entry.supervisor_commenter ? ` · ${entry.supervisor_commenter}` : ''}
+                      {entry.supervisor_commented_at ? ` · ${entry.supervisor_commented_at}` : ''}
+                    </div>
+                    <div className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-800">
+                      {entry.supervisor_comment}
+                    </div>
+                  </div>
                 )}
               </div>
             ))}

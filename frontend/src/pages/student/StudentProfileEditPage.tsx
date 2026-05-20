@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 
@@ -133,30 +134,37 @@ export function StudentProfileEditPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
             <div className="relative">
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="Preview"
-                  className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-200"
-                />
-              ) : profile?.has_photo ? (
-                <img
-                  src={photoSrc}
-                  alt="Profile"
-                  className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-200"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                    const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-                    if (next) next.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div
-                className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-primary-100 text-2xl font-semibold text-primary-700"
-                style={{ display: photoPreview ? 'none' : !profile?.has_photo ? 'flex' : 'none' }}
+              <ProfilePhotoLightbox
+                src={photoPreview ?? (profile?.has_photo ? photoSrc : null)}
+                className="cursor-zoom-in rounded-full border-0 bg-transparent p-0"
               >
-                {initials}
-              </div>
+                <div className="relative h-24 w-24">
+                  {photoPreview ? (
+                    <img
+                      src={photoPreview}
+                      alt="Preview"
+                      className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-200"
+                    />
+                  ) : profile?.has_photo ? (
+                    <img
+                      src={photoSrc}
+                      alt="Profile"
+                      className="h-24 w-24 rounded-full object-cover ring-2 ring-slate-200"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                        const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
+                        if (next) next.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-primary-100 text-2xl font-semibold text-primary-700"
+                    style={{ display: photoPreview ? 'none' : !profile?.has_photo ? 'flex' : 'none' }}
+                  >
+                    {initials}
+                  </div>
+                </div>
+              </ProfilePhotoLightbox>
               <label className="mt-2 block">
                 <span className="sr-only">Choose photo</span>
                 <input

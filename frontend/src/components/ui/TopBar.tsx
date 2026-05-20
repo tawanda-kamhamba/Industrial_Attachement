@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
+import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 
 interface TopBarProps {
   title?: string;
@@ -15,6 +16,12 @@ interface TopBarProps {
   profileLink?: string;
   /** URL for profile photo. When set, avatar shows image with fallback to initial. */
   profilePhotoUrl?: string;
+  /** Click avatar to view full-size photo (student portal). */
+  profilePhotoEnlargeable?: boolean;
+  /** Show hamburger for mobile sidebar (admin/supervisor). */
+  showMenuButton?: boolean;
+  onMenuToggle?: () => void;
+  menuOpen?: boolean;
 }
 
 type StudentNotification = {
@@ -51,8 +58,17 @@ export function TopBar({
   searchPlaceholder = 'Search logbook, forms, and more',
   profileLink,
   profilePhotoUrl,
+  profilePhotoEnlargeable = false,
+  showMenuButton = false,
+  onMenuToggle,
+  menuOpen = false,
 }: TopBarProps) {
   const initial = displayName.trim() ? displayName.trim().charAt(0).toUpperCase() : '?';
+  const [profilePhotoLoaded, setProfilePhotoLoaded] = useState(false);
+
+  useEffect(() => {
+    setProfilePhotoLoaded(false);
+  }, [profilePhotoUrl]);
 
   const { user } = useAuth();
   const isStudent = user?.role === 'student';
@@ -152,42 +168,55 @@ export function TopBar({
     );
   };
 
-  const avatarContent = profilePhotoUrl ? (
-    <img
-      src={profilePhotoUrl}
-      alt=""
-      className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200"
-      onError={(e) => {
-        const el = e.currentTarget;
-        el.style.display = 'none';
-        const fallback = el.nextElementSibling as HTMLElement;
-        if (fallback) fallback.style.display = 'flex';
-      }}
-    />
-  ) : null;
-  const avatarFallback = (
-    <div
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-medium text-white"
-      style={profilePhotoUrl ? { display: 'none' } : undefined}
-    >
-      {initial}
+  const avatarInner = (
+    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full">
+      {profilePhotoUrl ? (
+        <img
+          src={profilePhotoUrl}
+          alt=""
+          className="h-8 w-8 rounded-full object-cover ring-1 ring-slate-200"
+          onLoad={() => setProfilePhotoLoaded(true)}
+          onError={(e) => {
+            setProfilePhotoLoaded(false);
+            const el = e.currentTarget;
+            el.style.display = 'none';
+            const fallback = el.nextElementSibling as HTMLElement;
+            if (fallback) fallback.style.display = 'flex';
+          }}
+        />
+      ) : null}
+      <div
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-medium text-white"
+        style={profilePhotoLoaded ? { display: 'none' } : undefined}
+      >
+        {initial}
+      </div>
     </div>
   );
 
+  const avatarBlock =
+    profilePhotoEnlargeable && profilePhotoLoaded && profilePhotoUrl ? (
+      <ProfilePhotoLightbox
+        src={profilePhotoUrl}
+        className="shrink-0 cursor-zoom-in rounded-full border-0 bg-transparent p-0"
+      >
+        {avatarInner}
+      </ProfilePhotoLightbox>
+    ) : (
+      avatarInner
+    );
+
   const userBlock = (
     <>
-      <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full">
-        {avatarContent}
-        {avatarFallback}
-      </div>
-      <span className="max-w-[120px] truncate text-sm font-medium text-slate-700">
+      {avatarBlock}
+      <span className="hidden max-w-[120px] truncate text-sm font-medium text-slate-700 sm:inline md:max-w-[180px]">
         {displayName}
       </span>
       {onLogout && (
         <button
           type="button"
           onClick={onLogout}
-          className="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          className="hidden rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:inline"
         >
           Logout
         </button>
@@ -199,16 +228,29 @@ export function TopBar({
     <header
       className={`${
         pinned ? 'fixed top-0 left-0 right-0 z-50' : 'sticky top-0 z-40'
-      } flex h-14 items-center gap-4 border-b border-slate-200 bg-white px-4 shadow-card`}
+      } flex h-14 min-w-0 items-center gap-2 border-b border-slate-200 bg-white px-3 shadow-card sm:gap-3 sm:px-4`}
     >
-      <div className="flex shrink-0 items-center">
+      {showMenuButton ? (
+        <button
+          type="button"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 lg:hidden"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={onMenuToggle}
+        >
+          <span className="text-lg leading-none" aria-hidden>
+            {menuOpen ? '×' : '☰'}
+          </span>
+        </button>
+      ) : null}
+      <div className="flex min-w-0 shrink-0 items-center">
         {logoUrl && (
-          <img src={logoUrl} alt="Logo" className="h-8 w-auto object-contain" />
+          <img src={logoUrl} alt="Logo" className="h-7 w-auto max-w-[120px] object-contain sm:h-8" />
         )}
       </div>
-      <div className="flex flex-1 items-center justify-center">
-        <div className="relative w-full max-w-md">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden>
+      <div className="hidden min-w-0 flex-1 items-center justify-center md:flex">
+        <div className="relative w-full max-w-md px-1">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden>
             &#8981;
           </span>
           <input
@@ -218,7 +260,7 @@ export function TopBar({
           />
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 shrink-0 items-center gap-0.5 sm:gap-2">
         <div className="relative" ref={notifBoxRef}>
           <button
             type="button"
@@ -240,7 +282,7 @@ export function TopBar({
           </button>
 
           {hasNotifications && notifOpen && (
-            <div className="absolute right-0 z-50 mt-2 w-[360px] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+            <div className="absolute right-0 z-50 mt-2 w-[min(360px,calc(100vw-1.5rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
               <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
                 <div className="text-sm font-semibold text-slate-800">Notifications</div>
                 {loadingNotifs ? (
@@ -303,17 +345,17 @@ export function TopBar({
         >
           ?
         </button>
-        <div className="flex items-center gap-2 pl-2">
+        <div className="flex min-w-0 items-center gap-1 pl-1 sm:gap-2 sm:pl-2">
           {profileLink ? (
             <Link
               to={profileLink}
-              className="flex items-center gap-2 rounded-lg py-1 pr-1 transition hover:bg-slate-100"
+              className="flex min-w-0 items-center gap-1 rounded-lg py-1 pr-1 transition hover:bg-slate-100 sm:gap-2"
               title="Edit profile"
             >
               {userBlock}
             </Link>
           ) : (
-            <div className="flex items-center gap-2">{userBlock}</div>
+            <div className="flex min-w-0 items-center gap-1 sm:gap-2">{userBlock}</div>
           )}
         </div>
       </div>

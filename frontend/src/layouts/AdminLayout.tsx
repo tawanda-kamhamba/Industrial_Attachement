@@ -1,6 +1,5 @@
-import { Outlet } from 'react-router-dom';
-import { TopBar } from '@/components/ui/TopBar';
-import { Sidebar, type SidebarItem } from '@/components/ui/Sidebar';
+import { AppShell } from '@/components/layout/AppShell';
+import type { SidebarItem } from '@/components/ui/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 const adminSidebarItems: SidebarItem[] = [
@@ -22,20 +21,12 @@ export function AdminLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="no-print">
-        <TopBar
-          pinned
-          displayName={user?.name ?? 'Admin'}
-          onLogout={logout}
-        />
-        <Sidebar items={adminSidebarItems} basePath="/admin" onLogout={logout} />
-      </div>
-      <main className="ml-56 min-h-screen pt-14">
-        <div className="px-6 pb-6 pt-3">
-          <Outlet />
-        </div>
-      </main>
-    </div>
+    <AppShell
+      sidebarItems={adminSidebarItems}
+      basePath="/admin"
+      onLogout={logout}
+      displayName={user?.name ?? 'Admin'}
+      searchPlaceholder="Search students, reports, contracts…"
+    />
   );
 }

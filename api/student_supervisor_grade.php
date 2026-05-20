@@ -64,6 +64,11 @@ $grade_score = $s1v + $s2v + $s3v + $s4v + $s5v + $b1 + $b2 + $b3 + $b4 + $b5 + 
 $table = $type === 'visiting' ? 'visiting_supervisor_grade' : 'company_supervisor_grade';
 $col = $type === 'visiting' ? 'visiting_supervisor_grade' : 'company_supervisor_grade';
 
+if ($type === 'company') {
+    require_once __DIR__ . '/grading_helpers.php';
+    iasms_ensure_company_supervisor_grade_autoincrement($conn);
+}
+
 $ins = "INSERT INTO `$table` (`username`, `user_index`, `specific_skill_1`, `specific_skill_1_score`, `specific_skill_2`, `specific_skill_2_score`, `specific_skill_3`, `specific_skill_3_score`, `specific_skill_4`, `specific_skill_4_score`, `specific_skill_5`, `specific_skill_5_score`, `ability_to_complete_work_on_time`, `ability_to_follow_instructions_carefully`, `ability_to_take_initiatives`, `ability_to_work_with_little_supervision`, `adherence_to_organizations_rules`, `adherence_to_safety`, `resourcefulness`, `attendance_to_work`, `punctuality`, `desire_to_work`, `williness_to_accept_new_ideas`, `relationship_with_colleagues`, `relationship_with_supervisors`, `ability_to_control_emotions_when_provoked`, `grade`) VALUES ('$user', '$idx', '$s1', $s1v, '$s2', $s2v, '$s3', $s3v, '$s4', $s4v, '$s5', $s5v, $b1, $b2, $b3, $b4, $b5, $b6, $b7, $c1, $c2, $c3, $c4, $d1, $d2, $d3, $grade_score)";
 
 if (!mysqli_query($conn, $ins)) {

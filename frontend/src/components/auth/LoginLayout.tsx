@@ -38,9 +38,9 @@ interface LoginLayoutProps {
 
 export function LoginLayout({ children, cardTitle, cardSubtitle }: LoginLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <div className="flex min-h-[100dvh] min-w-0 flex-col md:min-h-screen md:flex-row">
       {/* Left: original sign-in design – dark gradient, orbs, title, card */}
-      <div className="relative flex min-h-screen flex-1 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 px-4 py-8">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-primary-900 to-slate-900 px-4 py-8 sm:py-10 md:min-h-screen">
         {/* Animated background orbs */}
         <div className="pointer-events-none absolute inset-0 opacity-40">
           <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-primary-500 blur-3xl mix-blend-screen animate-pulse" />

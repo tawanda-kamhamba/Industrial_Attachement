@@ -1,6 +1,8 @@
 <?php
 
 include '../database_connection/database_connection.php';
+require_once __DIR__ . '/../api/grading_helpers.php';
+iasms_ensure_company_supervisor_grade_autoincrement($conn);
 
 $student_fname = $_COOKIE["student_first_name"];
 $student_lname = $_COOKIE["student_last_name"];

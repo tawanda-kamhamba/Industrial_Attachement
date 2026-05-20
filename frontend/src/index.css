@@ -35,9 +35,25 @@
 @layer base {
   html {
     @apply antialiased;
+    -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-surface text-slate-800 font-sans min-h-screen;
+    @apply bg-surface text-slate-800 font-sans min-h-screen overflow-x-hidden;
+  }
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@layer utilities {
+  /* Horizontal scroll for wide tables/forms on small screens */
+  .responsive-table-wrap {
+    @apply -mx-3 w-[calc(100%+1.5rem)] overflow-x-auto sm:mx-0 sm:w-full;
+  }
+  .page-stack {
+    @apply flex w-full min-w-0 flex-col gap-4 sm:gap-6 md:gap-8;
   }
 }
 

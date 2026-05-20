@@ -37,7 +37,89 @@ mysqli_query(
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1"
 );
 
-// Only POST for uploads (no report status endpoint for now).
+$idxEsc = mysqli_real_escape_string($conn, $index_number);
+$allowed_ext = ['doc', 'docx', 'pdf'];
+$baseDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'submit_report' . DIRECTORY_SEPARATOR . 'uploads';
+
+/**
+ * @return array{submitted: bool, report_files: string[], original_filenames: string[], submission_date: ?string, status: ?string, admin_comment: ?string}
+ */
+function iasms_student_report_status(mysqli $conn, string $index_number, string $baseDir, array $allowed_ext): array
+{
+    $idxEsc = mysqli_real_escape_string($conn, $index_number);
+    $report_files = [];
+    $original_filenames = [];
+    $submission_date = null;
+    $status = null;
+    $admin_comment = null;
+
+    $r = @mysqli_query(
+        $conn,
+        "SELECT report_files_json, original_filenames_json, submission_date, status, admin_comment
+         FROM student_reports
+         WHERE index_number='$idxEsc'
+         LIMIT 1"
+    );
+    if ($r && mysqli_num_rows($r) > 0) {
+        $row = mysqli_fetch_assoc($r);
+        $decodedFiles = json_decode($row['report_files_json'] ?? '[]', true);
+        if (is_array($decodedFiles)) {
+            $report_files = array_values(array_filter(array_map('strval', $decodedFiles)));
+        }
+        $decodedOrig = json_decode($row['original_filenames_json'] ?? '[]', true);
+        if (is_array($decodedOrig)) {
+            $original_filenames = array_values(array_filter(array_map('strval', $decodedOrig)));
+        }
+        $submission_date = $row['submission_date'] ?? null;
+        $status = $row['status'] ?? null;
+        $admin_comment = $row['admin_comment'] ?? null;
+    }
+
+    if (empty($report_files) && is_dir($baseDir)) {
+        $base_want = $index_number;
+        $base_alt = str_replace(['/', '\\'], ['_', '_'], $index_number);
+        $entries = array_diff(scandir($baseDir), ['.', '..']);
+        foreach ($entries as $entry) {
+            $fullPath = $baseDir . DIRECTORY_SEPARATOR . $entry;
+            if (!is_file($fullPath)) {
+                continue;
+            }
+            $ext = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowed_ext, true)) {
+                continue;
+            }
+            $basename = pathinfo($entry, PATHINFO_FILENAME);
+            if ($basename === $base_want || $basename === $base_alt) {
+                $report_files[] = $entry;
+                $original_filenames[] = $entry;
+                break;
+            }
+        }
+    }
+
+    return [
+        'submitted' => !empty($report_files),
+        'report_files' => $report_files,
+        'original_filenames' => $original_filenames,
+        'submission_date' => $submission_date,
+        'status' => $status,
+        'admin_comment' => $admin_comment,
+    ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $status = iasms_student_report_status($conn, $index_number, $baseDir, $allowed_ext);
+    echo json_encode([
+        'submitted' => $status['submitted'],
+        'report_files' => $status['report_files'],
+        'original_filenames' => $status['original_filenames'],
+        'submission_date' => $status['submission_date'],
+        'status' => $status['status'],
+        'admin_comment' => $status['admin_comment'],
+    ]);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'error' => 'Method not allowed']);
@@ -50,9 +132,6 @@ if (!isset($_FILES['file']) || empty($_FILES['file']['name'])) {
     return;
 }
 
-$allowed_ext = ['doc', 'docx', 'pdf'];
-
-$baseDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'submit_report' . DIRECTORY_SEPARATOR . 'uploads';
 if (!is_dir($baseDir)) {
     @mkdir($baseDir, 0755, true);
 }
@@ -68,30 +147,9 @@ $uploaded = [];
 $skipped = [];
 $originalBases = [];
 
-// Enforce "only submit once" (DB row OR any existing file whose base name matches the index number).
-$idxEsc = mysqli_real_escape_string($conn, $index_number);
-$alreadySubmitted = false;
-$checkRes = @mysqli_query($conn, "SELECT id FROM student_reports WHERE index_number='$idxEsc' LIMIT 1");
-if ($checkRes && mysqli_num_rows($checkRes) > 0) {
-    $alreadySubmitted = true;
-} else {
-    if (is_dir($baseDir)) {
-        $entries = array_diff(scandir($baseDir), ['.', '..']);
-        foreach ($entries as $entry) {
-            $fullPath = $baseDir . DIRECTORY_SEPARATOR . $entry;
-            if (!is_file($fullPath)) continue;
-            $ext = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
-            if (!in_array($ext, $allowed_ext, true)) continue;
-            $basename = pathinfo($entry, PATHINFO_FILENAME);
-            if ($basename === $index_number) {
-                $alreadySubmitted = true;
-                break;
-            }
-        }
-    }
-}
-
-if ($alreadySubmitted) {
+// Enforce "only submit once" (DB row OR legacy file on disk).
+$existing = iasms_student_report_status($conn, $index_number, $baseDir, $allowed_ext);
+if ($existing['submitted']) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'You have already submitted your report. Report submissions are final.']);
     return;
