@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   BarChart3,
   BookOpen,
+  CalendarDays,
   ClipboardCheck,
   FileBarChart,
   FileText,
@@ -16,6 +17,7 @@ import {
 
 const supervisorSidebarItems: SidebarItem[] = [
   { to: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: 'visit-schedule', label: 'Visit schedule', icon: CalendarDays },
   { to: 'scores', label: 'Scores', icon: BarChart3 },
   { to: 'final-grades', label: 'Final grades', icon: GraduationCap },
   { to: 'passwords', label: 'Assessment passwords', icon: KeyRound },

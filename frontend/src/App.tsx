@@ -38,6 +38,7 @@ import { SupervisorScoresPage } from './pages/supervisor/SupervisorScoresPage';
 import { SupervisorFinalGradesPage } from './pages/supervisor/SupervisorFinalGradesPage';
 import { SupervisorAssessmentPasswordsPage } from './pages/supervisor/SupervisorAssessmentPasswordsPage';
 import { StudentProfilePage } from './pages/supervisor/StudentProfilePage';
+import { SupervisorVisitSchedulePage } from './pages/supervisor/SupervisorVisitSchedulePage';
 import { AdminViewLogbook } from './pages/admin/AdminViewLogbook';
 import { AdminStudentProfilePage } from './pages/admin/AdminStudentProfilePage';
 
@@ -53,6 +54,7 @@ import { SubmitAssumptionPage } from './pages/student/SubmitAssumptionPage';
 import { SupervisorAssessmentLoginPage } from './pages/student/SupervisorLoginPage';
 import { SupervisorGradeFormPage } from './pages/student/SupervisorGradeFormPage';
 import { StudentProfileEditPage } from './pages/student/StudentProfileEditPage';
+import { StudentVisitSchedulePage } from './pages/student/StudentVisitSchedulePage';
 
 function ProtectedRoute({
   children,
@@ -166,6 +168,7 @@ export default function App() {
       >
         <Route index element={<Navigate to="/supervisor/dashboard" replace />} />
         <Route path="dashboard" element={<SupervisorDashboard />} />
+        <Route path="visit-schedule" element={<SupervisorVisitSchedulePage />} />
         <Route path="scores" element={<SupervisorScoresPage />} />
         <Route path="final-grades" element={<SupervisorFinalGradesPage />} />
         <Route path="passwords" element={<SupervisorAssessmentPasswordsPage />} />
@@ -192,6 +195,7 @@ export default function App() {
         <Route path="instructions" element={<InstructionsPage />} />
         <Route path="orientation" element={<OrientationChecklistPage />} />
         <Route path="elogbook" element={<ELogbookPage />} />
+        <Route path="visit-schedule" element={<StudentVisitSchedulePage />} />
         <Route path="contract" element={<SubmitContractPage />} />
         <Route path="report" element={<SubmitReportPage />} />
         <Route path="register" element={<RegisterPage />} />

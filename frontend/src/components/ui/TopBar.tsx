@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, CircleHelp, LogOut, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
@@ -73,6 +73,7 @@ export function TopBar({
   }, [profilePhotoUrl]);
 
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isStudent = user?.role === 'student';
   const isSupervisor = user?.role === 'supervisor';
   const hasNotifications = isStudent || isSupervisor;
@@ -310,6 +311,14 @@ export function TopBar({
                       type="button"
                       onClick={() => {
                         if (!n.read_at) markNotificationRead(n.id).catch(() => undefined);
+                        if (n.type === 'visit_schedule_available' && isStudent) {
+                          setNotifOpen(false);
+                          navigate('/student/visit-schedule');
+                        }
+                        if (n.type === 'visit_schedule_selection' && isSupervisor) {
+                          setNotifOpen(false);
+                          navigate('/supervisor/visit-schedule');
+                        }
                       }}
                       className={`w-full rounded-md border px-3 py-2 text-left transition ${
                         n.read_at
