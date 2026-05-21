@@ -151,16 +151,36 @@
     display: block !important;
   }
 
-  body {
-    background: #fff;
+  html,
+  body,
+  #root {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  /* App shell: avoid fixed viewport clipping dashboard content */
+  #root .fixed.inset-0,
+  #root .fixed.inset-0 > div,
+  #root main {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  #root aside {
+    display: none !important;
   }
   main {
     padding-left: 0 !important;
     padding-top: 0 !important;
-    padding: 0 !important;
   }
   main > div {
-    padding: 0 !important;
+    padding: 0.5rem !important;
+    max-width: 100% !important;
   }
 
   /* Single page: fit content */

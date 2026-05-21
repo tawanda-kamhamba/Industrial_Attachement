@@ -6,6 +6,7 @@ import { LineChartCard } from '@/components/charts/LineChartCard';
 import { PieChartCard } from '@/components/charts/PieChartCard';
 import type { AdminDashboardStats, ChartDataPoint } from '@/types';
 import { api } from '@/services/api';
+import { printAdminDashboard } from '@/utils/adminDashboardPrint';
 
 export interface AdminChartsData {
   registrationsByMonth: ChartDataPoint[];
@@ -134,7 +135,21 @@ export function AdminDashboard() {
   }
 
   const handleExport = () => {
-    window.print();
+    try {
+      printAdminDashboard({
+        stats: s,
+        charts,
+        generatedAt: new Date().toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      });
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : 'Could not open print view.');
+    }
   };
 
   const printDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });

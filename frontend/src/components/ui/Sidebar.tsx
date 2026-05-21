@@ -57,7 +57,7 @@ export function Sidebar({ items, basePath, onLogout, mobileOpen = false, onNavig
 
   return (
     <aside
-      className={`fixed bottom-0 left-0 top-14 z-30 flex w-[min(100vw,14rem)] flex-col border-r border-slate-700 bg-surface-sidebar shadow-xl transition-transform duration-200 ease-out lg:w-56 lg:max-w-none lg:translate-x-0 lg:shadow-none ${
+      className={`no-print fixed bottom-0 left-0 top-14 z-30 flex w-[min(100vw,14rem)] flex-col border-r border-slate-700 bg-surface-sidebar shadow-xl transition-transform duration-200 ease-out lg:w-56 lg:max-w-none lg:translate-x-0 lg:shadow-none ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}
       aria-hidden={!mobileOpen ? undefined : false}
