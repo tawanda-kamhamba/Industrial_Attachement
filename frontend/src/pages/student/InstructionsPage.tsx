@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 
 const CARD_WIDTH = 300;
 const CARD_GAP = 20;
@@ -248,12 +249,7 @@ export function InstructionsPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link
-            to="/student"
-            className="text-sm text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-800"
-          >
-            ← Back to Dashboard
-          </Link>
+          <BackToDashboardLink className="text-slate-600 decoration-slate-300 hover:text-slate-800" />
         </div>
       </div>
     </div>

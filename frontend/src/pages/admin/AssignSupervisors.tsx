@@ -3,8 +3,10 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 
-const REGIONS = ['Bulawayo', 'Harare', 'Manicaland', 'Mashonaland Central', 'Mashonaland East', 'Mashonaland West', 'Masvingo', 'Matabeleland North', 'Matabeleland South', 'Midlands'];
-const FACULTIES = ['AGR', 'ARTS', 'COM', 'CIE', 'EDU', 'ENG', 'LAW', 'MED', 'SCI', 'SOC', 'VET'];
+import { SUPERVISOR_FACULTIES, SUPERVISOR_REGIONS } from '@/constants/supervisor';
+
+const REGIONS = [...SUPERVISOR_REGIONS];
+const FACULTIES = [...SUPERVISOR_FACULTIES];
 
 interface Lecturer {
   id: number;

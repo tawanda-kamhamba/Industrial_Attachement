@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
@@ -52,7 +53,7 @@ export function SupervisorAssessmentLoginPage() {
   return (
     <div className="mx-auto max-w-md">
       <div className="mb-6">
-        <Link to="/student" className="text-sm text-primary-600 hover:underline">← Back to dashboard</Link>
+        <BackToDashboardLink />
       </div>
       <Card className="border-0 shadow-xl" padding="lg">
         <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
