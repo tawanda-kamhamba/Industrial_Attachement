@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 
@@ -156,7 +157,7 @@ export function SupervisorGradeFormPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <Link to="/student" className="text-sm text-primary-600 hover:underline">← Back to dashboard</Link>
+        <BackToDashboardLink />
       </div>
 
       {/* Panel: contained width, not stretched (portable) */}

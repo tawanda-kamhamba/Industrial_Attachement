@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
@@ -210,7 +211,7 @@ export function OrientationChecklistPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <Link to="/student" className="text-sm text-primary-600 hover:underline">← Back to Dashboard</Link>
+        <BackToDashboardLink />
       </div>
 
       {/* Panel: same as PHP */}

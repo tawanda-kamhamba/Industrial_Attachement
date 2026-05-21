@@ -113,7 +113,7 @@ src/
 │   ├── supervisor/  # SupervisorDashboard, ViewStudentLogbook
 │   └── student/     # StudentDashboard, InstructionsPage
 ├── hooks/           # useAuth
-├── services/        # api, mockData
+├── services/        # api
 ├── types/           # Shared TypeScript types
 ├── App.tsx
 ├── main.tsx
@@ -124,8 +124,6 @@ src/
 
 1. Add PHP API endpoints under e.g. `iasms/api/` that return JSON (e.g. dashboard stats, students list, auth).
 2. In `src/services/api.ts`, set `baseUrl` to your API base (or use the existing Vite proxy from `/api` to `http://localhost/iasms/api`).
-3. Replace usage of `mockData` in pages with `api.get()` / `api.post()` calls.
-
 ## Features
 
 - **Admin dashboard**: Stat cards, registrations/submissions line charts, faculty bar chart, region pie chart; sidebar to Registered Students, Orientation, E-Logbooks, Contracts, Reports, Assumptions, Assign Supervisors, Visiting/Company Scores, Change Password.

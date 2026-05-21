@@ -1,20 +1,44 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { SUPERVISOR_FACULTIES, SUPERVISOR_REGIONS } from '@/constants/supervisor';
 import { api } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 
-const inputClass =
-  'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
-const labelClass = 'block text-sm font-medium text-slate-700';
+const theme = {
+  light: {
+    input:
+      'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500',
+    label: 'block text-sm font-medium text-slate-700',
+  },
+  dark: {
+    input:
+      'mt-1 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-slate-100 placeholder-slate-500 focus:border-primary-400 focus:ring-1 focus:ring-primary-400',
+    label: 'block text-sm font-medium text-slate-300',
+  },
+} as const;
 
-export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () => void; onCancel: () => void }) {
+export function SupervisorSignupForm({
+  onSuccess,
+  onCancel,
+  variant = 'light',
+}: {
+  onSuccess?: () => void;
+  onCancel: () => void;
+  /** Use `dark` when rendered inside the supervisor login signup modal. */
+  variant?: keyof typeof theme;
+}) {
+  const inputClass = theme[variant].input;
+  const labelClass = theme[variant].label;
   const navigate = useNavigate();
   const { applyLoggedInUser, login } = useAuth();
   const [full_name, setFull_name] = useState('');
   const [staff_id, setStaff_id] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [lecturer_faculty, setLecturer_faculty] = useState('');
+  const [lecturer_department, setLecturer_department] = useState('');
+  const [lecturer_region_residence, setLecturer_region_residence] = useState('');
   const [password, setPassword] = useState('');
   const [confirm_password, setConfirm_password] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +48,17 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!full_name.trim() || !staff_id.trim() || !email.trim() || !phone.trim() || !password || !confirm_password) {
+    if (
+      !full_name.trim() ||
+      !staff_id.trim() ||
+      !email.trim() ||
+      !phone.trim() ||
+      !lecturer_faculty ||
+      !lecturer_department.trim() ||
+      !lecturer_region_residence ||
+      !password ||
+      !confirm_password
+    ) {
       setError('Please fill in all fields.');
       return;
     }
@@ -44,6 +78,9 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
         staff_id: staff_id.trim(),
         email: email.trim(),
         phone: phone.trim(),
+        lecturer_faculty,
+        lecturer_department: lecturer_department.trim(),
+        lecturer_region_residence,
         password,
         confirm_password,
       });
@@ -134,6 +171,54 @@ export function SupervisorSignupForm({ onSuccess, onCancel }: { onSuccess?: () =
           className={inputClass}
           placeholder="Enter phone number"
           autoComplete="tel"
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="sup-faculty" className={labelClass}>Faculty</label>
+          <select
+            id="sup-faculty"
+            value={lecturer_faculty}
+            onChange={(e) => setLecturer_faculty(e.target.value)}
+            className={inputClass}
+            required
+          >
+            <option value="">Select faculty</option>
+            {SUPERVISOR_FACULTIES.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="sup-province" className={labelClass}>Province</label>
+          <select
+            id="sup-province"
+            value={lecturer_region_residence}
+            onChange={(e) => setLecturer_region_residence(e.target.value)}
+            className={inputClass}
+            required
+          >
+            <option value="">Select province</option>
+            {SUPERVISOR_REGIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div>
+        <label htmlFor="sup-department" className={labelClass}>Department</label>
+        <input
+          id="sup-department"
+          type="text"
+          value={lecturer_department}
+          onChange={(e) => setLecturer_department(e.target.value)}
+          className={inputClass}
+          placeholder="e.g. Computer Science"
+          required
         />
       </div>
       <div>

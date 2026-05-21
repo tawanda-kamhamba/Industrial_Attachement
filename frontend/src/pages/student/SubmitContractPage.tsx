@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
@@ -113,9 +113,7 @@ export function SubmitContractPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <Link to="/student" className="text-sm text-primary-600 hover:underline">
-          ← Back to Dashboard
-        </Link>
+        <BackToDashboardLink />
       </div>
 
       <div className="rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 px-6 py-6 text-white shadow-lg">

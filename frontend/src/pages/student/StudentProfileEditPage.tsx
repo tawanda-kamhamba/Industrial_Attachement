@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
@@ -114,9 +115,7 @@ export function StudentProfileEditPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="page-title">Edit profile</h1>
-        <Link to="/student" className="text-sm text-primary-600 hover:underline">
-          ← Dashboard
-        </Link>
+        <BackToDashboardLink />
       </div>
 
       {message && (

@@ -1,8 +1,10 @@
+import type { LucideIcon } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 export interface SidebarItem {
   to: string;
   label: string;
+  icon?: LucideIcon;
   end?: boolean;
   isLogout?: boolean;
 }
@@ -17,11 +19,29 @@ interface SidebarProps {
 }
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
     isActive
-      ? 'bg-primary-600 text-white'
+      ? 'bg-primary-600 text-white shadow-sm shadow-primary-900/20'
       : 'text-slate-300 hover:bg-surface-sidebarHover hover:text-white'
   }`;
+
+const logoutButtonClass =
+  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-300 transition-colors hover:bg-surface-sidebarHover hover:text-white';
+
+function SidebarNavContent({ icon: Icon, label }: { icon?: LucideIcon; label: string }) {
+  return (
+    <>
+      {Icon ? (
+        <Icon
+          className="h-[18px] w-[18px] shrink-0 opacity-90"
+          strokeWidth={1.75}
+          aria-hidden
+        />
+      ) : null}
+      <span className="truncate">{label}</span>
+    </>
+  );
+}
 
 export function Sidebar({ items, basePath, onLogout, mobileOpen = false, onNavigate }: SidebarProps) {
   const navigate = useNavigate();
@@ -43,31 +63,40 @@ export function Sidebar({ items, basePath, onLogout, mobileOpen = false, onNavig
       aria-hidden={!mobileOpen ? undefined : false}
     >
       <nav
-        className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-contain p-3"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain p-3"
         aria-label="Sidebar"
       >
-        {items.map((item) =>
-          item.isLogout ? (
-            <button
-              key={item.to}
-              type="button"
-              onClick={handleLogoutClick}
-              className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-300 transition-colors hover:bg-surface-sidebarHover hover:text-white"
-            >
-              {item.label}
-            </button>
-          ) : (
-            <NavLink
-              key={item.to}
-              to={resolveTo(item)}
-              end={item.end ?? (item.to === '' || item.to === 'dashboard')}
-              className={navLinkClass}
-              onClick={onNavigate}
-            >
-              {item.label}
-            </NavLink>
-          )
-        )}
+        <div className="flex flex-col gap-1">
+          {items
+            .filter((item) => !item.isLogout)
+            .map((item) => (
+              <NavLink
+                key={item.to}
+                to={resolveTo(item)}
+                end={item.end ?? (item.to === '' || item.to === 'dashboard')}
+                className={navLinkClass}
+                onClick={onNavigate}
+              >
+                <SidebarNavContent icon={item.icon} label={item.label} />
+              </NavLink>
+            ))}
+        </div>
+        {items.some((item) => item.isLogout) ? (
+          <div className="mt-auto flex flex-col gap-1 border-t border-slate-600/60 pt-3">
+            {items
+              .filter((item) => item.isLogout)
+              .map((item) => (
+                <button
+                  key={item.to}
+                  type="button"
+                  onClick={handleLogoutClick}
+                  className={logoutButtonClass}
+                >
+                  <SidebarNavContent icon={item.icon} label={item.label} />
+                </button>
+              ))}
+          </div>
+        ) : null}
       </nav>
     </aside>
   );

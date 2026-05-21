@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Bell, CircleHelp, LogOut, Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
@@ -217,8 +218,9 @@ export function TopBar({
         <button
           type="button"
           onClick={onLogout}
-          className="hidden rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:inline"
+          className="hidden items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:inline-flex"
         >
+          <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden />
           Logout
         </button>
       )}
@@ -239,9 +241,11 @@ export function TopBar({
           aria-expanded={menuOpen}
           onClick={onMenuToggle}
         >
-          <span className="text-lg leading-none" aria-hidden>
-            {menuOpen ? '×' : '☰'}
-          </span>
+          {menuOpen ? (
+            <X className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          ) : (
+            <Menu className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          )}
         </button>
       ) : null}
       <div className={`min-w-0 shrink-0 items-center ${showMenuButton ? 'hidden sm:flex' : 'flex'}`}>
@@ -269,7 +273,7 @@ export function TopBar({
               if (!notifOpen) loadNotifications().catch(() => undefined);
             }}
           >
-            &#128276;
+            <Bell className="h-5 w-5" strokeWidth={1.75} aria-hidden />
             {hasNotifications && unreadCountText && (
               <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-semibold leading-4 text-white">
                 {unreadCountText}
@@ -339,7 +343,7 @@ export function TopBar({
           title="Help"
           aria-label="Help"
         >
-          ?
+          <CircleHelp className="h-5 w-5" strokeWidth={1.75} aria-hidden />
         </button>
         <div className="flex min-w-0 items-center gap-1 pl-1 sm:gap-2 sm:pl-2">
           {profileLink ? (

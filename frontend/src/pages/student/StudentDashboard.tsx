@@ -1,5 +1,29 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  Award,
+  BookMarked,
+  BookOpen,
+  Briefcase,
+  Building2,
+  ChevronRight,
+  ClipboardCheck,
+  ClipboardPen,
+  FileBarChart,
+  FileText,
+  Flag,
+  HelpCircle,
+  LayoutGrid,
+  ListChecks,
+  MapPin,
+  Rocket,
+  ShieldCheck,
+  UserCircle,
+  UserPen,
+  UserPlus,
+} from 'lucide-react';
+import { LinkIconBadge, type LinkIconTone } from '@/components/student/LinkIconBadge';
 import { Card } from '@/components/ui/Card';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +41,18 @@ type DashboardLink = {
   description: string;
   external: boolean;
   category: 'Get started' | 'During attachment' | 'Finish up';
+  icon: LucideIcon;
+  iconTone: LinkIconTone;
   keywords?: string[];
+};
+
+const categoryMeta: Record<
+  DashboardLink['category'],
+  { icon: LucideIcon; className: string }
+> = {
+  'Get started': { icon: Rocket, className: 'text-amber-700' },
+  'During attachment': { icon: Briefcase, className: 'text-primary-700' },
+  'Finish up': { icon: Flag, className: 'text-emerald-700' },
 };
 
 const quickLinks: DashboardLink[] = [
@@ -27,6 +62,8 @@ const quickLinks: DashboardLink[] = [
     description: 'What to do after login and how the portal works.',
     external: false,
     category: 'Get started',
+    icon: BookMarked,
+    iconTone: 'sky',
     keywords: ['guide', 'help'],
   },
   {
@@ -35,6 +72,8 @@ const quickLinks: DashboardLink[] = [
     description: 'Register for industrial attachment.',
     external: false,
     category: 'Get started',
+    icon: UserPlus,
+    iconTone: 'primary',
     keywords: ['enroll', 'registration'],
   },
   {
@@ -43,6 +82,8 @@ const quickLinks: DashboardLink[] = [
     description: 'Submit assumption of duty (company & supervisor).',
     external: false,
     category: 'Get started',
+    icon: ClipboardPen,
+    iconTone: 'violet',
     keywords: ['company', 'supervisor', 'assumption'],
   },
   {
@@ -51,6 +92,8 @@ const quickLinks: DashboardLink[] = [
     description: 'Complete your orientation checklist.',
     external: false,
     category: 'During attachment',
+    icon: ClipboardCheck,
+    iconTone: 'emerald',
     keywords: ['orientation', 'checklist'],
   },
   {
@@ -59,6 +102,8 @@ const quickLinks: DashboardLink[] = [
     description: 'Submit weekly logbook entries.',
     external: false,
     category: 'During attachment',
+    icon: BookOpen,
+    iconTone: 'primary',
     keywords: ['weekly', 'logbook'],
   },
   {
@@ -67,6 +112,8 @@ const quickLinks: DashboardLink[] = [
     description: 'Upload your attachment contract.',
     external: false,
     category: 'During attachment',
+    icon: FileText,
+    iconTone: 'amber',
     keywords: ['upload', 'contract'],
   },
   {
@@ -75,22 +122,35 @@ const quickLinks: DashboardLink[] = [
     description: 'Upload your final report.',
     external: false,
     category: 'Finish up',
+    icon: FileBarChart,
+    iconTone: 'rose',
     keywords: ['final', 'report', 'upload'],
   },
 ];
 
-const supervisorAssessmentLinks = [
+const supervisorAssessmentLinks: {
+  to: string;
+  label: string;
+  description: string;
+  external: boolean;
+  icon: LucideIcon;
+  iconTone: LinkIconTone;
+}[] = [
   {
     to: '/student/supervisor/visiting',
     label: 'Visiting Supervisor Assessment',
     description: 'Your visiting supervisor can log in here to assess you and enter marks.',
     external: false,
+    icon: MapPin,
+    iconTone: 'sky',
   },
   {
     to: '/student/supervisor/company',
     label: 'Company Supervisor Assessment',
     description: 'Your company supervisor can log in here to assess you and enter marks.',
     external: false,
+    icon: Building2,
+    iconTone: 'violet',
   },
 ];
 
@@ -306,6 +366,7 @@ export function StudentDashboard() {
           variant="primary"
           subtitle="Forms & pages you can access"
           className="h-full !p-4"
+          icon={<ListChecks className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.75} aria-hidden />}
         />
 
         <StatCard
@@ -314,12 +375,18 @@ export function StudentDashboard() {
           variant="info"
           subtitle={assessmentsSubtitle}
           className="h-full !p-4 [&_p:last-child]:line-clamp-3"
+          icon={<Award className="h-4 w-4 shrink-0 opacity-90" strokeWidth={1.75} aria-hidden />}
         />
 
         <Card className="flex h-full min-h-[6.5rem] flex-col border border-slate-200 bg-white sm:min-h-[7.5rem]" padding="sm">
           <div className="flex flex-1 items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-slate-800">Institutional supervisor</p>
+            <div className="min-w-0">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 ring-1 ring-slate-200">
+                  <UserCircle className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                </span>
+                <p className="text-sm font-semibold text-slate-800">Institutional supervisor</p>
+              </div>
               {cardsLoading ? (
                 <p className="mt-1 text-xs text-slate-500">Loading assignment…</p>
               ) : assignedSupervisor ? (
@@ -365,13 +432,19 @@ export function StudentDashboard() {
 
         <Card className="flex h-full min-h-[6.5rem] flex-col border border-slate-200 bg-white sm:min-h-[7.5rem]" padding="sm">
           <div className="flex items-start justify-between gap-3">
-            <p className="text-sm font-semibold text-slate-800">Quick info</p>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600 ring-1 ring-primary-100">
+                <LayoutGrid className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              </span>
+              <p className="text-sm font-semibold text-slate-800">Quick info</p>
+            </div>
             <Link to="/student/instructions" aria-label="Help">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
+                className="gap-1.5 text-red-600 hover:bg-red-50 hover:text-red-700 focus:ring-red-400"
               >
+                <HelpCircle className="h-4 w-4" strokeWidth={1.75} aria-hidden />
                 Help
               </Button>
             </Link>
@@ -381,7 +454,10 @@ export function StudentDashboard() {
           <p className="mt-0.5 font-display text-base font-semibold text-slate-900">{user?.indexNumber ?? '—'}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link to="/student/profile">
-              <Button variant="outline" size="sm">Edit profile</Button>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <UserPen className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+                Edit profile
+              </Button>
             </Link>
           </div>
           </div>
@@ -392,7 +468,10 @@ export function StudentDashboard() {
       <section>
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800 font-display">Supervisor assessments</h2>
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-800 font-display">
+              <ShieldCheck className="h-5 w-5 text-primary-600" strokeWidth={1.75} aria-hidden />
+              Supervisor assessments
+            </h2>
             <p className="mt-1 text-sm text-slate-500">
           Open an assessment so your supervisor can log in with their password and enter your marks using the same competency form.
             </p>
@@ -405,7 +484,9 @@ export function StudentDashboard() {
               className="group flex flex-col border border-slate-200 bg-white transition-all hover:border-primary-200 hover:shadow-md"
             >
               <div className="flex-1">
+                <LinkIconBadge icon={link.icon} tone={link.iconTone} size="lg" />
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                  <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
                   Secure access
                   <span className="text-primary-400" aria-hidden>•</span>
                   Supervisor login
@@ -420,7 +501,10 @@ export function StudentDashboard() {
                   </a>
                 ) : (
                   <Link to={link.to}>
-                    <Button variant="outline" size="sm">Open assessment</Button>
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      Open assessment
+                      <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden />
+                    </Button>
                   </Link>
                 )}
               </div>
@@ -465,7 +549,17 @@ export function StudentDashboard() {
             {groupedLinks.map((group) => (
               <div key={group.category}>
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-600">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-slate-600">
+                    {(() => {
+                      const CatIcon = categoryMeta[group.category].icon;
+                      return (
+                        <CatIcon
+                          className={`h-4 w-4 ${categoryMeta[group.category].className}`}
+                          strokeWidth={1.75}
+                          aria-hidden
+                        />
+                      );
+                    })()}
                     {group.category}
                   </h3>
                   <span className="text-xs text-slate-500">{group.items.length} item(s)</span>
@@ -481,7 +575,14 @@ export function StudentDashboard() {
                       const CardInner = (
                         <>
                           <div className="flex-1">
+                            <LinkIconBadge icon={link.icon} tone={link.iconTone} />
                             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                              {(() => {
+                                const CatIcon = categoryMeta[link.category].icon;
+                                return (
+                                  <CatIcon className="h-3 w-3 opacity-70" strokeWidth={2} aria-hidden />
+                                );
+                              })()}
                               {link.category}
                               {locked ? (
                                 <>
@@ -490,7 +591,7 @@ export function StudentDashboard() {
                                 </>
                               ) : null}
                             </div>
-                            <h4 className="font-semibold text-slate-900 transition-colors">
+                            <h4 className="font-semibold text-slate-900 transition-colors group-hover:text-primary-700">
                               {link.label}
                             </h4>
                             <p className="mt-1.5 text-sm text-slate-500">{link.description}</p>
@@ -500,14 +601,18 @@ export function StudentDashboard() {
                               className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium ${
                                 locked
                                   ? 'border-slate-200 bg-slate-50 text-slate-500'
-                                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                  : 'border-slate-300 bg-white text-slate-700 group-hover:border-primary-200 group-hover:bg-primary-50/50'
                               }`}
                             >
                               {locked ? 'Complete Get started' : 'Open'}
                             </span>
-                            <span className="text-slate-300 transition-colors" aria-hidden>
-                              →
-                            </span>
+                            <ChevronRight
+                              className={`h-5 w-5 shrink-0 transition-colors ${
+                                locked ? 'text-slate-300' : 'text-slate-400 group-hover:text-primary-600'
+                              }`}
+                              strokeWidth={2}
+                              aria-hidden
+                            />
                           </div>
                         </>
                       );

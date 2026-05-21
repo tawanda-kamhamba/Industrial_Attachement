@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -256,7 +257,10 @@ export function ELogbookPage() {
             Print
           </Button>
           <Link to="/student">
-            <Button variant="outline" size="sm">Back to Dashboard</Button>
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+              Back to Dashboard
+            </Button>
           </Link>
         </div>
       </div>
