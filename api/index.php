@@ -291,6 +291,12 @@ if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? ''
     exit;
 }
 
+// Route: supervisor visit schedule (GET availability + selections, POST save/notify)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'visit-schedule') {
+    require __DIR__ . '/supervisor_visit_schedule.php';
+    exit;
+}
+
 // Route: elogbook entries for a student
 if (!empty($segments[0]) && $segments[0] === 'elogbook' && !empty($segments[1])) {
     require __DIR__ . '/elogbook_student.php';
@@ -342,6 +348,12 @@ if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') =
 // Route: student notifications mark-read (POST)
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'notifications' && ($segments[2] ?? '') === 'mark-read') {
     require __DIR__ . '/student_notifications_mark_read.php';
+    exit;
+}
+
+// Route: student visit schedule (GET open days + selections, POST select days)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'visit-schedule') {
+    require __DIR__ . '/student_visit_schedule.php';
     exit;
 }
 
