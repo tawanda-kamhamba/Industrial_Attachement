@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { api } from '@/services/api';
+import { api, apiBaseUrl } from '@/services/api';
 
 type StatusType = 'idle' | 'success' | 'error';
 
@@ -69,8 +69,7 @@ export function SubmitReportPage() {
     setMessage(null);
 
     try {
-      const baseUrl = '/api';
-      const res = await fetch(`${baseUrl}/student/report`, {
+      const res = await fetch(`${apiBaseUrl}/student/report`, {
         method: 'POST',
         body: formData,
         credentials: 'include',

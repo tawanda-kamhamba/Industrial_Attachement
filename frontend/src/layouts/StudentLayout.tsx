@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { TopBar } from '@/components/ui/TopBar';
 import { useAuth } from '@/hooks/useAuth';
+import { apiBaseUrl } from '@/services/api';
 
 const PROFILE_PHOTO_CACHE_KEY = 'iasms_profile_photo_updated';
 
@@ -15,7 +16,7 @@ export function StudentLayout() {
   }, []);
   const profilePhotoUrl =
     user?.role === 'student'
-      ? `/api/student/profile/photo?t=${photoVersion}${typeof localStorage !== 'undefined' ? `&v=${localStorage.getItem(PROFILE_PHOTO_CACHE_KEY) ?? ''}` : ''}`
+      ? `${apiBaseUrl}/student/profile/photo?t=${photoVersion}${typeof localStorage !== 'undefined' ? `&v=${localStorage.getItem(PROFILE_PHOTO_CACHE_KEY) ?? ''}` : ''}`
       : undefined;
 
   return (

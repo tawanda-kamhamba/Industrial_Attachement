@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
-import { api } from '@/services/api';
+import { api, apiBaseUrl } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 import { ContractRejectDialog } from '@/components/ContractRejectDialog';
 import { ContractResubmitDialog } from '@/components/ContractResubmitDialog';
@@ -65,7 +65,7 @@ export function ManageContracts() {
       form.set('contract_id', String(id));
       form.set('action', action);
       form.set('admin_comment', adminComment);
-      const res = await fetch(`/api/admin/contracts${query}`, {
+      const res = await fetch(`${apiBaseUrl}/admin/contracts${query}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

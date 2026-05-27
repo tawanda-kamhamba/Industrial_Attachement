@@ -2,10 +2,13 @@
  * API service for IASMS. Uses /api (proxied to PHP backend in dev).
  * In production (Vercel), set VITE_API_URL to your PHP backend base URL (e.g. https://yoursite.com/iasms).
  */
-const baseUrl =
+/** Resolved API prefix: `/api` in Vite dev (proxied), `/iasms/api` in production on same host. */
+export const apiBaseUrl =
   typeof import.meta.env.VITE_API_URL === 'string' && import.meta.env.VITE_API_URL
     ? import.meta.env.VITE_API_URL.replace(/\/$/, '') + '/api'
-    : '/api';
+    : import.meta.env.DEV
+      ? '/api'
+      : '/iasms/api';
 
 export class ApiError extends Error {
   constructor(
@@ -19,7 +22,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
+  const url = path.startsWith('http') ? path : `${apiBaseUrl}${path}`;
   const res = await fetch(url, {
     ...options,
     credentials: 'include',

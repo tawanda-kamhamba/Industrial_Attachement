@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { api } from '@/services/api';
+import { api, apiBaseUrl } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
 
@@ -113,7 +113,7 @@ export function StudentProfilePage() {
     .join('')
     .toUpperCase()
     .slice(0, 2);
-  const profilePhotoUrl = `/api/supervisor/student-profile/${encodeURIComponent(data.index_number)}/photo`;
+  const profilePhotoUrl = `${apiBaseUrl}/supervisor/student-profile/${encodeURIComponent(data.index_number)}/photo`;
 
   const contractStatus = !contract
     ? 'Not submitted'

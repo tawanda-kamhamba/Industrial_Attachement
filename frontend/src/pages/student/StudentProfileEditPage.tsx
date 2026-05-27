@@ -5,7 +5,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { useAuth } from '@/hooks/useAuth';
-import { api } from '@/services/api';
+import { api, apiBaseUrl } from '@/services/api';
 
 const PHOTO_CACHE_KEY = 'iasms_profile_photo_updated';
 
@@ -71,7 +71,7 @@ export function StudentProfileEditPage() {
       formData.append('last_name', lastName.trim());
       if (photoFile) formData.append('photo', photoFile);
 
-      const res = await fetch('/api/student/profile', {
+      const res = await fetch(`${apiBaseUrl}/student/profile`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -101,7 +101,7 @@ export function StudentProfileEditPage() {
 
   if (loading) return <p className="text-slate-500">Loading…</p>;
 
-  const photoUrl = '/api/student/profile/photo';
+  const photoUrl = `${apiBaseUrl}/student/profile/photo`;
   const photoVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(PHOTO_CACHE_KEY) : '';
   const photoSrc = photoVersion ? `${photoUrl}?t=${photoVersion}` : photoUrl;
   const initials = [firstName || user?.name?.split(' ')[0], lastName || user?.name?.split(' ')[1]]

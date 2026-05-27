@@ -31,7 +31,7 @@ import { Button } from '@/components/ui/Button';
 import { StatCard } from '@/components/ui/StatCard';
 import { SearchField } from '@/components/ui/SearchField';
 import { useAuth } from '@/hooks/useAuth';
-import { api } from '@/services/api';
+import { api, apiBaseUrl } from '@/services/api';
 import { getTimeBasedGreeting } from '@/utils/greeting';
 
 const PROFILE_PHOTO_CACHE_KEY = 'iasms_profile_photo_updated';
@@ -215,7 +215,7 @@ export function StudentDashboard() {
   const [getStartedComplete, setGetStartedComplete] = useState(false);
   const photoVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(PROFILE_PHOTO_CACHE_KEY) ?? '' : '';
   const profilePhotoUrl = user?.role === 'student'
-    ? `/api/student/profile/photo?t=${photoVersion}`
+    ? `${apiBaseUrl}/student/profile/photo?t=${photoVersion}`
     : null;
   const [profilePhotoLoaded, setProfilePhotoLoaded] = useState(false);
   const initials = (user?.name ?? 'Student').trim().split(/\s+/).map((s) => s[0]).join('').toUpperCase().slice(0, 2) || '?';

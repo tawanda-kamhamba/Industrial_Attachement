@@ -1,11 +1,10 @@
+import { apiBaseUrl } from '@/services/api';
+
 /**
  * Open PDFs/files that require the PHP session cookie.
  * Plain <a href="/api/..."> on the Vite dev server often returns the SPA HTML → React sends users to /login.
  */
-const apiBase =
-  typeof import.meta.env.VITE_API_URL === 'string' && import.meta.env.VITE_API_URL
-    ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
-    : '/api';
+const apiBase = apiBaseUrl;
 
 function parseFilenameFromContentDisposition(cd: string | null): string | null {
   if (!cd) return null;
