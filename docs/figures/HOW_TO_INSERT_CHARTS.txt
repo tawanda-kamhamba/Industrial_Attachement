@@ -1,0 +1,27 @@
+Chapter 5 charts — how to add to your Word thesis
+================================================
+
+1. Open in Chrome or Edge:
+   docs/figures/Chapter5_Charts.html
+
+2. For each figure:
+   - Scroll to the chart
+   - Right-click the chart → "Copy image" (or screenshot at high zoom)
+   - In Word, place cursor after the related TABLE caption
+   - Paste → resize to about 14–16 cm width
+   - Add caption: Insert → Caption → "Figure 5.x — ..."
+
+3. Suggested order in Chapter 5:
+   After Table 5.1  → Figure 5.3, 5.4, 5.5
+   After Table 5.2  → Figure 5.6
+   After Table 5.3  → Figure 5.2, 5.9
+   After Table 5.4  → Figure 5.7
+   In §5.6 discussion → Figure 5.8 (user feedback)
+   Figure 5.1       → Postman screenshot (you capture manually)
+
+4. Do NOT use accuracy / precision / recall — IAMS is not ML.
+   Your §5.1 already states this; examiners accept pass rates and load times.
+
+5. Update Likert chart (5.8) if your real D.6 averages differ.
+
+6. Optional: Print HTML to PDF (Ctrl+P) for backup evidence folder.

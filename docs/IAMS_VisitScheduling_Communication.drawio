@@ -1,0 +1,230 @@
+<mxfile host="app.diagrams.net" modified="2026-06-01T00:00:00.000Z" agent="IAMS" version="22.1.0" type="device">
+  <diagram id="comm-clear" name="Site Visit Scheduling">
+    <mxGraphModel dx="900" dy="620" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="620" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Communication Diagram: Site Visit Scheduling (IAMS)" style="text;html=1;align=center;fontSize=12;fontStyle=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="200" y="16" width="450" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Actor -->
+        <mxCell id="actor" value="Institutional&#xa;Supervisor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFFFF;strokeColor=#1F2937;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Objects (light blue boxes, colon notation — same style as library example) -->
+        <mxCell id="ui" value=":UI:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="240" y="300" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value=":VisitScheduleAPI:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="300" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="helper" value=":VisitScheduleHelper:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="120" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Structural links (solid lines between objects — communication diagram links) -->
+        <mxCell id="link1" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#1F2937;" edge="1" parent="1" source="ui" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link2" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#1F2937;" edge="1" parent="1" source="api" target="helper">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link3" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#1F2937;" edge="1" parent="1" source="ui" target="helper">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="290" y="145" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="link4" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#1F2937;" edge="1" parent="1" source="actor" target="ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ Phase A: Load calendar ═══ -->
+        <mxCell id="m1" value="1: openVisitScheduling()" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="link4">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry"><mxPoint x="10" y="-11" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg11" value="1.1: loadVisitSchedule()" style="endArrow=block;html=1;fontSize=10;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry x="0.2" y="10" relative="1" as="geometry"><mxPoint x="340" y="325" as="sourcePoint" /><mxPoint x="480" y="325" as="targetPoint" /><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg111" value="1.1.1: getAvailability(lecturerId)" style="endArrow=block;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="555" y="300" as="sourcePoint" /><mxPoint x="555" y="170" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg112" value="1.1.2: getSelectionsByDate(lecturerId)" style="endArrow=block;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="575" y="300" as="sourcePoint" /><mxPoint x="575" y="170" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Self-call: API validateSession -->
+        <mxCell id="selfApi1" value="" style="endArrow=none;html=1;strokeColor=#1F2937;rounded=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="630" y="300" as="sourcePoint" /><mxPoint x="660" y="300" as="targetPoint" /><Array as="points"><mxPoint x="660" y="270" /><mxPoint x="630" y="270" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="lbl113" value="1.1.3: validateSession()" style="text;html=1;fontSize=9;align=left;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="665" y="268" width="120" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="arr113" value="" style="endArrow=block;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="630" y="270" as="sourcePoint" /><mxPoint x="660" y="270" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Self-call: UI displayCalendar -->
+        <mxCell id="selfUi1" value="" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="340" /><mxPoint x="220" y="370" /><mxPoint x="260" y="370" /><mxPoint x="260" y="350" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="lbl12" value="1.2: displayCalendar()" style="text;html=1;fontSize=9;align=left;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="168" y="372" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="arr12" value="" style="endArrow=block;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="220" y="370" as="sourcePoint" /><mxPoint x="255" y="370" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Return data (dashed) -->
+        <mxCell id="ret1" value="1.1.4: scheduleData" style="endArrow=open;dashed=1;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="480" y="340" as="sourcePoint" /><mxPoint x="340" y="340" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- ═══ Phase B: Save & notify ═══ -->
+        <mxCell id="msg2" value="2: saveAndNotify(dates)" style="endArrow=block;html=1;fontSize=10;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="120" y="400" as="sourcePoint" /><mxPoint x="240" y="340" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg21" value="2.1: saveAvailability()" style="endArrow=block;html=1;fontSize=10;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="315" as="sourcePoint" /><mxPoint x="480" y="315" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg211" value="2.1.1: syncAvailability(dates)" style="endArrow=block;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="535" y="300" as="sourcePoint" /><mxPoint x="535" y="170" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Self-call Helper: updateDatabase -->
+        <mxCell id="selfH1" value="" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="610" y="120" /><mxPoint x="640" y="120" /><mxPoint x="640" y="90" /><mxPoint x="610" y="90" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="lbl2111" value="2.1.1.1: updateDatabase()" style="text;html=1;fontSize=8;align=left;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="645" y="88" width="130" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="arr2111" value="" style="endArrow=block;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="610" y="90" as="sourcePoint" /><mxPoint x="635" y="90" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg212" value="2.1.2: publishAvailability()" style="endArrow=block;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="595" y="300" as="sourcePoint" /><mxPoint x="595" y="170" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Self-call API: notifyStudents -->
+        <mxCell id="selfApi2" value="" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="630" y="330" /><mxPoint x="670" y="330" /><mxPoint x="670" y="360" /><mxPoint x="630" y="360" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="lbl213" value="2.1.3: notifyStudents()" style="text;html=1;fontSize=9;align=left;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="675" y="348" width="120" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="arr213" value="" style="endArrow=block;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="630" y="360" as="sourcePoint" /><mxPoint x="665" y="360" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="msg2131" value="2.1.3.1: createInSystemAlert()" style="endArrow=block;html=1;fontSize=8;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="555" y="350" as="sourcePoint" /><mxPoint x="555" y="170" as="targetPoint" /><Array as="points"><mxPoint x="400" y="350" /><mxPoint x="400" y="145" /></Array></mxGeometry>
+        </mxCell>
+
+        <!-- Self-call UI: displaySuccess / displayError -->
+        <mxCell id="selfUi2" value="" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="240" y="350" /><mxPoint x="200" y="350" /><mxPoint x="200" y="320" /><mxPoint x="240" y="320" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="lbl22" value="2.2: displaySuccess()" style="text;html=1;fontSize=9;align=left;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="148" y="318" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="arr22" value="" style="endArrow=block;html=1;strokeColor=#1F2937;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="200" y="320" as="sourcePoint" /><mxPoint x="235" y="320" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="ret2" value="2.1.4: success" style="endArrow=open;dashed=1;html=1;fontSize=9;strokeColor=#1F2937;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="480" y="335" as="sourcePoint" /><mxPoint x="340" y="335" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- Alt note (compact) -->
+        <mxCell id="noteAlt" value="If no dates selected:&#xa;2.2: displayError()" style="shape=note;whiteSpace=wrap;html=1;size=10;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=9;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="140" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="noteMap" value="&lt;b&gt;Maps to code&lt;/b&gt;&lt;br&gt;:UI: → React Visit Schedule pages&lt;br&gt;:VisitScheduleAPI: → supervisor_visit_schedule.php&lt;br&gt;:VisitScheduleHelper: → visit_schedule_helpers.php + MySQL" style="text;html=1;align=left;fontSize=8;fillColor=#FAFAFA;strokeColor=#D1D5DB;" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="noteStu" value="Student selects published dates&#xa;in a separate flow (same 3 objects,&#xa;student_visit_schedule.php)." style="shape=note;whiteSpace=wrap;html=1;size=10;fillColor=#FAFAFA;strokeColor=#9E9E9E;fontSize=8;align=left;" vertex="1" parent="1">
+          <mxGeometry x="560" y="500" width="200" height="50" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="comm-student" name="Student selects dates">
+    <mxGraphModel dx="900" dy="580" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="580" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="t2" value="Communication Diagram: Student selects visit dates (IAMS)" style="text;html=1;align=center;fontSize=12;fontStyle=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="180" y="16" width="490" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="stu" value="Student" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#FFFFFF;strokeColor=#1F2937;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="360" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ui2" value=":UI:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="240" y="280" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="api2" value=":VisitScheduleAPI:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="280" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value=":VisitScheduleHelper:" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="110" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lk1" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1" source="ui2" target="api2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="lk2" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1" source="api2" target="h2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="lk3" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1" source="ui2" target="h2"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="290" y="135" /></Array></mxGeometry></mxCell>
+        <mxCell id="lk4" style="endArrow=none;html=1;strokeColor=#1F2937;" edge="1" parent="1" source="stu" target="ui2"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="s1" value="1: openVisitSchedule()" style="endArrow=block;html=1;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="120" y="390" as="sourcePoint" /><mxPoint x="240" y="320" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s11" value="1.1: loadVisitSchedule()" style="endArrow=block;html=1;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="305" as="sourcePoint" /><mxPoint x="480" y="305" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s111" value="1.1.1: getPublishedAvailability()" style="endArrow=block;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="555" y="280" as="sourcePoint" /><mxPoint x="555" y="160" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s112" value="1.1.2: getMySelections()" style="endArrow=block;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="575" y="280" as="sourcePoint" /><mxPoint x="575" y="160" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s12" value="1.2: displayCalendar()" style="text;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="168" y="350" width="110" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s2" value="2: submitSelections(dates)" style="endArrow=block;html=1;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="120" y="410" as="sourcePoint" /><mxPoint x="250" y="330" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s21" value="2.1: saveSelections()" style="endArrow=block;html=1;fontSize=10;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="340" y="295" as="sourcePoint" /><mxPoint x="480" y="295" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s211" value="2.1.1: validateDates()" style="endArrow=block;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="650" y="295" /><mxPoint x="650" y="250" /><mxPoint x="630" y="250" /><mxPoint x="630" y="280" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="s212" value="2.1.2: replaceSelections()" style="endArrow=block;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="535" y="280" as="sourcePoint" /><mxPoint x="535" y="160" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="s213" value="2.1.3: notifySupervisor()" style="endArrow=block;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="595" y="320" /><mxPoint x="595" y="160" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="s22" value="2.2: displaySuccess()" style="text;html=1;fontSize=9;labelBackgroundColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="148" y="330" width="110" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="nAlt" value="If invalid date:&#xa;2.2: displayError()" style="shape=note;whiteSpace=wrap;html=1;size=10;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="130" height="40" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

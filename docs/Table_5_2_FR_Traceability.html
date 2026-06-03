@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Table 5.2 — Functional requirements vs implementation</title>
+<style>
+body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; margin: 1in; }
+h2 { font-size: 14pt; }
+p { text-align: justify; line-height: 1.35; }
+table { border-collapse: collapse; width: 100%; font-size: 10pt; margin: 12pt 0; }
+th, td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+th { background: #E8EEF4; font-weight: bold; }
+.code { font-family: Consolas, monospace; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<h2>5.3 Functional Requirements Traceability</h2>
+
+<p>Table 5.2 maps each functional requirement defined in §2.4 (FR1–FR38) to the implemented IAMS modules and records the test outcome. All requirements were verified during integration testing and user acceptance testing described in §5.2.</p>
+
+<p><strong>Table 5.2 — Functional requirements vs implementation</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Req</th>
+<th>Description (§2.4)</th>
+<th>Result</th>
+<th>Implementation evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>FR1</td><td>Student login with index number and password</td><td>Met</td><td><span class="code">auth_login.php</span>; <span class="code">LoginPage.tsx</span></td></tr>
+<tr><td>FR2</td><td>Student dashboard with attachment activity menus</td><td>Met</td><td><span class="code">StudentDashboard.tsx</span>; routes in <span class="code">App.tsx</span></td></tr>
+<tr><td>FR3</td><td>Instructions page for processes and requirements</td><td>Met</td><td><span class="code">InstructionsPage.tsx</span></td></tr>
+<tr><td>FR4</td><td>Industrial attachment registration</td><td>Met</td><td><span class="code">RegisterPage.tsx</span>; <span class="code">/api/student/registration</span></td></tr>
+<tr><td>FR5</td><td>Assumption-of-duty submission (personal and company details)</td><td>Met</td><td><span class="code">SubmitAssumptionPage.tsx</span>; <span class="code">students_assumption</span> table</td></tr>
+<tr><td>FR6</td><td>Online orientation checklist submission</td><td>Met</td><td><span class="code">OrientationChecklistPage.tsx</span>; <span class="code">orientation_checklist</span> table</td></tr>
+<tr><td>FR7</td><td>PDF contract upload with status and admin-permitted resubmission</td><td>Met</td><td><span class="code">SubmitContractPage.tsx</span>; <span class="code">student_contracts</span> (<span class="code">status</span>, <span class="code">allow_resubmit</span>)</td></tr>
+<tr><td>FR8</td><td>Electronic logbook with weekly activity entries</td><td>Met</td><td><span class="code">ELogbookPage.tsx</span>; <span class="code">elogbook_entries</span> (by week number)</td></tr>
+<tr><td>FR9</td><td>Final report upload (DOC/DOCX/PDF) with submit-once policy</td><td>Met</td><td><span class="code">SubmitReportPage.tsx</span>; <span class="code">student_reports</span> unique on <span class="code">index_number</span></td></tr>
+<tr><td>FR10</td><td>View published visit dates and select from available options</td><td>Met</td><td><span class="code">StudentVisitSchedulePage.tsx</span>; <span class="code">student_visit_selections</span></td></tr>
+<tr><td>FR11</td><td>View assigned institutional supervisor information</td><td>Met</td><td><span class="code">/api/student/supervisor</span>; dashboard supervisor card</td></tr>
+<tr><td>FR12</td><td>In-system notifications; mark as read</td><td>Met</td><td><span class="code">student_notifications</span>; <span class="code">student_notifications_mark_read.php</span></td></tr>
+<tr><td>FR13</td><td>Update profile information and profile photo</td><td>Met</td><td><span class="code">StudentProfileEditPage.tsx</span>; <span class="code">student_profile_photo.php</span></td></tr>
+<tr><td>FR14</td><td>Generate secure passwords for company supervisor assessment</td><td>Met</td><td><span class="code">SupervisorAssessmentPasswordsPage.tsx</span>; <span class="code">supervisor_assessment_passwords.php</span></td></tr>
+<tr><td>FR15</td><td>Company supervisor marks via password form on student portal</td><td>Met</td><td><span class="code">SupervisorGradeFormPage.tsx</span> (<span class="code">/student/supervisor/company</span>)</td></tr>
+<tr><td>FR16</td><td>Store company scores for supervisor and admin viewing</td><td>Met</td><td><span class="code">company_supervisor_grade</span>; <span class="code">CompanyScores.tsx</span>, <span class="code">SupervisorScoresPage.tsx</span></td></tr>
+<tr><td>FR17</td><td>Supervisor dashboard with assigned students and statistics</td><td>Met</td><td><span class="code">SupervisorDashboard.tsx</span>; <span class="code">supervisor_stats.php</span></td></tr>
+<tr><td>FR18</td><td>View assumptions, orientation, contracts, logbooks, reports (assigned only)</td><td>Met</td><td>Supervisor list/profile/logbook/report pages; RBAC on APIs</td></tr>
+<tr><td>FR19</td><td>Publish available site-visit dates</td><td>Met</td><td><span class="code">SupervisorVisitSchedulePage.tsx</span>; <span class="code">supervisor_visit_availability</span></td></tr>
+<tr><td>FR20</td><td>View which students selected each visit date</td><td>Met</td><td><span class="code">selections_by_date</span> in <span class="code">supervisor_visit_schedule.php</span> GET</td></tr>
+<tr><td>FR21</td><td>In-system notification when visit schedules published/updated</td><td>Met</td><td><span class="code">iasms_notify_students_visit_schedule_published()</span> in <span class="code">visit_schedule_helpers.php</span></td></tr>
+<tr><td>FR22</td><td>Submit and view visit-related assessment scores</td><td>Met</td><td><span class="code">SupervisorScoresPage.tsx</span>; <span class="code">visiting_supervisor_grade</span> (visit 1/2)</td></tr>
+<tr><td>FR23</td><td>View company supervisor assessment results</td><td>Met</td><td><span class="code">SupervisorScoresPage.tsx</span>; company grade columns</td></tr>
+<tr><td>FR24</td><td>Manage assessment passwords for company and visiting grading</td><td>Met</td><td><span class="code">SupervisorAssessmentPasswordsPage.tsx</span></td></tr>
+<tr><td>FR25</td><td>In-system notifications for submissions and scheduling</td><td>Met</td><td><span class="code">supervisor_notifications</span>; triggers in contract/logbook/visit modules</td></tr>
+<tr><td>FR26</td><td>Admin dashboard with summary statistics</td><td>Met</td><td><span class="code">AdminDashboard.tsx</span>; <span class="code">admin_stats.php</span></td></tr>
+<tr><td>FR27</td><td>Charts (registrations, trends, faculty, region)</td><td>Met</td><td><span class="code">admin_charts.php</span>; Recharts on admin dashboard</td></tr>
+<tr><td>FR28</td><td>Export or print dashboard statistics (PDF)</td><td>Met</td><td><span class="code">adminDashboardPrint.ts</span> (jsPDF)</td></tr>
+<tr><td>FR29</td><td>View all student assumptions, orientation, logbooks, contracts, reports</td><td>Met</td><td>Admin modules: Assumptions, Orientation, E-Logbooks, Contracts, Reports</td></tr>
+<tr><td>FR30</td><td>Add institutional supervisor (lecturer) records</td><td>Met</td><td><span class="code">admin_assign_supervisors_lecturer.php</span>; Assign Supervisors page</td></tr>
+<tr><td>FR31</td><td>Assign institutional supervisors to students</td><td>Met</td><td><span class="code">AssignSupervisors.tsx</span>; <span class="code">admin_student_supervisor.php</span></td></tr>
+<tr><td>FR32</td><td>View visiting and company supervisor scores</td><td>Met</td><td><span class="code">VisitingScores.tsx</span>; <span class="code">CompanyScores.tsx</span></td></tr>
+<tr><td>FR33</td><td>Secure download of contracts and reports</td><td>Met</td><td><span class="code">admin_contracts_download.php</span>; <span class="code">admin_reports_download.php</span></td></tr>
+<tr><td>FR34</td><td>View student profiles and individual logbook details</td><td>Met</td><td><span class="code">AdminStudentProfilePage.tsx</span>; <span class="code">AdminViewLogbook.tsx</span></td></tr>
+<tr><td>FR35</td><td>In-system notifications for key events (contract, visits, etc.)</td><td>Met</td><td><span class="code">notification_helpers.php</span>; insert on publish/submit actions</td></tr>
+<tr><td>FR36</td><td>View notifications on dashboard or notification area</td><td>Met</td><td>Notification lists in student/supervisor layouts</td></tr>
+<tr><td>FR37</td><td>Mark notifications as read</td><td>Met</td><td><span class="code">student_notifications_mark_read.php</span>; <span class="code">supervisor_notifications_mark_read.php</span></td></tr>
+<tr><td>FR38</td><td>Record notification messages in database</td><td>Met</td><td><span class="code">student_notifications</span> and <span class="code">supervisor_notifications</span> tables</td></tr>
+</tbody>
+</table>
+
+<p><strong>Summary:</strong> 38 of 38 functional requirements (FR1–FR38) were <strong>Met</strong> in the implemented prototype. Automated email delivery was not specified in §2.4; all communication requirements are satisfied through in-system notifications (FR12, FR21, FR25, FR35–FR38).</p>
+
+</body>
+</html>

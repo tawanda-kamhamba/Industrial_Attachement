@@ -7,7 +7,7 @@ function LoginIllustration() {
     <div className="relative flex h-full min-h-[400px] w-full max-w-lg items-center justify-center">
       {!imgFailed ? (
         <img
-          src="/img/header_log.png"
+          src={`${import.meta.env.BASE_URL}img/header_log.png`}
           alt="University logo"
           className="h-auto max-h-[420px] w-full max-w-md object-contain drop-shadow-lg animate-login-logo"
           onError={() => setImgFailed(true)}

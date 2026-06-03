@@ -4,12 +4,6 @@
  * For the React student portal, use the API: POST /api/student/contract (same table).
  */
 
-// Allow AJAX uploads from the React dev server (http://localhost:3000)
-if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] === 'http://localhost:3000') {
-    header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Credentials: true');
-}
-
 include 'database_connection/database_connection.php';
 require_once __DIR__ . '/api/notification_helpers.php';
 

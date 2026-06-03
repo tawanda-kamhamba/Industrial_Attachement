@@ -1,0 +1,98 @@
+@startuml IAMS_VisitScheduling_State_PrePost_Clear
+skinparam shadowing false
+skinparam state { FontSize 10 }
+skinparam note { FontSize 8 }
+
+title Site Visit Scheduling — Preconditions & Postconditions\n(Supervisor: Save & notify students)
+
+legend left
+  |= Color |= Meaning |
+  | <#FFFDE7> PRE | Must be true before step |
+  | <#ECFDF5> POST | True after step |
+  | Green arrow | Success path |
+  | Red arrow | Error path |
+endlegend
+
+[*] --> PreconditionsValidated
+
+note left of PreconditionsValidated #FFFDE7
+  **PRE (initial)**
+  • Supervisor logged in
+  • lecturer_id in session
+  • dates[] in POST
+end note
+
+PreconditionsValidated : **POST:** inputs accepted
+
+PreconditionsValidated --> CheckingDates : saveAndNotifyStudents()
+
+state "① Date Validation" as DV {
+  CheckingDates
+  DateAvailable
+  DateUnavailable
+
+  CheckingDates --> DateAvailable : normalizeDates()\n[≥1 valid date]
+  CheckingDates --> DateUnavailable : normalizeDates()\n[empty / invalid]
+}
+
+note bottom of DateAvailable #ECFDF5
+  **POST:** YYYY-MM-DD keys
+end note
+
+note right of DateUnavailable #FEE2E2
+  **POST:** error flag set
+end note
+
+DateAvailable --> SyncingAvailability : proceedWithPublish()\n**PRE:** ≥1 valid date
+
+state "② Schedule Creation" as SC {
+  SyncingAvailability
+  DatesPersisted
+  PublishedFlagSet
+
+  SyncingAvailability --> DatesPersisted : syncAvailability()
+  DatesPersisted --> PublishedFlagSet : setPublishedAt()
+}
+
+note right of PublishedFlagSet #ECFDF5
+  **POST:** DB synced\npublished_at = NOW
+end note
+
+PublishedFlagSet --> NotifyingStudents : initiateNotifications()\n**PRE:** published_at set
+
+state "③ Notification Processing" as NP {
+  NotifyingStudents
+  AlertsStored
+  NotificationsComplete
+
+  NotifyingStudents --> AlertsStored : createInSystemAlerts()
+  AlertsStored --> NotificationsComplete : notifyComplete()
+}
+
+note right of NotificationsComplete #ECFDF5
+  **POST:** student_notifications\n(in-system only, no email)
+end note
+
+NotificationsComplete --> OperationSuccess : completeOperation()
+
+note bottom of OperationSuccess #ECFDF5
+  **POST (final success)**
+  • Dates in supervisor_visit_availability
+  • Students alerted
+  • UI success message
+end note
+
+OperationSuccess --> [*]
+
+DateUnavailable --> OperationError : handleDateError() #line:red;line.bold;text:red
+
+note right of OperationError #FEE2E2
+  **POST (final error)**
+  • No publish
+  • No notifications
+  • UI error message
+end note
+
+OperationError --> [*]
+
+@enduml

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
@@ -188,7 +187,11 @@ export function OrientationChecklistPage() {
 
   const DocHeader = () => (
     <div style={documentStyles.documentHeader}>
-      <img src="/img/header_log.png" alt="University Logo" style={documentStyles.universityLogo} />
+      <img
+        src={`${import.meta.env.BASE_URL}img/header_log.png`}
+        alt="University Logo"
+        style={documentStyles.universityLogo}
+      />
       <div style={documentStyles.universityName}>UNIVERSITY OF ZIMBABWE</div>
       <div style={documentStyles.documentTitle}>Work Related Learning Placement Student Orientation Checklist</div>
     </div>

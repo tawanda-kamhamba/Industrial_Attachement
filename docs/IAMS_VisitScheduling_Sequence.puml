@@ -1,0 +1,246 @@
+@startuml IAMS_VisitScheduling_Sequence_Supervisor
+' Supervisor publishes calendar dates — matches IAMS implementation
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 12
+skinparam BoxPadding 8
+
+title Visit Scheduling — Supervisor publishes dates (IAMS)
+
+actor "Institutional\nSupervisor" as Sup
+
+box "Presentation" #E8EAF6
+  participant "User Interface\n(React)" as UI
+end box
+
+box "Application (PHP REST API)" #E3F2FD
+  participant "VisitScheduleAPI\n(supervisor_visit_schedule.php)" as API
+  participant "VisitScheduleHelper\n(visit_schedule_helpers.php)" as VS
+  participant "NotificationService\n(notification_helpers.php)" as NS
+end box
+
+== Load schedule ==
+
+Sup -> UI: Login & Navigate to\nVisit Scheduling
+
+UI -> API: **loadVisitSchedule()**\nGET /api/supervisor/visit-schedule
+
+API -> API: validateSupervisorSession()
+
+API -> VS: **getAvailability**(lecturerId)
+VS -> VS: query supervisor_visit_availability
+VS --> API: List<VisitDate>
+
+API -> VS: **getSelectionsByDate**(lecturerId)
+VS -> VS: query student_visit_selections\nJOIN industrial_registration
+VS --> API: Map<date, students[]>
+
+API -> VS: **getAssignedStudentCount**(lecturerId)
+VS --> API: count
+
+API --> UI: JSON:\navailability,\nselections_by_date,\nassigned_students_count
+
+UI --> Sup: Display calendar\n(student count per date)
+
+== Publish dates ==
+
+Sup -> UI: **toggleDates** on calendar\nclick **Save & notify students**
+
+UI -> API: **saveAvailability**(dates,\nsync=true, notify_students=true)\nPOST /api/supervisor/visit-schedule
+
+alt [At least one date selected]
+
+  API -> VS: **normalizeDates**(dates)
+  VS --> API: valid date keys
+
+  API -> VS: **syncAvailability**(lecturerId, dates)
+  VS -> VS: DELETE stale rows &\nrelated student_visit_selections
+  VS -> VS: INSERT IGNORE new dates
+  VS --> API: synced
+
+  API -> VS: **publishAvailability**(lecturerId)
+  VS -> VS: SET published_at = NOW()\nWHERE lecturer_id = …
+  VS --> API: published
+
+  API -> NS: **notifyStudentsVisitSchedulePublished**\n(lecturerId, supervisorName, dates)
+
+  NS -> NS: **createInSystemAlert**()\nfor each assigned student
+
+  note right of NS
+    In-system notifications only
+    (student_notifications table).
+    No automated email.
+  end note
+
+  NS --> API: notifications created
+
+  API --> UI: { success: true,\nnotified: true }
+
+  UI --> Sup: **Visit dates published**\nsuccessfully
+
+else [No dates selected]
+
+  API --> UI: validation error
+
+  UI --> Sup: **Error:** select at least\none date on the calendar
+
+end
+
+@enduml
+
+@startuml IAMS_VisitScheduling_Sequence_Student
+' Student selects preferred visit day(s) from published calendar
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 12
+
+title Visit Scheduling — Student selects dates (IAMS)
+
+actor "Student" as Stu
+
+box "Presentation" #E8EAF6
+  participant "User Interface\n(React)" as UI
+end box
+
+box "Application (PHP REST API)" #E3F2FD
+  participant "VisitScheduleAPI\n(student_visit_schedule.php)" as API
+  participant "VisitScheduleHelper\n(visit_schedule_helpers.php)" as VS
+  participant "NotificationService\n(notification_helpers.php)" as NS
+end box
+
+== Load published dates ==
+
+Stu -> UI: Login & Navigate to\nVisit Schedule
+
+UI -> API: **loadVisitSchedule()**\nGET /api/student/visit-schedule
+
+API -> VS: **getLecturerForStudent**(indexNumber)
+
+alt [Supervisor assigned]
+
+  VS --> API: lecturerId, supervisor profile
+
+  API -> VS: **getPublishedAvailability**(lecturerId)
+  note right of VS
+    Only rows where
+    published_at IS NOT NULL
+  end note
+  VS --> API: List<VisitDate>
+
+  API -> VS: **getMySelections**(indexNumber, lecturerId)
+  VS --> API: List<Selection>
+
+  API --> UI: JSON:\nsupervisor, availability,\nmy_selections
+
+  UI --> Stu: Display published dates\n(highlight own selections)
+
+else [No supervisor assigned]
+
+  VS --> API: null
+
+  API --> UI: { supervisor: null,\navailability: [] }
+
+  UI --> Stu: **Message:** No institutional\nsupervisor assigned yet
+
+end
+
+== Submit selections ==
+
+Stu -> UI: **selectDates** on calendar\nclick **Submit selections**
+
+UI -> API: **submitSelections**(dates)\nPOST /api/student/visit-schedule
+
+alt [All dates valid & published]
+
+  API -> VS: **validateDates**(dates, lecturerId)
+  VS -> VS: check against\npublished availability map
+  VS --> API: valid
+
+  API -> VS: **replaceSelections**(indexNumber,\nlecturerId, dates)
+  VS -> VS: DELETE old rows;\nINSERT student_visit_selections
+  VS --> API: saved
+
+  API -> NS: **notifySupervisorVisitSelection**\n(lecturerId, student, dates)
+
+  NS -> NS: **createInSystemAlert**()\nfor institutional supervisor
+
+  NS --> API: notification created
+
+  API --> UI: { success: true, dates }
+
+  UI --> Stu: **Selections saved.**\nSupervisor notified.
+
+else [Date not available]
+
+  API -> VS: **validateDates**(dates, lecturerId)
+  VS --> API: invalid date key
+
+  API --> UI: HTTP 400:\ndate not available for booking
+
+  UI --> Stu: **Error:** invalid date\nselected — choose a\npublished date
+
+end
+
+@enduml
+
+@startuml IAMS_VisitScheduling_Sequence_Combined
+' Single-page overview: supervisor publish then student select
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 10
+
+title Visit Scheduling — End-to-end sequence (IAMS)
+
+actor "Institutional\nSupervisor" as Sup
+actor "Student" as Stu
+
+participant "User Interface\n(React)" as UI
+participant "VisitScheduleAPI\n(PHP REST)" as API
+participant "VisitScheduleHelper" as VS
+participant "NotificationService" as NS
+
+== A. Supervisor publishes visit dates ==
+
+Sup -> UI: Open Visit Scheduling
+UI -> API: GET supervisor/visit-schedule
+API -> VS: load availability & selections
+VS --> API: data
+API --> UI: calendar data
+UI --> Sup: Show calendar
+
+Sup -> UI: Toggle dates → Save & notify
+UI -> API: POST { dates, sync, notify_students: true }
+API -> VS: sync + publish (published_at)
+API -> NS: notifyStudentsVisitSchedulePublished()
+NS -> NS: createInSystemAlert (students)
+NS --> API: ok
+API --> UI: success
+UI --> Sup: Dates published
+
+== B. Student selects preferred day(s) ==
+
+Stu -> UI: Open Visit Schedule
+UI -> API: GET student/visit-schedule
+API -> VS: get published dates only
+VS --> API: availability + my_selections
+API --> UI: calendar data
+UI --> Stu: Show published dates
+
+Stu -> UI: Select dates → Submit
+UI -> API: POST { dates }
+API -> VS: validate + save selections
+API -> NS: notifySupervisorVisitSelection()
+NS -> NS: createInSystemAlert (supervisor)
+NS --> API: ok
+API --> UI: success
+UI --> Stu: Selections saved
+
+Sup -> UI: Refresh Visit Scheduling
+UI -> API: GET supervisor/visit-schedule
+API --> UI: selections_by_date updated
+UI --> Sup: View students by date
+
+@enduml

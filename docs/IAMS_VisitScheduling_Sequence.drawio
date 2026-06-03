@@ -1,0 +1,321 @@
+<mxfile host="app.diagrams.net" agent="IAMS" pages="2">
+  <diagram id="seq-supervisor" name="Supervisor - Publish Dates">
+    <mxGraphModel dx="1277" dy="770" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="780" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;fontSize=12;strokeColor=none;fillColor=none;" value="&lt;b&gt;Visit Scheduling — Supervisor publishes dates (IAMS)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="24" width="540" x="280" y="8" as="geometry" />
+        </mxCell>
+        <mxCell id="pSup" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFF8E1;strokeColor=#F9A825;" value="Institutional&#xa;Supervisor" vertex="1">
+          <mxGeometry height="60" width="30" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pUI" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#7986CB;fontSize=9;" value="User Interface&#xa;(React)" vertex="1">
+          <mxGeometry height="44" width="120" x="160" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pAPI" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=8;" value="VisitScheduleAPI&#xa;(supervisor_visit_schedule.php)" vertex="1">
+          <mxGeometry height="44" width="170" x="320" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pVS" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=8;" value="VisitScheduleHelper&#xa;(visit_schedule_helpers.php)" vertex="1">
+          <mxGeometry height="44" width="170" x="530" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="pNS" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=8;" value="NotificationService&#xa;(notification_helpers.php)" vertex="1">
+          <mxGeometry height="44" width="170" x="740" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="lSup" parent="1" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=none;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="600" width="2" x="54" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lUI" parent="1" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=none;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="600" width="2" x="219" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lAPI" parent="1" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=none;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="600" width="2" x="404" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lVS" parent="1" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=none;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="600" width="2" x="614" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="lNS" parent="1" style="html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=none;strokeColor=#666666;dashed=1;" value="" vertex="1">
+          <mxGeometry height="600" width="2" x="824" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=9;" value="Login &amp; Navigate to Visit Scheduling">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="130" as="sourcePoint" />
+            <mxPoint x="220" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="loadVisitSchedule()&#xa;GET /api/supervisor/visit-schedule">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="221" y="155" as="sourcePoint" />
+            <mxPoint x="405" y="155" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="getAvailability(lecturerId)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="180" as="sourcePoint" />
+            <mxPoint x="615" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="List&amp;lt;VisitDate&amp;gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="200" as="sourcePoint" />
+            <mxPoint x="406" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="getSelectionsByDate(lecturerId)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="220" as="sourcePoint" />
+            <mxPoint x="615" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="selections by date">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="240" as="sourcePoint" />
+            <mxPoint x="406" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="JSON response">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="405" y="260" as="sourcePoint" />
+            <mxPoint x="221" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Display calendar &amp; student counts">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="280" as="sourcePoint" />
+            <mxPoint x="56" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="toggleDates() + Save &amp; notify students">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="310" as="sourcePoint" />
+            <mxPoint x="220" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="saveAvailability(dates, sync, notify_students)&#xa;POST /api/supervisor/visit-schedule">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="221" y="335" as="sourcePoint" />
+            <mxPoint x="405" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="altFrame" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;width=80;height=20;fillColor=#FFFFFF;strokeColor=#1F2937;fontSize=9;" value="alt" vertex="1">
+          <mxGeometry height="300" width="820" x="100" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="altLabel1" parent="1" style="text;html=1;align=left;fontSize=8;strokeColor=none;fillColor=none;" value="[At least one date selected]" vertex="1">
+          <mxGeometry height="16" width="180" x="110" y="382" as="geometry" />
+        </mxCell>
+        <mxCell id="altSep" parent="1" style="line;strokeWidth=1;dashed=1;fillColor=none;strokeColor=#1F2937;" value="" vertex="1">
+          <mxGeometry height="8" width="820" x="100" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="altLabel2" parent="1" style="text;html=1;align=left;fontSize=8;strokeColor=none;fillColor=none;" value="[No dates selected]" vertex="1">
+          <mxGeometry height="16" width="140" x="110" y="538" as="geometry" />
+        </mxCell>
+        <mxCell id="m11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="syncAvailability + publishAvailability">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="395" as="sourcePoint" />
+            <mxPoint x="615" y="395" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=7;" value="UPDATE published_at;&#xa;INSERT/DELETE dates">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="415" />
+            </Array>
+            <mxPoint x="616" y="415" as="sourcePoint" />
+            <mxPoint x="660" y="435" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="notifyStudentsVisitSchedulePublished()">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="455" as="sourcePoint" />
+            <mxPoint x="825" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;fontSize=8;" value="createInSystemAlert()&#xa;(assigned students)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="475" />
+            </Array>
+            <mxPoint x="826" y="475" as="sourcePoint" />
+            <mxPoint x="870" y="495" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="noteNS" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=12;fillColor=#FFF8E1;strokeColor=#F9A825;fontSize=7;" value="In-system only&#xa;(no email)" vertex="1">
+          <mxGeometry height="40" width="80" x="880" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="m15" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Notification sent">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="825" y="510" as="sourcePoint" />
+            <mxPoint x="406" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Show success message">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="405" y="520" as="sourcePoint" />
+            <mxPoint x="221" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Display error message">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="405" y="560" as="sourcePoint" />
+            <mxPoint x="221" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Error: select at least one date">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="580" as="sourcePoint" />
+            <mxPoint x="56" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;fontSize=8;" value="Visit dates published successfully">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="600" as="sourcePoint" />
+            <mxPoint x="56" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pSupB" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFF8E1;strokeColor=#F9A825;" value="" vertex="1">
+          <mxGeometry height="60" width="30" x="40" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="pUIB" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#7986CB;" value="" vertex="1">
+          <mxGeometry height="28" width="120" x="160" y="736" as="geometry" />
+        </mxCell>
+        <mxCell id="pAPIB" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;" value="" vertex="1">
+          <mxGeometry height="28" width="170" x="320" y="736" as="geometry" />
+        </mxCell>
+        <mxCell id="pVSB" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;" value="" vertex="1">
+          <mxGeometry height="28" width="170" x="530" y="736" as="geometry" />
+        </mxCell>
+        <mxCell id="pNSB" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;" value="" vertex="1">
+          <mxGeometry height="28" width="170" x="740" y="736" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="seq-student" name="Student - Select Dates">
+    <mxGraphModel dx="1100" dy="720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title2" value="&lt;b&gt;Visit Scheduling — Student selects dates (IAMS)&lt;/b&gt;" style="text;html=1;align=center;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="280" y="8" width="540" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sStu" value="Student" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sUI" value="User Interface&#xa;(React)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#7986CB;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="160" y="48" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="sAPI" value="VisitScheduleAPI&#xa;(student_visit_schedule.php)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="320" y="48" width="170" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="sVS" value="VisitScheduleHelper" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="530" y="48" width="140" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="sNS" value="NotificationService" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="710" y="48" width="140" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="ls1" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=none;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="54" y="110" width="2" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ls2" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=none;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="219" y="110" width="2" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ls3" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=none;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="404" y="110" width="2" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ls4" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=none;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="599" y="110" width="2" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="ls5" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;fillColor=none;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="779" y="110" width="2" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="sm1" value="Login &amp; Navigate to Visit Schedule" style="endArrow=block;html=1;fontSize=9;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="130" as="sourcePoint" />
+            <mxPoint x="220" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm2" value="loadVisitSchedule() GET /api/student/visit-schedule" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="221" y="155" as="sourcePoint" />
+            <mxPoint x="405" y="155" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm3" value="getPublishedAvailability(lecturerId)" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="180" as="sourcePoint" />
+            <mxPoint x="600" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm4" value="published dates only" style="endArrow=open;dashed=1;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="200" as="sourcePoint" />
+            <mxPoint x="406" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm5" value="Display published calendar" style="endArrow=open;dashed=1;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="220" as="sourcePoint" />
+            <mxPoint x="56" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm6" value="selectDates() + Submit selections" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="250" as="sourcePoint" />
+            <mxPoint x="220" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm7" value="submitSelections(dates) POST" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="221" y="275" as="sourcePoint" />
+            <mxPoint x="405" y="275" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="alt2" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=60;height=18;" vertex="1" parent="1">
+          <mxGeometry x="100" y="300" width="780" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="alt2a" value="[All dates valid &amp; published]" style="text;html=1;fontSize=8;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1">
+          <mxGeometry x="110" y="308" width="200" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="alt2sep" value="" style="line;strokeWidth=1;dashed=1;fillColor=none;strokeColor=#1F2937;" vertex="1" parent="1">
+          <mxGeometry x="100" y="460" width="780" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="alt2b" value="[Date not available]" style="text;html=1;fontSize=8;strokeColor=none;fillColor=none;align=left;" vertex="1" parent="1">
+          <mxGeometry x="110" y="468" width="160" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="sm8" value="validateDates + replaceSelections" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="335" as="sourcePoint" />
+            <mxPoint x="600" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm9" value="notifySupervisorVisitSelection()" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="406" y="365" as="sourcePoint" />
+            <mxPoint x="780" y="365" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm10" value="createInSystemAlert()" style="endArrow=block;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="781" y="385" as="sourcePoint" />
+            <mxPoint x="825" y="405" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="825" y="385" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm11" value="Selections saved. Supervisor notified." style="endArrow=open;dashed=1;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="440" as="sourcePoint" />
+            <mxPoint x="56" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sm12" value="Error: invalid date selected" style="endArrow=open;dashed=1;html=1;fontSize=8;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="500" as="sourcePoint" />
+            <mxPoint x="56" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

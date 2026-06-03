@@ -1,0 +1,92 @@
+@startuml IAMS_VisitScheduling_Communication_Clear
+' Clear communication diagram — same layout style as library textbook example
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #DAE8FC
+  BorderColor #6C8EBF
+  FontSize 11
+}
+
+title Communication Diagram: Site Visit Scheduling — Supervisor (IAMS)
+
+object "Institutional\nSupervisor" as Sup <<actor>> #FFFFFF
+object ":UI:" as UI
+object ":VisitScheduleAPI:" as API
+object ":VisitScheduleHelper:" as VS
+
+' Structural links (communication diagram association lines)
+UI -- API
+API -- VS
+UI -- VS
+Sup -- UI
+
+' ── Phase 1: load ──
+Sup -> UI : 1: openVisitScheduling()
+UI -> API : 1.1: loadVisitSchedule()
+API -> VS : 1.1.1: getAvailability(lecturerId)
+API -> VS : 1.1.2: getSelectionsByDate(lecturerId)
+API -> API : 1.1.3: validateSession()
+VS --> API : rows
+API --> UI : 1.1.4: scheduleData
+UI -> UI : 1.2: displayCalendar()
+
+' ── Phase 2: save & notify ──
+Sup -> UI : 2: saveAndNotify(dates)
+UI -> API : 2.1: saveAvailability()
+API -> VS : 2.1.1: syncAvailability(dates)
+VS -> VS : 2.1.1.1: updateDatabase()
+API -> VS : 2.1.2: publishAvailability()
+API -> API : 2.1.3: notifyStudents()
+API -> VS : 2.1.3.1: createInSystemAlert()
+API --> UI : 2.1.4: success
+UI -> UI : 2.2: displaySuccess()
+
+note left of UI
+  Alt: if no dates selected
+  → 2.2: displayError()
+end note
+
+@enduml
+
+@startuml IAMS_VisitScheduling_Communication_Student_Clear
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #DAE8FC
+  BorderColor #6C8EBF
+  FontSize 11
+}
+
+title Communication Diagram: Site Visit Scheduling — Student (IAMS)
+
+object "Student" as Stu <<actor>> #FFFFFF
+object ":UI:" as UI
+object ":VisitScheduleAPI:" as API
+object ":VisitScheduleHelper:" as VS
+
+UI -- API
+API -- VS
+UI -- VS
+Stu -- UI
+
+Stu -> UI : 1: openVisitSchedule()
+UI -> API : 1.1: loadVisitSchedule()
+API -> VS : 1.1.1: getPublishedAvailability()
+API -> VS : 1.1.2: getMySelections()
+VS --> API : rows
+API --> UI : scheduleData
+UI -> UI : 1.2: displayCalendar()
+
+Stu -> UI : 2: submitSelections(dates)
+UI -> API : 2.1: saveSelections()
+API -> API : 2.1.1: validateDates()
+API -> VS : 2.1.2: replaceSelections()
+API -> VS : 2.1.3: notifySupervisor()
+API --> UI : success
+UI -> UI : 2.2: displaySuccess()
+
+note left of UI
+  Alt: invalid date
+  → 2.2: displayError()
+end note
+
+@enduml

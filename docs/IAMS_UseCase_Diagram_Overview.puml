@@ -1,0 +1,75 @@
+@startuml IAMS_UseCase_Overview_Modern
+'============================================================
+' IAMS — CLEAN OVERVIEW (best for report title page / Ch 2.6)
+' Pair with detailed diagram: IAMS_UseCase_Diagram.puml
+'============================================================
+
+skinparam shadowing true
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam backgroundColor #F8FAFC
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam titleFontSize 18
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #2563EB
+  FontColor #0F172A
+}
+skinparam rectangle {
+  BorderColor #2563EB
+  BorderThickness 2
+  BackgroundColor #FFFFFF
+}
+
+title <b>IAMS — System Use Cases (Overview)</b>
+
+left to right direction
+
+actor "Student" as STU #E0F2FE
+actor "Institutional\nSupervisor" as INS #DCFCE7
+actor "Company\nSupervisor" as COM #FFEDD5
+actor "Administrator" as ADM #EDE9FE
+
+rectangle "IAMS" #FFFFFF {
+
+  usecase "Authentication\n& Security" as UC1 #EFF6FF
+  usecase "Student Attachment\nLifecycle" as UC2 #EFF6FF
+  usecase "Supervision &\nMonitoring" as UC3 #F0FDF4
+  usecase "Visit Scheduling\n& Assessment" as UC4 #F0FDF4
+  usecase "Company\nAssessment" as UC5 #FFF7ED
+  usecase "Administration\n& Analytics" as UC6 #F5F3FF
+  usecase "Notifications\n& Records" as UC7 #F1F5F9
+
+  UC1 -[hidden]down- UC2
+  UC2 -[hidden]right- UC3
+  UC3 -[hidden]right- UC4
+  UC4 -[hidden]down- UC5
+  UC5 -[hidden]left- UC6
+  UC6 -[hidden]up- UC7
+}
+
+STU --> UC1
+STU --> UC2
+STU --> UC7
+
+INS --> UC1
+INS --> UC3
+INS --> UC4
+INS --> UC7
+
+COM --> UC5
+
+ADM --> UC1
+ADM --> UC6
+ADM --> UC7
+
+UC2 ..> UC7 : uses
+UC4 ..> UC7 : uses
+
+note as N1
+  <b>Student lifecycle:</b> register → assumption → orientation →
+  logbook → contract → report → visit selection
+end note
+N1 .. UC2
+
+@enduml

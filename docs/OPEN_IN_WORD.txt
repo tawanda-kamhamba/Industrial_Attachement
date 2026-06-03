@@ -1,0 +1,24 @@
+HOW TO OPEN CHAPTERS 4-6 IN MICROSOFT WORD
+==========================================
+
+Use ONE of these files (same content):
+
+  CAPSTONE_Chapters_4_to_6_Word.doc   <-- try this first (double-click)
+  CAPSTONE_Chapters_4_to_6_Word.html  <-- if .doc does not open
+
+Steps:
+1. Double-click CAPSTONE_Chapters_4_to_6_Word.doc
+   OR open Word → File → Open → browse to docs folder → select the file.
+
+2. In Word: File → Save As → Word Document (*.docx)
+
+3. Insert your screenshots at each "Figure 4.x" line.
+
+4. Delete the blue "How to use this file" box at the top if your faculty does not want it.
+
+To regenerate after editing the .md file:
+  node docs/scripts/md-to-word-html.mjs
+  Then copy the .html to .doc again if needed.
+
+Markdown source (not for Word paste):
+  CAPSTONE_Chapters_4_to_6_Abstract_Appendices.md

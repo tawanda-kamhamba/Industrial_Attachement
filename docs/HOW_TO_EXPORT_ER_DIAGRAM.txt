@@ -1,0 +1,90 @@
+FIGURE 4.6 — HOW TO EXPORT AN ER DIAGRAM
+=======================================
+
+You have THREE options. Option A is fastest if you already use Draw.io.
+
+
+OPTION A — Use the project ER file (recommended)
+------------------------------------------------
+File: docs/IAMS_ER_Diagram.drawio
+
+1. Open https://app.diagrams.net/  (or Draw.io in VS Code/Cursor)
+2. File → Open → select IAMS_ER_Diagram.drawio
+3. View → Zoom → 100% (diagram is laid out on a large page — use Fit or 75% while editing)
+4. File → Export as → PNG
+   - Zoom: 150% or 200% (makes text sharp in Word)
+   - Border: 15 px
+   - Transparent background: OFF (use white for Word)
+   - Width: optional 2400 px for print quality
+5. Save as: docs/Figure_4_6_ER_Diagram.png
+6. In Word: Insert → Pictures → select the PNG
+7. Caption: Figure 4.6 Entity-relationship diagram of the IAMS database (core tables)
+
+
+OPTION B — MySQL Workbench (from your live XAMPP database)
+----------------------------------------------------------
+Prerequisite: Install "MySQL Workbench" (free) from mysql.com if not installed.
+XAMPP must be running (Apache + MySQL started).
+
+STEP 1 — Connect
+  - Open MySQL Workbench
+  - Click "+" next to MySQL Connections
+  - Connection Name: XAMPP Local
+  - Hostname: 127.0.0.1
+  - Port: 3306
+  - Username: root
+  - Password: (leave empty for default XAMPP, or your password)
+  - Test Connection → OK
+
+STEP 2 — Reverse-engineer the database
+  - Menu: Database → Reverse Engineer...
+  - Select your connection → Next
+  - Select schema/database: IASMS → Next
+  - Select all tables (or only the main ones if the diagram is too crowded) → Next
+  - Next through remaining screens → Execute → Finish
+  - An EER Diagram tab opens showing tables and lines
+
+STEP 3 — Tidy the diagram (optional)
+  - Drag tables into groups: Student | Supervisor | Grades | Visits
+  - Arrange → Align objects (from toolbar)
+
+STEP 4 — Export as image for Word
+  Method 1:
+    - File → Export → Export as PNG...
+    - Choose folder and filename (e.g. Figure_4_6_ER.png)
+  Method 2:
+    - File → Print to PDF... then insert PDF page into Word
+  Method 3:
+    - Right-click empty area on EER diagram → Copy as image → Paste into Word
+
+STEP 5 — Save the model (optional)
+  - File → Save Model As → IAMS.mwb (for future edits)
+
+
+OPTION C — phpMyAdmin (comes with XAMPP)
+----------------------------------------
+1. Start XAMPP → MySQL running
+2. Browser: http://localhost/phpmyadmin
+3. Click database IASMS on the left
+4. Top menu: click "Designer" (if you do not see it, use Option A or B)
+5. Tables appear on a canvas with relationship lines
+6. Export:
+   - Some versions: Export → PNG from designer toolbar
+   - Or: Windows Snipping Tool / Win+Shift+S to capture the designer screen
+7. Paste into Word
+
+Note: phpMyAdmin Designer layout is less neat than Workbench; Option A is better for the report.
+
+
+WHICH TO USE FOR YOUR REPORT?
+-----------------------------
+- Faculty wants "your design": Option A or B (both valid)
+- Must match real database exactly: Option B (auto from MySQL)
+- Clean readable figure in Word: Option A (already simplified for the report)
+
+
+CAPTION FOR WORD
+----------------
+Figure 4.6 Entity-relationship diagram showing core IAMS tables and relationships,
+centred on registered_students and visiting_lecturers, with attachment documents,
+grades, and visit scheduling entities.

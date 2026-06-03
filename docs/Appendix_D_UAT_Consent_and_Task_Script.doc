@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="ProgId" content="Word.Document">
+<title>Appendix D — UAT Consent and Task Script — IAMS</title>
+<style>
+body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; margin: 1in; line-height: 1.35; color: #000; }
+h1 { font-size: 16pt; text-align: center; }
+h2 { font-size: 13pt; margin-top: 18pt; border-bottom: 1px solid #999; padding-bottom: 4pt; }
+h3 { font-size: 12pt; margin-top: 14pt; }
+p { text-align: justify; margin: 6pt 0; }
+table { border-collapse: collapse; width: 100%; font-size: 11pt; margin: 10pt 0; }
+th, td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+th { background: #E8EEF4; }
+.sig-line { border-bottom: 1px solid #000; display: inline-block; min-width: 220px; margin-top: 24pt; }
+.note { font-size: 10pt; font-style: italic; }
+.box { border: 1px solid #000; padding: 10pt; margin: 10pt 0; }
+ul { margin: 6pt 0 6pt 20pt; }
+.page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>APPENDIX D</h1>
+<p style="text-align:center;"><strong>User Acceptance Testing (UAT)<br>Informed Consent, Task Scripts, and Tester Record Sheets</strong></p>
+<p style="text-align:center;">Industrial Attachment Management System (IAMS)<br>
+Student: Tawanda Kamhamba (R223985C) &nbsp;|&nbsp; Supervisor: Mr. Gombiro<br>
+Faculty of Computer Engineering, Informics and Communications — Department of Computer Science</p>
+
+<h2>D.1 Purpose of this appendix</h2>
+<p>This appendix supports Chapter 5 (Results and Testing) and Section 1.6 (Ethical Considerations). It provides the documents used when volunteer participants tested IAMS during user acceptance testing (UAT). Test accounts used fictitious or anonymised data only; no real student grades or confidential institutional records were stored permanently for the test sessions.</p>
+
+<h2>D.2 Participant information sheet</h2>
+<div class="box">
+<p><strong>Project title:</strong> Industrial Attachment Management System (IAMS)</p>
+<p><strong>Researcher:</strong> Tawanda Kamhamba (R223985C), BSc Honours Computer Science</p>
+<p><strong>What you are being asked to do:</strong> Use a test version of IAMS on a computer or phone and complete a short list of tasks (login, submit a sample document, etc.). The session takes about 20–40 minutes depending on your role.</p>
+<p><strong>Why:</strong> To check that the system works correctly and is easy to use before final submission of the capstone project.</p>
+<p><strong>Voluntary participation:</strong> Taking part is entirely your choice. You may stop at any time without penalty.</p>
+<p><strong>Confidentiality:</strong> Your real name will not appear in the project report. You will be recorded only as a code (e.g. Student001, Supervisor002). Test data may be deleted within one month after project submission unless you agree otherwise.</p>
+<p><strong>Contact:</strong> Tawanda Kamhamba — [insert your email / phone] &nbsp;|&nbsp; Project supervisor: Mr. Gombiro</p>
+</div>
+
+<h2>D.3 Informed consent form</h2>
+<p>I have read the participant information sheet (Section D.2) and understand the purpose of the user acceptance testing for the Industrial Attachment Management System (IAMS).</p>
+<p>I understand that:</p>
+<ul>
+<li>Participation is voluntary and I may withdraw at any time without consequence.</li>
+<li>I will use test accounts and sample data provided; I will not enter sensitive personal information of other people.</li>
+<li>My identity will be kept confidential in all project documentation.</li>
+<li>Any feedback I give may be summarised anonymously in the final report.</li>
+</ul>
+
+<p style="margin-top: 18pt;"><strong>Participant code</strong> (assigned by researcher): _________________________</p>
+<p><strong>Role tested</strong> (tick one): &nbsp; ☐ Student &nbsp; ☐ Institutional supervisor &nbsp; ☐ Administrator &nbsp; ☐ Company supervisor (assessment form)</p>
+<p><strong>Date of test session:</strong> ____ / ____ / 2026</p>
+
+<table style="border:none; width:100%; margin-top:24pt;">
+<tr style="border:none;">
+<td style="border:none; width:50%;">Participant signature: <span class="sig-line">&nbsp;</span></td>
+<td style="border:none; width:50%;">Date: <span class="sig-line">&nbsp;</span></td>
+</tr>
+<tr style="border:none;">
+<td style="border:none; padding-top:18pt;">Researcher signature: <span class="sig-line">&nbsp;</span></td>
+<td style="border:none; padding-top:18pt;">Date: <span class="sig-line">&nbsp;</span></td>
+</tr>
+</table>
+
+<p class="note">Note: For participants under 18, a parent/guardian signature may be required by faculty policy. Check with your supervisor if this applies.</p>
+
+<div class="page-break"></div>
+
+<h2>D.4 UAT task scripts</h2>
+<p>The facilitator (researcher) reads the role introduction, then asks the participant to complete each task while observing whether the expected result occurs. Tick Pass or Fail on the record sheet (Section D.5).</p>
+<p><strong>Test environment:</strong> IAMS web application — e.g. <em>http://localhost/iasms/app/</em> or hosted demo URL. Browser: Chrome, Edge, or Firefox recommended.</p>
+
+<h3>D.4.1 Student role — task script</h3>
+<table>
+<thead>
+<tr><th>Step</th><th>Instruction to participant</th><th>Expected result</th></tr>
+</thead>
+<tbody>
+<tr><td>U1</td><td>Log in using the test index number and password provided.</td><td>Login succeeds; student dashboard or onboarding (instructions) page appears.</td></tr>
+<tr><td>U2</td><td>Read the Instructions page, then complete <strong>Register</strong> and <strong>Assumption of duty</strong> with the sample details given.</td><td>All main menus unlock (e-logbook, contract, report, visit schedule, etc.).</td></tr>
+<tr><td>U3</td><td>Open <strong>E-Logbook</strong> and submit one week of entries (sample text is fine).</td><td>Success message; entry saved and visible when page is refreshed.</td></tr>
+<tr><td>U4</td><td>Upload a sample <strong>Contract</strong> (PDF file provided by facilitator).</td><td>File appears as submitted; status shows pending (or similar).</td></tr>
+<tr><td>U5</td><td>Upload a sample <strong>Final report</strong> (PDF/DOC/DOCX). Try uploading a second file if instructed.</td><td>First upload succeeds; system prevents duplicate submission (submit-once policy).</td></tr>
+<tr><td>U6</td><td>Open <strong>Visit schedule</strong> after the supervisor has published dates. Select one available date.</td><td>Selection is saved; confirmation shown; supervisor can see your name on that date.</td></tr>
+</tbody>
+</table>
+
+<h3>D.4.2 Institutional supervisor role — task script</h3>
+<table>
+<thead>
+<tr><th>Step</th><th>Instruction to participant</th><th>Expected result</th></tr>
+</thead>
+<tbody>
+<tr><td>U7</td><td>Log in with test staff ID and password. Open <strong>Visit schedule</strong>, add one or more dates, and <strong>Publish</strong>.</td><td>Dates appear as published; assigned students receive in-system notification.</td></tr>
+<tr><td>U8</td><td>Open <strong>Scores</strong> (or grade form) for a test student. Enter marks for <strong>Visit 1</strong> and <strong>Visit 2</strong>.</td><td>Scores save successfully; visible on supervisor and admin score views.</td></tr>
+<tr><td>U9</td><td>Open a student <strong>Logbook</strong>, add a short comment, and save.</td><td>Comment saved; student receives in-system notification.</td></tr>
+</tbody>
+</table>
+
+<h3>D.4.3 Administrator role — task script</h3>
+<table>
+<thead>
+<tr><th>Step</th><th>Instruction to participant</th><th>Expected result</th></tr>
+</thead>
+<tbody>
+<tr><td>U10</td><td>Log in as administrator. Open the <strong>Dashboard</strong> and review the statistics and charts.</td><td>Charts and counts load and match test data in the system.</td></tr>
+<tr><td>U11</td><td>Open <strong>Assign supervisors</strong>. Link one test student to one test institutional supervisor (or confirm existing link).</td><td>Assignment saves; student sees supervisor on dashboard where applicable.</td></tr>
+</tbody>
+</table>
+
+<h3>D.4.4 Company supervisor role — task script</h3>
+<table>
+<thead>
+<tr><th>Step</th><th>Instruction to participant</th><th>Expected result</th></tr>
+</thead>
+<tbody>
+<tr><td>U12</td><td>On the student portal URL, open the <strong>Company supervisor</strong> assessment link. Enter the password given by the institutional supervisor. Complete and submit the grade form for the test student.</td><td>Submission succeeds; grade visible to institutional supervisor and administrator.</td></tr>
+</tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>D.5 Tester record sheet</h2>
+<p><strong>Participant code:</strong> ______________ &nbsp; <strong>Role:</strong> ______________ &nbsp; <strong>Date:</strong> ______________ &nbsp; <strong>Facilitator:</strong> T. Kamhamba</p>
+
+<table>
+<thead>
+<tr>
+<th>Task ID</th>
+<th>Task (summary)</th>
+<th>Pass ☐</th>
+<th>Fail ☐</th>
+<th>Comments (optional)</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>U1</td><td>Student login</td><td></td><td></td><td></td></tr>
+<tr><td>U2</td><td>Registration + assumption</td><td></td><td></td><td></td></tr>
+<tr><td>U3</td><td>Submit logbook week</td><td></td><td></td><td></td></tr>
+<tr><td>U4</td><td>Upload contract PDF</td><td></td><td></td><td></td></tr>
+<tr><td>U5</td><td>Upload final report (once only)</td><td></td><td></td><td></td></tr>
+<tr><td>U6</td><td>Select visit date</td><td></td><td></td><td></td></tr>
+<tr><td>U7</td><td>Supervisor publish visit dates</td><td></td><td></td><td></td></tr>
+<tr><td>U8</td><td>Supervisor enter visit 1 &amp; 2 scores</td><td></td><td></td><td></td></tr>
+<tr><td>U9</td><td>Supervisor comment on logbook</td><td></td><td></td><td></td></tr>
+<tr><td>U10</td><td>Admin view dashboard charts</td><td></td><td></td><td></td></tr>
+<tr><td>U11</td><td>Admin assign supervisor</td><td></td><td></td><td></td></tr>
+<tr><td>U12</td><td>Company supervisor submit grade</td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<p><em>Complete only the rows that apply to the participant’s role. Table 5.1 in Chapter 5 summarises aggregated results across all sessions.</em></p>
+
+<h2>D.6 Brief post-test feedback (optional)</h2>
+<p>Please circle one response for each question. This is not graded; it helps improve the system description in Chapter 5.</p>
+
+<table>
+<thead>
+<tr><th>Question</th><th>1 Strongly disagree</th><th>2</th><th>3 Neutral</th><th>4</th><th>5 Strongly agree</th></tr>
+</thead>
+<tbody>
+<tr><td>The system was easy to navigate.</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>Instructions and labels were clear.</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>I could complete my tasks without help after reading the instructions page.</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>I would use a system like this for industrial attachment if it were deployed.</td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+<p><strong>What one thing would you improve?</strong></p>
+<p style="border-bottom:1px solid #000; min-height:40pt;">&nbsp;</p>
+
+<p style="margin-top:24pt;"><strong>Participant code:</strong> ______________ &nbsp; <strong>Date:</strong> ______________</p>
+
+</body>
+</html>

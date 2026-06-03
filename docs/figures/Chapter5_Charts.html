@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chapter 5 — IAMS Results Charts (Figures 5.2–5.8)</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 24px; background: #f5f7fa; color: #1a1a2e; }
+  h1 { font-size: 18pt; text-align: center; margin-bottom: 8px; }
+  .intro { text-align: center; max-width: 720px; margin: 0 auto 28px; font-size: 11pt; color: #444; }
+  .figure { background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin: 28px auto; max-width: 900px; page-break-inside: avoid; }
+  .caption { font-family: 'Times New Roman', Times, serif; font-size: 11pt; margin-top: 12px; text-align: center; }
+  .caption strong { font-weight: bold; }
+  .note { font-size: 9pt; color: #666; text-align: center; margin-top: 6px; }
+  svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  @media print { body { background: #fff; } .figure { break-inside: avoid; box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<h1>Chapter 5 — Results &amp; Discussion<br>Charts for IAMS (paste into Word)</h1>
+<p class="intro">Data match <strong>Tables 5.1–5.4</strong> in <code>CAPSTONE_Chapters_4_to_6_Abstract_Appendices.md</code>.
+Open this file in a browser → right-click each chart → <strong>Copy image</strong> → paste into Word under the matching figure caption.
+IAMS is an administrative system: use <em>pass rates, load times, and requirements coverage</em> — not ML accuracy/precision/recall.</p>
+
+<!-- Figure 5.2 Response time -->
+<div class="figure" id="fig5-2">
+<svg width="720" height="380" viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg">
+  <text x="360" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Average page load time (milliseconds)</text>
+  <line x1="80" y1="300" x2="680" y2="300" stroke="#333" stroke-width="1"/>
+  <line x1="80" y1="50" x2="80" y2="300" stroke="#333" stroke-width="1"/>
+  <text x="40" y="305" font-size="11" fill="#555">0</text>
+  <text x="30" y="235" font-size="11" fill="#555">1000</text>
+  <text x="30" y="175" font-size="11" fill="#555">2000</text>
+  <text x="30" y="115" font-size="11" fill="#555">3000</text>
+  <line x1="80" y1="235" x2="680" y2="235" stroke="#e2e8f0"/>
+  <line x1="80" y1="175" x2="680" y2="175" stroke="#e2e8f0"/>
+  <line x1="80" y1="115" x2="680" y2="115" stroke="#e2e8f0"/>
+  <rect x="130" y="186" width="90" height="114" fill="#3182ce" rx="4"/>
+  <text x="175" y="178" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">1200</text>
+  <rect x="280" y="86" width="90" height="214" fill="#2c5282" rx="4"/>
+  <text x="325" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">2800</text>
+  <rect x="430" y="165" width="90" height="135" fill="#3182ce" rx="4"/>
+  <text x="475" y="157" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">1500</text>
+  <rect x="580" y="126" width="90" height="174" fill="#2b6cb0" rx="4"/>
+  <text x="625" y="118" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a365d">2100</text>
+  <text x="175" y="325" text-anchor="middle" font-size="10" fill="#333">Student</text>
+  <text x="175" y="338" text-anchor="middle" font-size="10" fill="#333">dashboard</text>
+  <text x="325" y="325" text-anchor="middle" font-size="10" fill="#333">Admin</text>
+  <text x="325" y="338" text-anchor="middle" font-size="10" fill="#333">dashboard</text>
+  <text x="475" y="325" text-anchor="middle" font-size="10" fill="#333">Supervisor</text>
+  <text x="475" y="338" text-anchor="middle" font-size="10" fill="#333">logbook</text>
+  <text x="625" y="325" text-anchor="middle" font-size="10" fill="#333">Report</text>
+  <text x="625" y="338" text-anchor="middle" font-size="10" fill="#333">upload</text>
+  <text x="72" y="55" font-size="11" fill="#555" transform="rotate(-90 72 55)">ms</text>
+</svg>
+<p class="caption"><strong>Figure 5.2</strong> — Average response time for selected IAMS pages (localhost / XAMPP, DevTools Network, informal sample)</p>
+<p class="note">Source: Table 5.3 narrative; NFR1 target 3000–5000 ms</p>
+</div>
+
+<!-- Figure 5.3 UAT by task -->
+<div class="figure" id="fig5-3">
+<svg width="820" height="420" viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
+  <text x="410" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">UAT outcomes by task (Table 5.1)</text>
+  <rect x="620" y="42" width="14" height="14" fill="#38a169"/><text x="640" y="54" font-size="11">Pass</text>
+  <rect x="700" y="42" width="14" height="14" fill="#e53e3e"/><text x="720" y="54" font-size="11">Fail</text>
+  <!-- 12 tasks, horizontal stacked bars -->
+  <g font-size="11" fill="#333">
+    <text x="70" y="78" text-anchor="end">U1 Login</text>
+    <rect x="80" y="64" width="500" height="18" fill="#38a169"/><text x="590" y="78" font-size="10">5</text>
+    <text x="70" y="108" text-anchor="end">U2 Register</text>
+    <rect x="80" y="94" width="500" height="18" fill="#38a169"/><text x="590" y="108" font-size="10">5</text>
+    <text x="70" y="138" text-anchor="end">U3 Logbook</text>
+    <rect x="80" y="124" width="400" height="18" fill="#38a169"/><rect x="480" y="124" width="100" height="18" fill="#e53e3e"/><text x="590" y="138" font-size="10">4+1</text>
+    <text x="70" y="168" text-anchor="end">U4 Contract</text>
+    <rect x="80" y="154" width="500" height="18" fill="#38a169"/>
+    <text x="70" y="198" text-anchor="end">U5 Report</text>
+    <rect x="80" y="184" width="500" height="18" fill="#38a169"/>
+    <text x="70" y="228" text-anchor="end">U6 Visit</text>
+    <rect x="80" y="214" width="400" height="18" fill="#38a169"/><text x="590" y="228" font-size="10">4</text>
+    <text x="70" y="258" text-anchor="end">U7 Publish</text>
+    <rect x="80" y="244" width="300" height="18" fill="#38a169"/><text x="590" y="258" font-size="10">3</text>
+    <text x="70" y="288" text-anchor="end">U8 Scores</text>
+    <rect x="80" y="274" width="300" height="18" fill="#38a169"/>
+    <text x="70" y="318" text-anchor="end">U9 Comment</text>
+    <rect x="80" y="304" width="300" height="18" fill="#38a169"/>
+    <text x="70" y="348" text-anchor="end">U10 Charts</text>
+    <rect x="80" y="334" width="200" height="18" fill="#38a169"/><text x="590" y="348" font-size="10">2</text>
+    <text x="70" y="378" text-anchor="end">U11 Assign</text>
+    <rect x="80" y="364" width="200" height="18" fill="#38a169"/>
+    <text x="70" y="408" text-anchor="end">U12 Company</text>
+    <rect x="80" y="394" width="300" height="18" fill="#38a169"/><text x="590" y="408" font-size="10">3</text>
+  </g>
+  <text x="330" y="400" text-anchor="middle" font-size="10" fill="#666">Bar length proportional to attempts (max 5 student tasks scaled to 500px)</text>
+</svg>
+<p class="caption"><strong>Figure 5.3</strong> — User acceptance testing pass and fail counts per task</p>
+</div>
+
+<!-- Figure 5.4 Overall UAT pie -->
+<div class="figure" id="fig5-4">
+<svg width="480" height="320" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Overall UAT result (n = 45 task attempts)</text>
+  <path d="M 240 160 L 240 60 A 100 100 0 1 1 213 248 Z" fill="#38a169"/>
+  <path d="M 240 160 L 213 248 A 100 100 0 0 1 240 60 Z" fill="#e53e3e"/>
+  <circle cx="240" cy="160" r="55" fill="#fff"/>
+  <text x="240" y="155" text-anchor="middle" font-size="22" font-weight="bold" fill="#1a365d">97.8%</text>
+  <text x="240" y="175" text-anchor="middle" font-size="11" fill="#555">pass rate</text>
+  <rect x="320" y="100" width="12" height="12" fill="#38a169"/><text x="340" y="111" font-size="12">Pass: 44</text>
+  <rect x="320" y="130" width="12" height="12" fill="#e53e3e"/><text x="340" y="141" font-size="12">Fail: 1 (U3 logbook)</text>
+</svg>
+<p class="caption"><strong>Figure 5.4</strong> — Proportion of UAT task attempts that passed</p>
+</div>
+
+<!-- Figure 5.5 UAT by role -->
+<div class="figure" id="fig5-5">
+<svg width="560" height="340" viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">UAT pass rate by participant role</text>
+  <line x1="60" y1="280" x2="520" y2="280" stroke="#333"/>
+  <rect x="90" y="62" width="80" height="218" fill="#38a169" rx="4"/>
+  <text x="130" y="52" text-anchor="middle" font-size="13" font-weight="bold">96.6%</text>
+  <text x="130" y="300" text-anchor="middle" font-size="11">Student</text>
+  <text x="130" y="314" text-anchor="middle" font-size="9" fill="#666">28/29</text>
+  <rect x="210" y="58" width="80" height="222" fill="#2f855a" rx="4"/>
+  <text x="250" y="48" text-anchor="middle" font-size="13" font-weight="bold">100%</text>
+  <text x="250" y="300" text-anchor="middle" font-size="11">Supervisor</text>
+  <text x="250" y="314" text-anchor="middle" font-size="9" fill="#666">9/9</text>
+  <rect x="330" y="58" width="80" height="222" fill="#2f855a" rx="4"/>
+  <text x="370" y="48" text-anchor="middle" font-size="13" font-weight="bold">100%</text>
+  <text x="370" y="300" text-anchor="middle" font-size="11">Admin</text>
+  <text x="370" y="314" text-anchor="middle" font-size="9" fill="#666">4/4</text>
+  <rect x="450" y="58" width="80" height="222" fill="#2f855a" rx="4"/>
+  <text x="490" y="48" text-anchor="middle" font-size="13" font-weight="bold">100%</text>
+  <text x="490" y="300" text-anchor="middle" font-size="11">Company</text>
+  <text x="490" y="314" text-anchor="middle" font-size="9" fill="#666">3/3</text>
+  <text x="30" y="200" font-size="10" fill="#555" transform="rotate(-90 30 200)">Pass rate %</text>
+</svg>
+<p class="caption"><strong>Figure 5.5</strong> — UAT success rate grouped by role (derived from Table 5.1)</p>
+</div>
+
+<!-- Figure 5.6 FR requirements -->
+<div class="figure" id="fig5-6">
+<svg width="480" height="320" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Functional requirements test outcome (FR1–FR38)</text>
+  <circle cx="240" cy="165" r="100" fill="none" stroke="#38a169" stroke-width="72"/>
+  <circle cx="240" cy="165" r="62" fill="#fff"/>
+  <text x="240" y="160" text-anchor="middle" font-size="26" font-weight="bold" fill="#1a365d">38</text>
+  <text x="240" y="182" text-anchor="middle" font-size="11" fill="#555">Met (100%)</text>
+  <rect x="330" y="120" width="12" height="12" fill="#38a169"/><text x="350" y="131" font-size="12">Met: 38</text>
+  <rect x="330" y="148" width="12" height="12" fill="#cbd5e0"/><text x="350" y="159" font-size="12">Not met: 0</text>
+</svg>
+<p class="caption"><strong>Figure 5.6</strong> — Functional requirements traceability summary (Table 5.2)</p>
+</div>
+
+<!-- Figure 5.7 Objectives -->
+<div class="figure" id="fig5-7">
+<svg width="620" height="300" viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="310" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Chapter 1.4.2 objectives — implementation status</text>
+  <rect x="120" y="80" width="380" height="50" fill="#38a169" rx="6"/>
+  <text x="310" y="112" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">Achieved — 13 objectives</text>
+  <rect x="120" y="145" width="88" height="50" fill="#e53e3e" rx="6"/>
+  <text x="164" y="176" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Not: 3</text>
+  <rect x="220" y="145" width="44" height="50" fill="#d69e2e" rx="6"/>
+  <text x="242" y="176" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">1</text>
+  <text x="310" y="230" text-anchor="middle" font-size="10" fill="#666">Partial = bulk CSV export (admin PDF only)</text>
+  <rect x="120" y="250" width="14" height="14" fill="#38a169"/><text x="142" y="262" font-size="11">Achieved</text>
+  <rect x="220" y="250" width="14" height="14" fill="#e53e3e"/><text x="242" y="262" font-size="11">Not achieved (email, report versions, calendar)</text>
+  <rect x="480" y="250" width="14" height="14" fill="#d69e2e"/><text x="502" y="262" font-size="11">Partial</text>
+</svg>
+<p class="caption"><strong>Figure 5.7</strong> — Project objectives achievement (Table 5.4)</p>
+</div>
+
+<!-- Figure 5.8 Likert feedback -->
+<div class="figure" id="fig5-8">
+<svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <text x="320" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Post-UAT feedback — mean rating (1–5 scale)</text>
+  <line x1="70" y1="300" x2="600" y2="300" stroke="#333"/>
+  <line x1="70" y1="50" x2="70" y2="300" stroke="#333"/>
+  <text x="55" y="305" font-size="10">1</text>
+  <text x="55" y="245" font-size="10">2</text>
+  <text x="55" y="185" font-size="10">3</text>
+  <text x="55" y="125" font-size="10">4</text>
+  <text x="55" y="65" font-size="10">5</text>
+  <!-- ratings: 4.6, 4.2, 4.0, 4.8 scale to y: 300 - (rating-1)*50 -->
+  <rect x="100" y="82" width="70" height="218" fill="#4299e1" rx="4"/>
+  <text x="135" y="75" text-anchor="middle" font-size="12" font-weight="bold">4.6</text>
+  <rect x="210" y="102" width="70" height="198" fill="#4299e1" rx="4"/>
+  <text x="245" y="95" text-anchor="middle" font-size="12" font-weight="bold">4.2</text>
+  <rect x="320" y="110" width="70" height="190" fill="#4299e1" rx="4"/>
+  <text x="355" y="103" text-anchor="middle" font-size="12" font-weight="bold">4.0</text>
+  <rect x="430" y="74" width="70" height="226" fill="#2b6cb0" rx="4"/>
+  <text x="465" y="67" text-anchor="middle" font-size="12" font-weight="bold">4.8</text>
+  <text x="135" y="325" text-anchor="middle" font-size="9">Easy to</text>
+  <text x="135" y="337" text-anchor="middle" font-size="9">navigate</text>
+  <text x="245" y="325" text-anchor="middle" font-size="9">Clear</text>
+  <text x="245" y="337" text-anchor="middle" font-size="9">labels</text>
+  <text x="355" y="325" text-anchor="middle" font-size="9">Tasks without</text>
+  <text x="355" y="337" text-anchor="middle" font-size="9">help</text>
+  <text x="465" y="325" text-anchor="middle" font-size="9">Would use</text>
+  <text x="465" y="337" text-anchor="middle" font-size="9">if deployed</text>
+  <text x="320" y="355" text-anchor="middle" font-size="9" fill="#666">n = 5 student participants (Appendix D.6); neutral = 3</text>
+</svg>
+<p class="caption"><strong>Figure 5.8</strong> — Mean Likert scores from optional post-test questionnaire</p>
+<p class="note">Recalculate if your actual D.6 forms differ</p>
+</div>
+
+<!-- Figure 5.9 NFR radar-style bar -->
+<div class="figure" id="fig5-9">
+<svg width="640" height="340" viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg">
+  <text x="320" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a365d">Non-functional requirements — evaluation outcome</text>
+  <rect x="500" y="48" width="12" height="12" fill="#38a169"/><text x="518" y="59" font-size="11">Met</text>
+  <rect x="500" y="68" width="12" height="12" fill="#d69e2e"/><text x="518" y="79" font-size="11">Partial / qualified</text>
+  <g font-size="11">
+    <text x="200" y="95" text-anchor="end">NFR1 Performance</text><rect x="210" y="82" width="280" height="16" fill="#38a169" rx="3"/>
+    <text x="200" y="125" text-anchor="end">NFR2 Usability</text><rect x="210" y="112" width="350" height="16" fill="#38a169" rx="3"/>
+    <text x="200" y="155" text-anchor="end">NFR3 Security</text><rect x="210" y="142" width="300" height="16" fill="#d69e2e" rx="3"/>
+    <text x="200" y="185" text-anchor="end">NFR4 Reliability</text><rect x="210" y="172" width="350" height="16" fill="#38a169" rx="3"/>
+    <text x="200" y="215" text-anchor="end">NFR5 Compatibility</text><rect x="210" y="202" width="350" height="16" fill="#38a169" rx="3"/>
+    <text x="200" y="245" text-anchor="end">NFR6 Maintainability</text><rect x="210" y="232" width="350" height="16" fill="#38a169" rx="3"/>
+    <text x="200" y="275" text-anchor="end">NFR7 Scalability</text><rect x="210" y="262" width="280" height="16" fill="#d69e2e" rx="3"/>
+  </g>
+  <text x="320" y="310" text-anchor="middle" font-size="9" fill="#666">Bar length indicates strength of evidence (qualitative); see Table 5.3</text>
+</svg>
+<p class="caption"><strong>Figure 5.9</strong> — Non-functional requirements evaluation summary (Table 5.3)</p>
+</div>
+
+</body>
+</html>

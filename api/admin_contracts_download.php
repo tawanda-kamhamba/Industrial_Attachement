@@ -3,9 +3,6 @@
  * GET /api/admin/contracts/download?id=123
  * Streams the contract PDF for admin from student_contracts. No JSON; sends file headers and body.
  */
-header('Access-Control-Allow-Origin: http://localhost:3000');
-header('Access-Control-Allow-Credentials: true');
-
 if (($_SESSION['role'] ?? '') !== 'admin') {
     http_response_code(401);
     header('Content-Type: application/json');

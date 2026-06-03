@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { LoginLayout } from '@/components/auth/LoginLayout';
@@ -59,8 +59,8 @@ export function LoginPage() {
             New here? Sign up
           </button>
           <div className="flex gap-4">
-            <a href="/admin/login" className="text-primary-600 hover:underline">Admin login</a>
-            <a href="/supervisor/login" className="text-primary-600 hover:underline">Supervisor login</a>
+            <Link to="/admin/login" className="text-primary-600 hover:underline">Admin login</Link>
+            <Link to="/supervisor/login" className="text-primary-600 hover:underline">Supervisor login</Link>
           </div>
         </div>
       </LoginLayout>

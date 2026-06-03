@@ -6,9 +6,6 @@
 require_once __DIR__ . '/reports_download_auth.php';
 require_once __DIR__ . '/supervisor_helpers.php';
 
-header('Access-Control-Allow-Origin: http://localhost:3000');
-header('Access-Control-Allow-Credentials: true');
-
 if (($_SESSION['role'] ?? '') !== 'supervisor') {
     http_response_code(401);
     header('Content-Type: application/json');

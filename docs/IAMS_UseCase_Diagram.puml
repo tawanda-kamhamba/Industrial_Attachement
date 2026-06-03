@@ -1,0 +1,151 @@
+@startuml IAMS_Overall_UseCase_Diagram_Professional
+'============================================================
+' IAMS — Overall Use Case Diagram (Professional Layout)
+' Open: https://www.plantuml.com/plantuml/uml/
+' Export PNG (scale 200%) or SVG for your report
+'============================================================
+
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Segoe UI, Arial, sans-serif"
+skinparam defaultFontSize 11
+skinparam titleFontSize 16
+skinparam titleFontStyle bold
+skinparam packageFontSize 12
+skinparam packageFontStyle bold
+skinparam actor {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #1E293B
+}
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  FontColor #1E293B
+  FontSize 10
+}
+skinparam rectangle {
+  BorderColor #2563EB
+  BorderThickness 2
+  BackgroundColor #FAFBFC
+}
+skinparam arrow {
+  Color #475569
+}
+
+title <size:18><b>Industrial Attachment Management System (IAMS)</b></size>\n<size:12>Overall Use Case Diagram</size>
+
+'================== ACTORS (top row, evenly spaced) ==================
+actor "Student" as STU #E0F2FE
+actor "Institutional\nSupervisor" as INS #DCFCE7
+actor "Company\nSupervisor" as COM #FFEDD5
+actor "Administrator" as ADM #EDE9FE
+
+STU -[hidden]right- INS
+INS -[hidden]right- COM
+COM -[hidden]right- ADM
+
+'================== SYSTEM BOUNDARY ==================
+rectangle "<b>IAMS Web Platform</b>\n<size:10>React + TypeScript  |  PHP API  |  MySQL</size>" as PLATFORM {
+
+  '---------- Core (top centre) ----------
+  package " <b>Core Services</b> " as PKG_CORE #EEF2FF {
+    (Login) as UC_LOGIN
+    (Logout) as UC_LOGOUT
+    (Role-Based Access Control) as UC_RBAC
+    (In-System Notifications) as UC_NOT
+    UC_LOGIN -[hidden]right- UC_LOGOUT
+    UC_RBAC -[hidden]right- UC_NOT
+  }
+
+  '---------- 2×2 module grid ----------
+  package " <b>Student Portal</b> " as PKG_STU #F0F9FF {
+    (View Instructions)
+    (Register for Attachment)
+    (Submit Assumption of Duty)
+    (Submit Orientation Checklist)
+    (Submit Weekly E-Logbook)
+    (Upload Contract — PDF)
+    (Upload Final Report)
+    (Select Visit Date)
+    (Update Profile)
+    (View Grades & Notifications)
+  }
+
+  package " <b>Institutional Supervisor</b> " as PKG_INS #F0FDF4 {
+    (Supervisor Register / Login)
+    (View Assigned Students)
+    (View Student Submissions)
+    (Manage Contract Status)
+    (Comment on E-Logbook)
+    (Publish Visit Dates)
+    (View Visit Selections)
+    (Submit Visit Scores)
+    (View Scores & Final Grades)
+    (Generate Assessment Passwords)
+  }
+
+  package " <b>Company Assessment</b> " as PKG_COM #FFF7ED {
+    (Enter Assessment Password)
+    (Submit Company Marks & Remarks)
+  }
+
+  package " <b>Administration</b> " as PKG_ADM #F5F3FF {
+    (Dashboard & Statistics Charts)
+    (Export Dashboard to PDF)
+    (Manage Registered Students)
+    (View Records & Profiles)
+    (Add Lecturer Record)
+    (Assign Supervisors to Students)
+    (Manage Contracts & Downloads)
+    (View Visiting & Company Scores)
+    (Change Admin Password)
+  }
+}
+
+'================== GRID ALIGNMENT (hidden) ==================
+PKG_CORE -[hidden]down- PKG_STU
+PKG_CORE -[hidden]down- PKG_INS
+PKG_STU -[hidden]right- PKG_INS
+PKG_STU -[hidden]down- PKG_COM
+PKG_INS -[hidden]down- PKG_ADM
+PKG_COM -[hidden]right- PKG_ADM
+
+'================== ACTOR → MODULE (one line each — clean) ==================
+STU -down-> PKG_STU : <color:#2563EB><b>uses</b></color>
+INS -down-> PKG_INS : <color:#059669><b>uses</b></color>
+COM -down-> PKG_COM : <color:#D97706><b>uses</b></color>
+ADM -down-> PKG_ADM : <color:#7C3AED><b>uses</b></color>
+
+STU -down-> UC_LOGIN
+INS -down-> UC_LOGIN
+ADM -down-> UC_LOGIN
+
+'================== KEY RELATIONSHIPS ==================
+(Submit Company Marks & Remarks) .down.> (Enter Assessment Password) : <<include>>
+(Upload Contract — PDF) ..> UC_NOT : <<extend>>
+(Publish Visit Dates) ..> UC_NOT : <<extend>>
+PKG_STU ..> UC_RBAC : <<include>>
+PKG_INS ..> UC_RBAC : <<include>>
+PKG_ADM ..> UC_RBAC : <<include>>
+
+note bottom of PKG_COM #FFF7ED
+  <b>Note:</b> Company supervisors do not have a full login portal.
+  They access assessment using a password provided by the
+  institutional supervisor.
+end note
+
+legend bottom
+  <b>Actors</b> connect to their module inside IAMS.
+  Each package lists all use cases for that role.
+  |= Module |= Primary actor |
+  | Student Portal | Student |
+  | Institutional Supervisor | Institutional Supervisor |
+  | Company Assessment | Company Supervisor |
+  | Administration | Administrator |
+  | Core Services | All authenticated roles |
+endlegend
+
+@enduml

@@ -160,7 +160,11 @@ export function AdminDashboard() {
       <div className="print-only border-b border-slate-200 pb-4" style={{ marginBottom: 0 }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src="/img/header_log.png" alt="" className="h-12 w-auto object-contain print-logo" />
+            <img
+              src={`${import.meta.env.BASE_URL}img/header_log.png`}
+              alt=""
+              className="h-12 w-auto object-contain print-logo"
+            />
             <div>
               <h1 className="text-xl font-display font-bold tracking-tight text-slate-900">Attachment Stats</h1>
               <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Industrial attachment overview</p>

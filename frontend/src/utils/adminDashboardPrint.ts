@@ -17,11 +17,7 @@ function escapeHtml(s: string): string {
 
 function logoUrl(): string {
   const origin = window.location.origin;
-  const path = window.location.pathname;
-  if (path.includes('/iasms/app')) {
-    return `${origin}/iasms/img/header_log.png`;
-  }
-  return `${origin}/img/header_log.png`;
+  return `${origin}${import.meta.env.BASE_URL}img/header_log.png`;
 }
 
 function dataTable(title: string, rows: ChartDataPoint[], extraCol?: { header: string; render: (row: ChartDataPoint, total: number) => string }) {

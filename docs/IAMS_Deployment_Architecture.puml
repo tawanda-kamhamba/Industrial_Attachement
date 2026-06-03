@@ -1,0 +1,66 @@
+@startuml IAMS_Deployment_Figure_4_1
+title Figure 4.1 — IAMS deployment layout
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor "Student" as ST
+actor "Supervisor" as SV
+actor "Administrator" as AD
+actor "Company supervisor" as CO
+
+together {
+  node "Client tier" as CLIENT {
+    [Web browser\nChrome / Edge / Firefox] as BR
+  }
+}
+
+cloud "Web server (XAMPP / InfinityFree)" as HOST {
+
+  together {
+    frame "Presentation tier" #E8EAF6 {
+      [React SPA\n/iasms/app/\nTypeScript + Vite] as REACT
+    }
+  }
+
+  together {
+    frame "Application tier" #FFF3E0 {
+      [PHP REST API\n/iasms/api/index.php\nJSON + PHP sessions] as API
+    }
+  }
+
+  together {
+    frame "Data tier" #E8F5E9 {
+      database "MySQL\nIASMS" as DB
+    }
+  }
+
+  folder "File storage" #FCE4EC {
+    [submit_report/uploads/\nreports PDF/DOC/DOCX] as FILES
+    [Contract PDFs\nstudent_contracts] as CONTRACTS
+  }
+}
+
+ST --> BR
+SV --> BR
+AD --> BR
+CO --> BR
+
+BR --> REACT : HTTPS/HTTP
+REACT --> API : fetch /api/* (JSON)
+API --> DB : SQL
+API ..> FILES : read/write
+API ..> CONTRACTS : read/write
+
+note right of REACT
+  Built with npm run build
+  Deployed to app/ folder
+end note
+
+note bottom of API
+  Examples: auth_login.php,
+  student_elogbook.php,
+  supervisor_visit_schedule.php,
+  admin_charts.php
+end note
+
+@enduml

@@ -1,0 +1,119 @@
+@startuml IAMS_VisitScheduling_State
+' State diagram — site visit scheduling (IAMS actual workflow)
+skinparam shadowing false
+skinparam state {
+  BackgroundColor #F3F4F6
+  BorderColor #1F2937
+  FontSize 10
+}
+skinparam note {
+  BackgroundColor #FFF8E1
+  BorderColor #F9A825
+}
+
+title State Diagram: Site Visit Scheduling (IAMS)
+
+[*] --> Unscheduled
+
+state Unscheduled {
+  ReadyForScheduling
+}
+
+Unscheduled --> Draft : supervisorSaveAvailabilityOnly()\n[/ dates on calendar /]
+
+state Draft {
+  DatesNotVisibleToStudents
+  note right of DatesNotVisibleToStudents
+    published_at IS NULL
+    Students cannot open dates
+  end note
+}
+
+Draft --> Draft : editCalendarDates()\n[/ sync availability /]
+
+Draft --> Published : supervisorSaveAndNotify()\nor notifyAgain()
+
+state Published {
+  StudentsNotified
+  --
+  PendingStudentSelection
+}
+
+Published --> Scheduled : studentSubmitSelections()\n[/ valid published dates /]
+
+state Scheduled {
+  SelectionsSaved
+  note right of SelectionsSaved
+    Rows in student_visit_selections
+  end note
+}
+
+Scheduled --> Reviewed : supervisorViewsCalendar()
+
+state Reviewed {
+  StudentsListedByDate
+}
+
+Reviewed --> Closed : visitDatesPassed()\n[/ optional — manual close /]
+
+state Closed {
+  SchedulingComplete
+}
+
+Closed --> [*]
+
+' ── Alternate / error paths ──
+Draft --> Unscheduled : removeAllDates()\n[/ sync empty calendar /]
+
+Published --> Draft : supervisorSaveAvailabilityOnly()\n[/ new dates only;\nexisting published stay /]
+
+PendingStudentSelection --> PendingStudentSelection : studentSubmitSelections()\n[/ invalid date /]\n<<reject>>
+
+note bottom of Published
+  IAMS does not implement student approve,
+  reschedule request, visit in-progress,
+  grading, or cancel-visit states.
+end note
+
+@enduml
+
+@startuml IAMS_VisitScheduling_State_Student
+' Per-student view of the same scheduling process
+skinparam shadowing false
+skinparam state { BackgroundColor #F3F4F6; BorderColor #1F2937; FontSize 10 }
+
+title State Diagram: Student visit date selection (IAMS)
+
+[*] --> NoSupervisor
+
+state NoSupervisor {
+  AwaitingAssignment
+}
+
+NoSupervisor --> WaitingForDates : supervisorAssigned()\n[/ student_supervisor_assignments /]
+
+state WaitingForDates {
+  NoPublishedDates
+}
+
+WaitingForDates --> DatesAvailable : supervisorPublishDates()\n[/ in-system notification /]
+
+state DatesAvailable {
+  CanSelectOnCalendar
+}
+
+DatesAvailable --> DatesSelected : submitSelections()
+
+state DatesSelected {
+  PreferenceRecorded
+}
+
+DatesSelected --> DatesAvailable : changeSelections()\n[/ resubmit POST /]
+
+DatesAvailable --> DatesAvailable : submitSelections()\n[/ date not published /]\n<<reject>>
+
+DatesSelected --> [*]
+
+NoSupervisor --> [*] : remainUnassigned()
+
+@enduml

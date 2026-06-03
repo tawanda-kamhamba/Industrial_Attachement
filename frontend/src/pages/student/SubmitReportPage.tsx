@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';

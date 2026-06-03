@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { LoginLayout } from '@/components/auth/LoginLayout';
@@ -33,7 +33,7 @@ export function AdminLoginPage() {
         <Button type="submit" className="w-full" disabled={!password}>Login</Button>
       </form>
       <div className="mt-6 text-center">
-        <a href="/login" className="text-sm text-primary-600 hover:underline">Back to main login</a>
+        <Link to="/login" className="text-sm text-primary-600 hover:underline">Back to main login</Link>
       </div>
     </LoginLayout>
   );

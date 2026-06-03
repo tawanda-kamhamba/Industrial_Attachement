@@ -1,0 +1,131 @@
+@startuml IAMS_UseCase_ReportStyle
+'============================================================
+' IAMS — Use Case Diagram (matches your report template style)
+' Open: https://www.plantuml.com/plantuml/uml/
+' For smaller print: change scale 0.82 → 0.70
+'============================================================
+
+scale 0.78
+skinparam shadowing false
+skinparam linetype ortho
+skinparam roundcorner 6
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 9
+skinparam usecase {
+  BackgroundColor white
+  BorderColor #64748B
+  FontSize 8
+}
+skinparam actor {
+  BorderColor #334155
+  FontSize 9
+}
+skinparam package {
+  BackgroundColor #B8D4F0
+  BorderColor #6B9BD1
+  FontStyle bold
+  FontColor #1E3A5F
+  FontSize 10
+}
+skinparam rectangle {
+  BorderColor #9CA3AF
+  BackgroundColor #E5E7EB
+}
+
+title <b>Industrial Attachment Management System (IAMS)</b>
+
+'---------- Actors (left column) ----------
+actor Admin as ADM
+actor Student as STU
+actor "Institutional\nSupervisor" as INS
+actor "Company\nSupervisor" as COM
+
+ADM -[hidden]down- STU
+STU -[hidden]down- INS
+INS -[hidden]down- COM
+
+'---------- Central LOGIN (yellow) ----------
+usecase LOGIN as UC_LOGIN #FFEB3B
+
+ADM --> UC_LOGIN
+STU --> UC_LOGIN
+INS --> UC_LOGIN
+COM --> UC_LOGIN
+
+'---------- System boundary ----------
+rectangle "System Boundary" as SYS #E5E7EB {
+
+  package "Institutional Supervisor" as PKG_I #B8D4F0 {
+    usecase "Access Students\nAssumptions" as UC_I1
+    usecase "Review Student\nContracts" as UC_I2
+    usecase "View Student\nLogbooks" as UC_I3
+    usecase "Publish Visit Dates\n& View Selections" as UC_I4
+    usecase "Submit Visit\nScores" as UC_I5
+    usecase "View Company\nAssessments" as UC_I6
+    usecase "Generate Assessment\nPasswords" as UC_I7
+  }
+
+  package Student as PKG_S #B8D4F0 {
+    usecase "Register for\nAttachment" as UC_S1
+    usecase "Submit\nAssumptions" as UC_S2
+    usecase "Submit Orientation\nChecklist" as UC_S3
+    usecase "Upload Contract\n(PDF)" as UC_S4
+    usecase "Record & Submit\nWeekly Logbook" as UC_S5
+    usecase "Upload Attachment\nReport" as UC_S6
+    usecase "Select Visit\nDates" as UC_S7
+    usecase "View Instructions\n& Notifications" as UC_S8
+  }
+
+  package Administrator as PKG_A #B8D4F0 {
+    usecase "View All\nStudents" as UC_A1
+    usecase "Add Lecturer &\nAssign Supervisors" as UC_A2
+    usecase "View Placement\nAnalytics" as UC_A3
+    usecase "Export Dashboard\nto PDF" as UC_A4
+    usecase "Manage Contracts\n& Reports" as UC_A5
+    usecase "View Visiting &\nCompany Scores" as UC_A6
+  }
+
+  package "Company Supervisor" as PKG_C #B8D4F0 {
+    usecase "Enter Assessment\nPassword" as UC_C1
+    usecase "Submit Student\nMarks" as UC_C2
+    usecase "Provide Assessment\nRemarks" as UC_C3
+  }
+}
+
+' Compact 2×2 grid inside boundary
+PKG_I -[hidden]right- PKG_S
+PKG_I -[hidden]down- PKG_A
+PKG_S -[hidden]down- PKG_C
+PKG_A -[hidden]right- PKG_C
+
+UC_LOGIN -[hidden]right- PKG_I
+UC_LOGIN -[hidden]down- PKG_A
+
+'---------- External systems (right) ----------
+actor "Academic\nRecords System" as EXT_ACAD
+database "Data backup\nand recovery" as EXT_DB
+actor "Notification\nSystem" as EXT_NOT
+
+PKG_S -[hidden]right- EXT_ACAD
+
+UC_S2 --> EXT_ACAD
+UC_S6 --> EXT_ACAD
+UC_C2 --> EXT_ACAD
+UC_C3 --> EXT_ACAD
+
+UC_S2 --> EXT_DB
+UC_S5 --> EXT_DB
+UC_S6 --> EXT_DB
+UC_A4 --> EXT_DB
+
+UC_I4 --> EXT_NOT
+UC_S7 --> EXT_NOT
+UC_C2 --> EXT_NOT
+
+note bottom of PKG_S #FFFFFF
+  <size:8>Updated: Visit = <b>Select Dates</b> (not approve).
+  Contract = PDF; orientation = online checklist.
+end note
+
+@enduml

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { LoginLayout } from '@/components/auth/LoginLayout';
@@ -58,7 +58,7 @@ export function SupervisorLoginPage() {
           >
             Need an account? Sign up
           </button>
-          <a href="/login" className="text-sm text-primary-600 hover:underline">Back to main login</a>
+          <Link to="/login" className="text-sm text-primary-600 hover:underline">Back to main login</Link>
         </div>
       </LoginLayout>
 

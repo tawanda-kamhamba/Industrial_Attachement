@@ -54,7 +54,7 @@ type InboxNotification = StudentNotification | SupervisorNotification;
 
 export function TopBar({
   displayName,
-  logoUrl = '/img/header_log.png',
+  logoUrl = `${import.meta.env.BASE_URL}img/header_log.png`,
   onLogout,
   pinned = false,
   searchPlaceholder = 'Search logbook, forms, and more',

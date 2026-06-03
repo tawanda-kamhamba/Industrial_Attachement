@@ -1,0 +1,169 @@
+<mxfile host="app.diagrams.net" agent="IAMS">
+  <diagram id="iams-uc" name="IAMS Use Case">
+    <mxGraphModel dx="806" dy="486" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;" value="&lt;b&gt;Industrial Attachment Management System (IAMS)&lt;/b&gt;&lt;br&gt;Use Case Diagram" vertex="1">
+          <mxGeometry height="40" width="540" x="280" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="act_admin" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=10;" value="Admin" vertex="1">
+          <mxGeometry height="50" width="28" x="30" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="act_student" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=10;" value="Student" vertex="1">
+          <mxGeometry height="50" width="28" x="30" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="act_ins" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=9;" value="Institutional&lt;br&gt;Supervisor" vertex="1">
+          <mxGeometry height="50" width="28" x="20" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="act_com" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=9;" value="Company&lt;br&gt;Supervisor" vertex="1">
+          <mxGeometry height="50" width="28" x="20" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_login" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFEB3B;strokeColor=#F9A825;fontStyle=1;fontSize=11;" value="LOGIN" vertex="1">
+          <mxGeometry height="44" width="88" x="105" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="e_adm_login" edge="1" parent="1" source="act_admin" style="endArrow=classic;html=1;strokeWidth=1;" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_stu_login" edge="1" parent="1" source="act_student" style="endArrow=classic;html=1;strokeWidth=1;" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ins_login" edge="1" parent="1" source="act_ins" style="endArrow=classic;html=1;strokeWidth=1;" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_com_login" edge="1" parent="1" source="act_com" style="endArrow=classic;html=1;strokeWidth=1;" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E5E7EB;strokeColor=#9CA3AF;fontSize=10;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;" value="System Boundary" vertex="1">
+          <mxGeometry height="430" width="560" x="210" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_ins" parent="boundary" style="swimlane;startSize=22;fillColor=#B8D4F0;strokeColor=#6B9BD1;fontStyle=1;fontColor=#1E3A5F;fontSize=10;horizontal=1;" value="Institutional Supervisor" vertex="1">
+          <mxGeometry height="195" width="255" x="15" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="i1" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Access Students&lt;br&gt;Assumptions" vertex="1">
+          <mxGeometry height="36" width="108" x="8" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i2" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Review Student&lt;br&gt;Contracts" vertex="1">
+          <mxGeometry height="36" width="108" x="130" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="i3" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View Student&lt;br&gt;Logbooks" vertex="1">
+          <mxGeometry height="36" width="108" x="8" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="i4" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Publish Visit Dates&lt;br&gt;&amp; View Selections" vertex="1">
+          <mxGeometry height="36" width="108" x="130" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="i5" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Submit Visit&lt;br&gt;Scores" vertex="1">
+          <mxGeometry height="36" width="108" x="8" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="i6" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View Company&lt;br&gt;Assessments" vertex="1">
+          <mxGeometry height="36" width="108" x="130" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="i7" parent="lane_ins" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Generate Assessment&lt;br&gt;Passwords" vertex="1">
+          <mxGeometry height="32" width="118" x="68" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_stu" parent="boundary" style="swimlane;startSize=22;fillColor=#B8D4F0;strokeColor=#6B9BD1;fontStyle=1;fontColor=#1E3A5F;fontSize=10;" value="Student" vertex="1">
+          <mxGeometry height="210" width="265" x="280" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Register for&lt;br&gt;Attachment" vertex="1">
+          <mxGeometry height="34" width="115" x="8" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Submit&lt;br&gt;Assumptions" vertex="1">
+          <mxGeometry height="34" width="115" x="138" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Submit Orientation&lt;br&gt;Checklist" vertex="1">
+          <mxGeometry height="34" width="115" x="8" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Upload Contract&lt;br&gt;(PDF)" vertex="1">
+          <mxGeometry height="34" width="115" x="138" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Record &amp; Submit&lt;br&gt;Weekly Logbook" vertex="1">
+          <mxGeometry height="34" width="115" x="8" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Upload Attachment&lt;br&gt;Report" vertex="1">
+          <mxGeometry height="34" width="115" x="138" y="116" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Select Visit&lt;br&gt;Dates" vertex="1">
+          <mxGeometry height="34" width="115" x="8" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" parent="lane_stu" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View Instructions&lt;br&gt;&amp; Notifications" vertex="1">
+          <mxGeometry height="34" width="115" x="138" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_adm" parent="boundary" style="swimlane;startSize=22;fillColor=#B8D4F0;strokeColor=#6B9BD1;fontStyle=1;fontColor=#1E3A5F;fontSize=10;" value="Administrator" vertex="1">
+          <mxGeometry height="195" width="255" x="15" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View All&lt;br&gt;Students" vertex="1">
+          <mxGeometry height="34" width="108" x="8" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Add Lecturer &amp;&lt;br&gt;Assign Supervisors" vertex="1">
+          <mxGeometry height="34" width="108" x="130" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View Placement&lt;br&gt;Analytics" vertex="1">
+          <mxGeometry height="34" width="108" x="8" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Export Dashboard&lt;br&gt;to PDF" vertex="1">
+          <mxGeometry height="34" width="108" x="130" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Manage Contracts&lt;br&gt;&amp; Reports" vertex="1">
+          <mxGeometry height="34" width="108" x="8" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" parent="lane_adm" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="View Visiting &amp;&lt;br&gt;Company Scores" vertex="1">
+          <mxGeometry height="34" width="108" x="130" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane_com" parent="boundary" style="swimlane;startSize=22;fillColor=#B8D4F0;strokeColor=#6B9BD1;fontStyle=1;fontColor=#1E3A5F;fontSize=10;" value="Company Supervisor" vertex="1">
+          <mxGeometry height="115" width="265" x="280" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="lane_com" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Enter Assessment&lt;br&gt;Password" vertex="1">
+          <mxGeometry height="34" width="115" x="8" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="lane_com" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Submit Student&lt;br&gt;Marks" vertex="1">
+          <mxGeometry height="34" width="115" x="138" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" parent="lane_com" style="ellipse;whiteSpace=wrap;html=1;fontSize=8;" value="Provide Assessment&lt;br&gt;Remarks" vertex="1">
+          <mxGeometry height="34" width="120" x="72" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_acad" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=9;" value="Academic&lt;br&gt;Records System" vertex="1">
+          <mxGeometry height="50" width="28" x="820" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_db" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fontSize=9;fillColor=#F3F4F6;" value="Data backup&lt;br&gt;and recovery" vertex="1">
+          <mxGeometry height="70" width="70" x="805" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_not" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=9;" value="Notification&lt;br&gt;System" vertex="1">
+          <mxGeometry height="50" width="28" x="820" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="ex1" edge="1" parent="1" source="s2" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_acad">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex2" edge="1" parent="1" source="s6" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_acad">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex3" edge="1" parent="1" source="c2" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_acad">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex4" edge="1" parent="1" source="c3" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_acad">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex5" edge="1" parent="1" source="s2" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex6" edge="1" parent="1" source="s5" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex7" edge="1" parent="1" source="s6" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex8" edge="1" parent="1" source="a4" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex9" edge="1" parent="1" source="i4" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_not">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex10" edge="1" parent="1" source="s7" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_not">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ex11" edge="1" parent="1" source="c2" style="endArrow=classic;html=1;strokeWidth=1;" target="ext_not">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

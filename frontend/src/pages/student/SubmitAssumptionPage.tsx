@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';

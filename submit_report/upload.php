@@ -1,10 +1,4 @@
 <?php
-// Allow AJAX uploads from the React dev server (http://localhost:3000)
-if (isset($_SERVER['HTTP_ORIGIN']) && $_SERVER['HTTP_ORIGIN'] === 'http://localhost:3000') {
-    header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Credentials: true');
-}
-
 if($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_FILES['file']['name'])){
     $folder = 'uploads/';
     $threshold = count($_FILES['file']['name']);

@@ -1,0 +1,325 @@
+@startuml IAMS_Class_Diagram
+!theme plain
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageFontSize 11
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 35
+
+title IAMS — System Class Diagram\n(Industrial Attachment Management System)
+
+' ─── Presentation tier ───
+package "Presentation tier" <<Frame>> #E8EAF6 {
+  class IamsWebApp <<application>> {
+    - user: User
+    + login(role)
+    + loadDashboard()
+    + submitDocuments()
+    + selectVisitDates()
+  }
+
+  class User <<DTO>> {
+    + id: string
+    + name: string
+    + role: UserRole
+    + staffId?: string
+    + indexNumber?: string
+  }
+
+  enum UserRole {
+    admin
+    supervisor
+    student
+  }
+
+  class IamsRestApi <<application>> {
+    + auth_login()
+    + admin_*()
+    + supervisor_*()
+    + student_*()
+  }
+
+  IamsWebApp --> IamsRestApi : JSON / REST
+  User --> UserRole
+  IamsWebApp --> User
+}
+
+' ─── Data tier ───
+package "Data tier" <<Frame>> #E8F5E9 {
+  class MySQLDatabase <<database>> {
+    + IASMS schema
+  }
+  IamsRestApi --> MySQLDatabase : mysqli
+}
+
+' ─── Actors (persistent accounts) ───
+package "Actors" <<Frame>> #FFF8E1 {
+  class SystemAdmin <<entity>> {
+    + id: int
+    + username: string
+    + password: string
+  }
+
+  class RegisteredStudent <<entity>> {
+    + id: int
+    + firstName: string
+    + lastName: string
+    + indexNumber: string {PK}
+    + password: string
+  }
+
+  class VisitingLecturer <<entity>> {
+    ' Institutional supervisor
+    + id: int {PK}
+    + lecturerName: string
+    + lecturerFaculty: string
+    + lecturerDepartment: string
+    + lecturerRegionResidence: string
+    + lecturerEmail: string
+    + staffId: string {unique}
+    + password: string
+    + visitingAssessmentPassword: string
+    + companyAssessmentPassword: string
+  }
+
+  note right of VisitingLecturer
+    Company supervisors do not have
+    system accounts; they access
+    assessment forms via passwords
+    stored on the lecturer record.
+  end note
+}
+
+' ─── Supervisor assignment ───
+package "Supervisor assignment" <<Frame>> #F3E5F5 {
+  class StudentSupervisorAssignment <<entity>> {
+    + indexNumber: string {PK}
+    + lecturerId: int {FK}
+    + assignedAt: datetime
+  }
+
+  class InstitutionalSupervisorStudent <<entity>> {
+    + id: int
+    + supervisorId: int {FK}
+    + studentIndex: string {FK}
+    + visitNumber: int
+  }
+
+  class AssignedLecturers <<entity>> {
+    + id: int
+    + regions: string
+    + firstSupervisor_*: string
+    + secondSupervisor_*: string
+    ' per faculty columns (AGR…VET)
+  }
+
+  RegisteredStudent "1" -- "0..1" StudentSupervisorAssignment
+  StudentSupervisorAssignment "1" --> "1" VisitingLecturer : lecturerId
+
+  VisitingLecturer "1" -- "0..*" InstitutionalSupervisorStudent
+  InstitutionalSupervisorStudent "0..*" --> "1" RegisteredStudent : studentIndex
+
+  note bottom of AssignedLecturers
+    Fallback grid: region + faculty
+    when no direct assignment exists.
+  end note
+}
+
+' ─── Registration & placement ───
+package "Registration & placement" <<Frame>> #E3F2FD {
+  class StudentAssumption <<entity>> {
+    + id: int
+    + indexNumber: string
+    + companyName: string
+    + companyRegion: string
+    + supervisorName: string
+    + supervisorEmail: string
+    + programme: string
+    + ...
+  }
+
+  class IndustrialRegistration <<entity>> {
+    + id: int
+    + indexNumber: string
+    + faculty: string
+    + programme: string
+    + attachmentRegion: string
+    + visitingSupervisorGrade: int
+    + companySupervisorGrade: int
+    + ...
+  }
+
+  RegisteredStudent "1" -- "0..1" StudentAssumption : indexNumber
+  RegisteredStudent "1" -- "0..1" IndustrialRegistration : indexNumber
+}
+
+' ─── Student submissions ───
+package "Student submissions" <<Frame>> #FCE4EC {
+  enum DocumentStatus {
+    pending
+    approved
+    rejected
+  }
+
+  class StudentContract <<entity>> {
+    + id: int
+    + indexNumber: string
+    + contractFile: string
+    + originalFilename: string
+    + submissionDate: datetime
+    + status: DocumentStatus
+    + adminComment: string
+  }
+
+  class StudentReport <<entity>> {
+    + id: int
+    + indexNumber: string {unique}
+    + reportFilesJson: string
+    + originalFilenamesJson: string
+    + submissionDate: datetime
+    + status: DocumentStatus
+    + adminComment: string
+  }
+
+  class StudentProfilePhoto <<entity>> {
+    + id: int
+    + indexNumber: string {unique}
+    + filename: string
+    + contentType: string
+    + updatedAt: datetime
+  }
+
+  class ElogbookEntry <<entity>> {
+    + id: int
+    + indexNumber: string
+    + weekNumber: int
+    + mondayJobAssigned: text
+    + mondaySkillAcquired: text
+    + ... friday fields
+    + createdAt: datetime
+    + updatedAt: datetime
+  }
+
+  class OrientationChecklist <<entity>> {
+    + id: int
+    + indexNumber: string
+    + hostInstitution: string
+    + general_*: boolean
+    + work_*: boolean
+    + health_*: boolean
+    + others_*: boolean
+    + signatures & dates
+  }
+
+  RegisteredStudent "1" -- "0..*" StudentContract
+  RegisteredStudent "1" -- "0..1" StudentReport
+  RegisteredStudent "1" -- "0..1" StudentProfilePhoto
+  RegisteredStudent "1" -- "0..*" ElogbookEntry
+  RegisteredStudent "1" -- "0..1" OrientationChecklist
+
+  StudentContract --> DocumentStatus
+  StudentReport --> DocumentStatus
+
+  note bottom of ElogbookEntry
+    Legacy week1_table … week10_table
+    migrated into elogbook_entries.
+  end note
+}
+
+' ─── Assessment & grading ───
+package "Assessment & grading" <<Frame>> #FFF3E0 {
+  abstract class SupervisorAssessment <<entity>> {
+    + id: int
+    + userIndex: string
+    + specificSkill1..5: string
+    + specificSkill1..5Score: int
+    + rubricScores: int
+    + grade: int
+    + date: datetime
+  }
+
+  class VisitingSupervisorGrade <<entity>> {
+    + username: string
+  }
+
+  class CompanySupervisorGrade <<entity>> {
+    + username: string
+  }
+
+  class SupervisorStudentMarks <<entity>> {
+    + id: int
+    + indexNumber: string {unique}
+    + supervisorId: int {FK}
+    + elogbookMark: decimal
+    + reportMark: decimal
+    + updatedAt: datetime
+  }
+
+  VisitingSupervisorGrade --|> SupervisorAssessment
+  CompanySupervisorGrade --|> SupervisorAssessment
+
+  RegisteredStudent "1" -- "0..*" VisitingSupervisorGrade : userIndex
+  RegisteredStudent "1" -- "0..*" CompanySupervisorGrade : userIndex
+  RegisteredStudent "1" -- "0..1" SupervisorStudentMarks
+  SupervisorStudentMarks --> VisitingLecturer : supervisorId
+}
+
+' ─── Visit scheduling ───
+package "Visit scheduling" <<Frame>> #E0F7FA {
+  class SupervisorVisitAvailability <<entity>> {
+    + id: int {PK}
+    + lecturerId: int {FK}
+    + visitDate: date
+    + publishedAt: datetime?
+    + createdAt: datetime
+  }
+
+  class StudentVisitSelection <<entity>> {
+    + id: int {PK}
+    + availabilityId: int {FK}
+    + studentIndexNumber: string {FK}
+    + visitDate: date
+    + selectedAt: datetime
+  }
+
+  VisitingLecturer "1" -- "0..*" SupervisorVisitAvailability
+  SupervisorVisitAvailability "1" -- "0..*" StudentVisitSelection
+  StudentVisitSelection "0..*" --> "1" RegisteredStudent : studentIndexNumber
+}
+
+' ─── Notifications ───
+package "Notifications" <<Frame>> #F1F8E9 {
+  class StudentNotification <<entity>> {
+    + id: int
+    + recipientIndexNumber: string
+    + type: string
+    + title: string
+    + message: text
+    + weekNumber: int?
+    + readAt: datetime?
+    + createdAt: datetime
+  }
+
+  class SupervisorNotification <<entity>> {
+    + id: int
+    + recipientLecturerId: int
+    + type: string
+    + title: string
+    + message: text
+    + studentIndexNumber: string?
+    + readAt: datetime?
+    + createdAt: datetime
+  }
+
+  RegisteredStudent "1" -- "0..*" StudentNotification
+  VisitingLecturer "1" -- "0..*" SupervisorNotification
+}
+
+' ─── Admin access ───
+SystemAdmin ..> IamsRestApi : authenticates
+RegisteredStudent ..> IamsRestApi : authenticates
+VisitingLecturer ..> IamsRestApi : authenticates
+
+@enduml
