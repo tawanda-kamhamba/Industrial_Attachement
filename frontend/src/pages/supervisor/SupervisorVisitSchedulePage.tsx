@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BellRing, CalendarDays, Sparkles, Users } from 'lucide-react';
 import { VisitScheduleCalendar } from '@/components/calendar/VisitScheduleCalendar';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { Card } from '@/components/ui/Card';
 import { api } from '@/services/api';
 import {
@@ -158,11 +159,12 @@ export function SupervisorVisitSchedulePage() {
           {error}
         </div>
       ) : null}
-      {success ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          {success}
-        </div>
-      ) : null}
+
+      <SuccessModal
+        open={!!success}
+        message={success ?? ''}
+        onClose={() => setSuccess(null)}
+      />
 
       <div className="stat-grid-3">
         <Card className="flex items-center gap-3 p-4">

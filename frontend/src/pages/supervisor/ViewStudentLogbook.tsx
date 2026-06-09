@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 import { SUPERVISOR_ELOGBOOK_COMMENT_TEMPLATES } from '@/constants/supervisorElogbookCommentTemplates';
 
@@ -62,6 +63,7 @@ export function ViewStudentLogbook() {
   const [commentDrafts, setCommentDrafts] = useState<Record<number, string>>({}); // keyed by week_number
   const [submittingWeekNumber, setSubmittingWeekNumber] = useState<number | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadLogbook = async (idx: string) => {
     setLoading(true);
@@ -144,6 +146,7 @@ export function ViewStudentLogbook() {
       if (indexNumber) {
         await loadLogbook(indexNumber);
       }
+      setSuccessMessage('Comment saved successfully.');
     } catch (e) {
       setCommentError(e instanceof Error ? e.message : 'Failed to save comment');
     } finally {
@@ -253,6 +256,11 @@ export function ViewStudentLogbook() {
           </div>
         )}
       </Card>
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
     </div>
   );
 }

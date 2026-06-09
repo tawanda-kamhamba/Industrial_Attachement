@@ -13,10 +13,14 @@ import {
   LayoutDashboard,
   LogOut,
   UserCheck,
+  UserPlus,
+  AlertTriangle,
 } from 'lucide-react';
 
 const supervisorSidebarItems: SidebarItem[] = [
   { to: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: 'assignment-requests', label: 'Assignment requests', icon: UserPlus },
+  { to: 'student-issues', label: 'Student issues', icon: AlertTriangle },
   { to: 'visit-schedule', label: 'Visit schedule', icon: CalendarDays },
   { to: 'scores', label: 'Scores', icon: BarChart3 },
   { to: 'final-grades', label: 'Final grades', icon: GraduationCap },

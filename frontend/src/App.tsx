@@ -55,6 +55,10 @@ import { SupervisorAssessmentLoginPage } from './pages/student/SupervisorLoginPa
 import { SupervisorGradeFormPage } from './pages/student/SupervisorGradeFormPage';
 import { StudentProfileEditPage } from './pages/student/StudentProfileEditPage';
 import { StudentVisitSchedulePage } from './pages/student/StudentVisitSchedulePage';
+import { StudentRequestSupervisorPage } from './pages/student/StudentRequestSupervisorPage';
+import { StudentReportIssuePage } from './pages/student/StudentReportIssuePage';
+import { SupervisorAssignmentRequestsPage } from './pages/supervisor/SupervisorAssignmentRequestsPage';
+import { SupervisorStudentIssuesPage } from './pages/supervisor/SupervisorStudentIssuesPage';
 
 function ProtectedRoute({
   children,
@@ -179,6 +183,8 @@ export default function App() {
         <Route path="assumptions" element={<SupervisorStudentAssumptions />} />
         <Route path="contracts" element={<SupervisorContracts />} />
         <Route path="reports" element={<SupervisorReports />} />
+        <Route path="assignment-requests" element={<SupervisorAssignmentRequestsPage />} />
+        <Route path="student-issues" element={<SupervisorStudentIssuesPage />} />
       </Route>
 
       <Route
@@ -196,6 +202,8 @@ export default function App() {
         <Route path="orientation" element={<OrientationChecklistPage />} />
         <Route path="elogbook" element={<ELogbookPage />} />
         <Route path="visit-schedule" element={<StudentVisitSchedulePage />} />
+        <Route path="request-supervisor" element={<StudentRequestSupervisorPage />} />
+        <Route path="report-issue" element={<StudentReportIssuePage />} />
         <Route path="contract" element={<SubmitContractPage />} />
         <Route path="report" element={<SubmitReportPage />} />
         <Route path="register" element={<RegisterPage />} />

@@ -28,7 +28,6 @@ export function SupervisorELogbooks() {
   const [rows, setRows] = useState<LogbookRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [filterBy, setFilterBy] = useState('all');
   const [search, setSearch] = useState('');
 
@@ -49,7 +48,6 @@ export function SupervisorELogbooks() {
   }, [load]);
 
   const onMarkSaved = useCallback(() => {
-    setSuccess('E-logbook mark saved.');
     load();
   }, [load]);
 
@@ -134,7 +132,6 @@ export function SupervisorELogbooks() {
           totalCount={rows.length}
         />
         {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
-        {success && <p className="mb-2 text-sm text-emerald-700">{success}</p>}
         {loading ? (
           <p className="text-slate-500">Loading...</p>
         ) : (

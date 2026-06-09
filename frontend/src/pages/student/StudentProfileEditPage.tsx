@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { ProfilePhotoLightbox } from '@/components/ui/ProfilePhotoLightbox';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
@@ -22,6 +23,7 @@ export function StudentProfileEditPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -83,7 +85,7 @@ export function StudentProfileEditPage() {
         setMessage({ type: 'error', text: data.error ?? 'Update failed' });
         return;
       }
-      setMessage({ type: 'success', text: data.message ?? 'Profile updated' });
+      setSuccessMessage(data.message ?? 'Profile updated');
       setPhotoFile(null);
       setPhotoPreview(null);
       if ((e.target as HTMLFormElement).querySelector('input[type="file"]')) {
@@ -118,15 +120,17 @@ export function StudentProfileEditPage() {
         <BackToDashboardLink />
       </div>
 
-      {message && (
-        <div
-          className={`rounded-lg border px-4 py-3 text-sm ${
-            message.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-800'
-          }`}
-        >
+      {message && message.type === 'error' && (
+        <div className="rounded-lg border px-4 py-3 text-sm border-red-200 bg-red-50 text-red-800">
           {message.text}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       <Card padding="lg">
         <CardHeader title="Account profile" />

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 const PROGRAMMES = [
@@ -44,6 +45,7 @@ export function RegisterPage() {
   const [data, setData] = useState<RegistrationData | null>(null);
   const [status, setStatus] = useState<StatusType>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
@@ -96,8 +98,8 @@ export function RegisterPage() {
         form
       );
       if (res.success) {
-        setStatus('success');
-        setMessage(res.message ?? 'Registration submitted successfully.');
+        setStatus('idle');
+        setSuccessMessage(res.message ?? 'Registration submitted successfully.');
         setData((prev) => (prev ? { ...prev, registered: true } : { registered: true }));
         window.dispatchEvent(new Event('studentOnboardingUpdated'));
       } else {
@@ -114,11 +116,9 @@ export function RegisterPage() {
   };
 
   const statusClasses =
-    status === 'success'
-      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-      : status === 'error'
-        ? 'bg-red-50 text-red-800 border-red-200'
-        : 'bg-slate-50 text-slate-700 border-slate-200';
+    status === 'error'
+      ? 'bg-red-50 text-red-800 border-red-200'
+      : 'bg-slate-50 text-slate-700 border-slate-200';
 
   if (loading) {
     return (
@@ -146,9 +146,15 @@ export function RegisterPage() {
         </p>
       </div>
 
-      {message && (
+      {message && status === 'error' && (
         <div className={`rounded-xl border px-4 py-3 text-sm ${statusClasses}`}>{message}</div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       {registered ? (
         <Card padding="lg" className="bg-white">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 const REGIONS = [
@@ -56,6 +57,7 @@ export function SubmitAssumptionPage() {
   const [assumption, setAssumption] = useState<AssumptionData | null>(null);
   const [status, setStatus] = useState<StatusType>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState<AssumptionData>({
@@ -128,8 +130,8 @@ export function SubmitAssumptionPage() {
         form
       );
       if (res.success) {
-        setStatus('success');
-        setMessage(res.message ?? 'Assumption of duty form submitted successfully.');
+        setStatus('idle');
+        setSuccessMessage(res.message ?? 'Assumption of duty form submitted successfully.');
         setSubmitted(true);
         setAssumption(form);
         window.dispatchEvent(new Event('studentOnboardingUpdated'));
@@ -147,11 +149,9 @@ export function SubmitAssumptionPage() {
   };
 
   const statusClasses =
-    status === 'success'
-      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-      : status === 'error'
-        ? 'bg-red-50 text-red-800 border-red-200'
-        : 'bg-slate-50 text-slate-700 border-slate-200';
+    status === 'error'
+      ? 'bg-red-50 text-red-800 border-red-200'
+      : 'bg-slate-50 text-slate-700 border-slate-200';
 
   if (loading) {
     return (
@@ -181,9 +181,15 @@ export function SubmitAssumptionPage() {
         </p>
       </div>
 
-      {message && (
+      {message && status === 'error' && (
         <div className={`rounded-xl border px-4 py-3 text-sm ${statusClasses}`}>{message}</div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       {submitted ? (
         <Card padding="lg" className="bg-white">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { TopBar } from '@/components/ui/TopBar';
+import { StudentIssueReportButton } from '@/components/student/StudentIssueReportButton';
 import { useAuth } from '@/hooks/useAuth';
 
 const PROFILE_PHOTO_CACHE_KEY = 'iasms_profile_photo_updated';
@@ -33,6 +34,7 @@ export function StudentLayout() {
           <Outlet />
         </div>
       </main>
+      <StudentIssueReportButton />
     </div>
   );
 }

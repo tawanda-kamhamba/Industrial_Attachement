@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 function randomPassword(length: number = 10): string {
@@ -30,6 +31,7 @@ export function SupervisorAssessmentPasswordsPage() {
   const [visitingPassword, setVisitingPassword] = useState('');
   const [companyPassword, setCompanyPassword] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState<'visiting' | 'company' | null>(null);
 
   const fetchPasswords = () => {
@@ -60,7 +62,7 @@ export function SupervisorAssessmentPasswordsPage() {
         password: password.trim(),
       });
       if (res.success) {
-        setMessage({ type: 'success', text: res.message ?? 'Password saved. You can see it below.' });
+        setSuccessMessage(res.message ?? 'Password saved. You can see it below.');
         if (type === 'visiting') setVisitingPassword('');
         else setCompanyPassword('');
         await fetchPasswords();
@@ -88,15 +90,17 @@ export function SupervisorAssessmentPasswordsPage() {
         </p>
       </div>
 
-      {message && (
-        <div
-          className={`rounded-lg border px-3 py-2 text-sm ${
-            message.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-800'
-          }`}
-        >
+      {message && message.type === 'error' && (
+        <div className="rounded-lg border px-3 py-2 text-sm border-red-200 bg-red-50 text-red-800">
           {message.text}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <Card className="border-slate-200 bg-slate-50/50">

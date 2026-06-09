@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 type MarkField = 'report_mark' | 'elogbook_mark';
@@ -18,6 +19,7 @@ export function SupervisorMarkEntryCell({
   const [value, setValue] = useState(initialMark != null ? String(initialMark) : '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setValue(initialMark != null ? String(initialMark) : '');
@@ -44,6 +46,7 @@ export function SupervisorMarkEntryCell({
         index_number: indexNumber,
         [field]: n,
       });
+      setSuccessMessage(`${label} saved successfully.`);
       onSaved?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save');
@@ -72,6 +75,11 @@ export function SupervisorMarkEntryCell({
         {saving ? 'Saving…' : 'Save'}
       </Button>
       {error && <span className="max-w-[8rem] text-center text-[10px] text-red-600">{error}</span>}
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
     </div>
   );
 }

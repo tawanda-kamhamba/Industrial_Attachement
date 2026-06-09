@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { CalendarHeart, CheckCircle2, MapPin } from 'lucide-react';
+import { CalendarHeart, MapPin } from 'lucide-react';
 import { VisitScheduleCalendar } from '@/components/calendar/VisitScheduleCalendar';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { Card } from '@/components/ui/Card';
 import { api } from '@/services/api';
 import {
@@ -152,12 +153,12 @@ export function StudentVisitSchedulePage() {
           {error}
         </div>
       ) : null}
-      {success ? (
-        <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-          {success}
-        </div>
-      ) : null}
+
+      <SuccessModal
+        open={!!success}
+        message={success ?? ''}
+        onClose={() => setSuccess(null)}
+      />
 
       {noSupervisor ? (
         <Card className="p-6 text-center text-slate-600">

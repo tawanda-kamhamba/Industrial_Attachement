@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 type StatusType = 'idle' | 'success' | 'error';
@@ -25,6 +26,7 @@ export function SubmitContractPage() {
   const [contractStatus, setContractStatus] = useState<ContractStatus | null>(null);
   const [status, setStatus] = useState<StatusType>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const refreshStatus = () => {
     setLoadingStatus(true);
@@ -87,8 +89,8 @@ export function SubmitContractPage() {
       }
 
       const feedback = data.message ?? 'Contract submitted. Your contract is pending approval.';
-      setStatus('success');
-      setMessage(feedback);
+      setStatus('idle');
+      setSuccessMessage(feedback);
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -104,9 +106,7 @@ export function SubmitContractPage() {
   };
 
   const statusClasses =
-    status === 'success'
-      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-      : status === 'error'
+    status === 'error'
       ? 'bg-red-50 text-red-800 border-red-200'
       : 'bg-slate-50 text-slate-700 border-slate-200';
 
@@ -126,11 +126,17 @@ export function SubmitContractPage() {
         </p>
       </div>
 
-      {message && (
+      {message && status === 'error' && (
         <div className={`rounded-xl border px-4 py-3 text-sm ${statusClasses}`}>
           {message}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       {loadingStatus ? (
         <p className="text-slate-500">Loading contract status…</p>

@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/services/api';
 import type { ElogbookExportEntry } from '@/utils/elogbookFormat';
@@ -72,6 +73,7 @@ export function ELogbookPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [currentWeek, setCurrentWeek] = useState(1);
   const [form, setForm] = useState(emptyWeek());
@@ -141,7 +143,7 @@ export function ELogbookPage() {
         ...cleanedForm,
       });
       if (res.success) {
-        setMessage({ type: 'success', text: `Week ${currentWeek} ${(res as { updated?: boolean }).updated ? 'updated' : 'saved'} successfully!` });
+        setSuccessMessage(`Week ${currentWeek} ${(res as { updated?: boolean }).updated ? 'updated' : 'saved'} successfully!`);
         const updated = {
           id: 0,
           week_number: currentWeek,
@@ -204,7 +206,7 @@ export function ELogbookPage() {
     try {
       const { downloadElogbookPdf } = await import('@/utils/elogbookPdfExport');
       downloadElogbookPdf(exportMeta());
-      setMessage({ type: 'success', text: 'Your logbook PDF has been downloaded.' });
+      setSuccessMessage('Your logbook PDF has been downloaded.');
     } catch (e) {
       setMessage({ type: 'error', text: e instanceof Error ? e.message : 'PDF download failed.' });
     } finally {
@@ -218,10 +220,7 @@ export function ELogbookPage() {
     setMessage(null);
     try {
       printElogbook(exportMeta());
-      setMessage({
-        type: 'success',
-        text: 'Print dialog opened. Choose your printer or “Save as PDF”, then confirm.',
-      });
+      setSuccessMessage('Print dialog opened. Choose your printer or “Save as PDF”, then confirm.');
     } catch (e) {
       setMessage({ type: 'error', text: e instanceof Error ? e.message : 'Could not open print dialog.' });
     } finally {
@@ -265,15 +264,17 @@ export function ELogbookPage() {
         </div>
       </div>
 
-      {message && (
-        <div
-          className={`rounded-lg p-4 ${
-            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}
-        >
+      {message && message.type === 'error' && (
+        <div className="rounded-lg p-4 bg-red-50 text-red-800">
           {message.text}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       <div className="flex flex-wrap items-center gap-2 rounded-lg bg-slate-100 p-4 shadow-md">
         <span className="font-medium text-slate-700">Weeks:</span>

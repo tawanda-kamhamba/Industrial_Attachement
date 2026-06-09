@@ -23,6 +23,8 @@ import {
   UserCircle,
   UserPen,
   UserPlus,
+  Users,
+  AlertTriangle,
 } from 'lucide-react';
 import { LinkIconBadge, type LinkIconTone } from '@/components/student/LinkIconBadge';
 import { Card } from '@/components/ui/Card';
@@ -88,6 +90,16 @@ const quickLinks: DashboardLink[] = [
     keywords: ['company', 'supervisor', 'assumption'],
   },
   {
+    to: '/student/request-supervisor',
+    label: 'Request supervisor',
+    description: 'Browse supervisors and request direct assignment.',
+    external: false,
+    category: 'Get started',
+    icon: Users,
+    iconTone: 'sky',
+    keywords: ['supervisor', 'lecturer', 'assignment', 'request'],
+  },
+  {
     to: '/student/orientation',
     label: 'Orientation Checklist',
     description: 'Complete your orientation checklist.',
@@ -106,6 +118,16 @@ const quickLinks: DashboardLink[] = [
     icon: BookOpen,
     iconTone: 'primary',
     keywords: ['weekly', 'logbook'],
+  },
+  {
+    to: '/student/report-issue',
+    label: 'Report issue',
+    description: 'Report problems to your assigned institutional supervisor.',
+    external: false,
+    category: 'During attachment',
+    icon: AlertTriangle,
+    iconTone: 'rose',
+    keywords: ['issue', 'problem', 'help', 'supervisor', 'report'],
   },
   {
     to: '/student/visit-schedule',
@@ -181,6 +203,9 @@ type StudentGradesResponse = {
 
 type StudentSupervisorResponse = {
   index_number: string;
+  has_direct_assignment?: boolean;
+  can_request_supervisor?: boolean;
+  pending_request?: { lecturer_name: string } | null;
   assigned: null | {
     lecturer_id: number;
     lecturer_name: string;
@@ -210,6 +235,10 @@ export function StudentDashboard() {
   const [grades, setGrades] = useState<StudentGradesResponse | null>(null);
   const [assignedSupervisor, setAssignedSupervisor] = useState<StudentSupervisorResponse['assigned'] | null>(null);
   const [otherAssignedSupervisor, setOtherAssignedSupervisor] = useState<StudentSupervisorResponse['other_assigned'] | null>(null);
+  const [hasDirectAssignment, setHasDirectAssignment] = useState(false);
+  const [canRequestSupervisor, setCanRequestSupervisor] = useState(false);
+  const [pendingSupervisorRequest, setPendingSupervisorRequest] = useState<StudentSupervisorResponse['pending_request']>(null);
+  const [hasAssignedSupervisor, setHasAssignedSupervisor] = useState(false);
   const [cardsLoading, setCardsLoading] = useState(true);
   const [onboardingLoading, setOnboardingLoading] = useState(true);
   const [getStartedComplete, setGetStartedComplete] = useState(false);
@@ -247,6 +276,10 @@ export function StudentDashboard() {
       setGrades(g);
       setAssignedSupervisor(sup?.assigned ?? null);
       setOtherAssignedSupervisor(sup?.other_assigned ?? null);
+      setHasDirectAssignment(Boolean(sup?.has_direct_assignment));
+      setCanRequestSupervisor(Boolean(sup?.can_request_supervisor));
+      setPendingSupervisorRequest(sup?.pending_request ?? null);
+      setHasAssignedSupervisor(Boolean(sup?.assigned));
     } finally {
       setCardsLoading(false);
     }
@@ -269,13 +302,20 @@ export function StudentDashboard() {
   }, []);
 
   const filteredLinks = useMemo(() => {
+    let base = quickLinks;
+    if (hasDirectAssignment) {
+      base = base.filter((l) => l.to !== '/student/request-supervisor');
+    }
+    if (!hasAssignedSupervisor) {
+      base = base.filter((l) => l.to !== '/student/report-issue');
+    }
     const q = query.trim().toLowerCase();
-    if (!q) return quickLinks;
-    return quickLinks.filter((l) => {
+    if (!q) return base;
+    return base.filter((l) => {
       const hay = `${l.label} ${l.description} ${l.category} ${(l.keywords ?? []).join(' ')}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [query]);
+  }, [query, hasDirectAssignment, hasAssignedSupervisor]);
 
   const groupedLinks = useMemo(() => {
     const order: DashboardLink['category'][] = ['Get started', 'During attachment', 'Finish up'];
@@ -430,13 +470,36 @@ export function StudentDashboard() {
                       Also Region: {otherAssignedSupervisor.lecturer_region_residence ? otherAssignedSupervisor.lecturer_region_residence : '—'}
                     </p>
                   ) : null}
+                  <Link to="/student/report-issue" className="mt-2 inline-block">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
+                      Report issue
+                    </button>
+                  </Link>
                 </>
               ) : (
-                <p className="mt-1 text-xs text-slate-500">Not assigned yet.</p>
+                <>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {pendingSupervisorRequest
+                      ? `Request pending: ${pendingSupervisorRequest.lecturer_name}`
+                      : 'Not assigned yet.'}
+                  </p>
+                  {(canRequestSupervisor || pendingSupervisorRequest) && !hasDirectAssignment ? (
+                    <Link to="/student/request-supervisor" className="mt-2 inline-block">
+                      <Button variant="outline" size="sm" className="gap-1.5">
+                        <Users className="h-3.5 w-3.5" aria-hidden />
+                        {pendingSupervisorRequest ? 'View request' : 'Request supervisor'}
+                      </Button>
+                    </Link>
+                  ) : null}
+                </>
               )}
             </div>
             <div className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
-              Assigned
+              {hasDirectAssignment || assignedSupervisor ? 'Assigned' : pendingSupervisorRequest ? 'Pending' : 'Unassigned'}
             </div>
           </div>
         </Card>

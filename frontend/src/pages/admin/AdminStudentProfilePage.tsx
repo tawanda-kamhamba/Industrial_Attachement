@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 import { ReportViewDownloadActions } from '@/components/ReportViewDownloadActions';
@@ -104,6 +105,7 @@ export function AdminStudentProfilePage() {
   const [supError, setSupError] = useState<string | null>(null);
   const [supSaving, setSupSaving] = useState(false);
   const [supMessage, setSupMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [supSuccessMessage, setSupSuccessMessage] = useState<string | null>(null);
   const [supervisorFilter, setSupervisorFilter] = useState('');
   const [selectedLecturerId, setSelectedLecturerId] = useState<string>('');
 
@@ -144,7 +146,7 @@ export function AdminStudentProfilePage() {
       );
       setSupData(refreshed);
       setSelectedLecturerId(refreshed.assigned ? String(refreshed.assigned.lecturer_id) : '');
-      setSupMessage({ type: 'success', text: 'Supervisor assignment saved.' });
+      setSupSuccessMessage('Supervisor assignment saved.');
     } catch (e) {
       setSupMessage({ type: 'error', text: e instanceof Error ? e.message : 'Failed to save assignment' });
     } finally {
@@ -329,12 +331,8 @@ export function AdminStudentProfilePage() {
         <Card padding="lg" className="border-slate-200">
           <CardHeader title="Assign a specific supervisor to this student" />
 
-          {supMessage && (
-            <div
-              className={`mb-4 rounded-lg p-3 text-sm ${
-                supMessage.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-              }`}
-            >
+          {supMessage && supMessage.type === 'error' && (
+            <div className="mb-4 rounded-lg p-3 text-sm bg-red-50 text-red-800">
               {supMessage.text}
             </div>
           )}
@@ -520,6 +518,11 @@ export function AdminStudentProfilePage() {
           </dl>
         </Card>
       )}
+      <SuccessModal
+        open={!!supSuccessMessage}
+        message={supSuccessMessage ?? ''}
+        onClose={() => setSupSuccessMessage(null)}
+      />
     </div>
   );
 }

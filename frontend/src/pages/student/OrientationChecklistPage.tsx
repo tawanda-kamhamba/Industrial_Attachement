@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -114,6 +114,7 @@ export function OrientationChecklistPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     host_institution: '',
@@ -166,7 +167,7 @@ export function OrientationChecklistPage() {
       });
       const res = await api.post<{ success: boolean; error?: string }>('/student/orientation', body);
       if (res.success) {
-        setMessage({ type: 'success', text: 'Orientation checklist submitted successfully!' });
+        setSuccessMessage('Orientation checklist submitted successfully!');
         setData((d) => ({ ...d!, completed: true, ...form }));
       } else {
         setMessage({ type: 'error', text: res.error ?? 'Submit failed' });
@@ -220,13 +221,17 @@ export function OrientationChecklistPage() {
           Work Related Learning Placement - Student Orientation Checklist
         </div>
         <div className="bg-[rgba(232,232,232,0.56)] p-4">
-          {message && (
-            <div
-              className={`mb-4 rounded p-3 ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-            >
+          {message && message.type === 'error' && (
+            <div className="mb-4 rounded p-3 bg-red-100 text-red-800">
               {message.text}
             </div>
           )}
+
+          <SuccessModal
+            open={!!successMessage}
+            message={successMessage ?? ''}
+            onClose={() => setSuccessMessage(null)}
+          />
 
           <div style={documentStyles.checklistDocument}>
             <DocHeader />

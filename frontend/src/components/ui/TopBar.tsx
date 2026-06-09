@@ -319,6 +319,35 @@ export function TopBar({
                           setNotifOpen(false);
                           navigate('/supervisor/visit-schedule');
                         }
+                        if (
+                          (n.type === 'supervisor_assignment_request' ||
+                            n.type === 'supervisor_request_approved' ||
+                            n.type === 'supervisor_request_rejected') &&
+                          isSupervisor
+                        ) {
+                          setNotifOpen(false);
+                          navigate('/supervisor/assignment-requests');
+                        }
+                        if (
+                          (n.type === 'supervisor_request_approved' ||
+                            n.type === 'supervisor_request_rejected') &&
+                          isStudent
+                        ) {
+                          setNotifOpen(false);
+                          navigate('/student/request-supervisor');
+                        }
+                        if (n.type === 'student_issue_reported' && isSupervisor) {
+                          setNotifOpen(false);
+                          navigate('/supervisor/student-issues');
+                        }
+                        if (n.type === 'contract_submitted' && isSupervisor) {
+                          setNotifOpen(false);
+                          navigate('/supervisor/contracts');
+                        }
+                        if (n.type === 'contract_rejected' && isStudent) {
+                          setNotifOpen(false);
+                          navigate('/student/contract');
+                        }
                       }}
                       className={`w-full rounded-md border px-3 py-2 text-left transition ${
                         n.read_at

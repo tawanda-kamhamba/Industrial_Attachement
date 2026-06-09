@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 const SUPERVISOR_UNLOCK_KEY = 'supervisor_unlocked_';
@@ -99,7 +100,7 @@ export function SupervisorGradeFormPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(initialForm);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const isVisiting = type === 'visiting';
@@ -129,7 +130,7 @@ export function SupervisorGradeFormPage() {
         type,
         ...form,
       });
-      setSuccess(true);
+      setSuccessMessage('Assessment submitted successfully.');
       sessionStorage.removeItem(`${SUPERVISOR_UNLOCK_KEY}${type}`);
     } catch (err: unknown) {
       const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : 'Failed to submit';
@@ -141,21 +142,16 @@ export function SupervisorGradeFormPage() {
 
   if (type !== 'visiting' && type !== 'company') return null;
 
-  if (success) {
-    return (
-      <div className="mx-auto max-w-lg">
-        <div className="rounded-lg border border-slate-200 bg-white p-8 shadow">
-          <p className="text-center text-lg font-semibold text-slate-800">Assessment submitted successfully.</p>
-          <Link to="/student" className="mt-6 block text-center">
-            <Button variant="outline">Back to student dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => {
+          setSuccessMessage(null);
+          navigate('/student');
+        }}
+      />
       <div className="flex items-center gap-4">
         <BackToDashboardLink />
       </div>

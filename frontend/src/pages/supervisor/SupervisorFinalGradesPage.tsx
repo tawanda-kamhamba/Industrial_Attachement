@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { TableFilters } from '@/components/ui/TableFilters';
 import { api } from '@/services/api';
 import { filterRows, FINAL_GRADE_FILTER_FIELDS } from '@/utils/tableSearch';
@@ -70,6 +71,7 @@ export function SupervisorFinalGradesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, DraftMarks>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -175,7 +177,7 @@ export function SupervisorFinalGradesPage() {
       if (reportVal !== '') body.report_mark = report_mark;
 
       await api.post<{ success: boolean; error?: string }>('/supervisor/final-grades', body);
-      setMessage({ type: 'success', text: `Marks saved for ${student.student_index}.` });
+      setSuccessMessage(`Marks saved for ${student.student_index}.`);
       await load();
     } catch (e) {
       setMessage({ type: 'error', text: e instanceof Error ? e.message : 'Failed to save' });
@@ -244,17 +246,17 @@ export function SupervisorFinalGradesPage() {
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
       )}
-      {message && (
-        <div
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            message.type === 'success'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-              : 'border-red-200 bg-red-50 text-red-800'
-          }`}
-        >
+      {message && message.type === 'error' && (
+        <div className="rounded-xl border px-4 py-3 text-sm border-red-200 bg-red-50 text-red-800">
           {message.text}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       <div className="stat-grid-compact">
         {[

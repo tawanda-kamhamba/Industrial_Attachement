@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { BackToDashboardLink } from '@/components/student/BackToDashboardLink';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 type StatusType = 'idle' | 'success' | 'error';
@@ -24,6 +24,7 @@ export function SubmitReportPage() {
   const [reportStatus, setReportStatus] = useState<ReportStatusResponse | null>(null);
   const [status, setStatus] = useState<StatusType>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadReportStatus = async () => {
     try {
@@ -96,8 +97,8 @@ export function SubmitReportPage() {
         return;
       }
 
-      setStatus('success');
-      setMessage(typeof data.message === 'string' ? data.message : 'Reports uploaded successfully.');
+      setStatus('idle');
+      setSuccessMessage(typeof data.message === 'string' ? data.message : 'Reports uploaded successfully.');
       setFiles(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -113,11 +114,9 @@ export function SubmitReportPage() {
   };
 
   const statusClasses =
-    status === 'success'
-      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-      : status === 'error'
-        ? 'bg-red-50 text-red-800 border-red-200'
-        : 'bg-slate-50 text-slate-700 border-slate-200';
+    status === 'error'
+      ? 'bg-red-50 text-red-800 border-red-200'
+      : 'bg-slate-50 text-slate-700 border-slate-200';
 
   const selectedFilesSummary =
     files && files.length > 0
@@ -161,11 +160,17 @@ export function SubmitReportPage() {
         </p>
       </div>
 
-      {message && (
+      {message && status === 'error' && (
         <div className={`rounded-xl border px-4 py-3 text-sm whitespace-pre-wrap ${statusClasses}`}>
           {message}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       {submitted ? (
         <Card padding="lg" className="bg-white">

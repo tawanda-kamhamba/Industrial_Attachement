@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 import { ContractViewDownloadActions } from '@/components/ContractViewDownloadActions';
 import { ContractRejectDialog } from '@/components/ContractRejectDialog';
@@ -33,6 +34,7 @@ export function ManageContracts() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [rejectTarget, setRejectTarget] = useState<DialogTarget | null>(null);
   const [resubmitTarget, setResubmitTarget] = useState<DialogTarget | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchContracts = () => {
     setLoading(true);
@@ -80,6 +82,13 @@ export function ManageContracts() {
       }
       setRejectTarget(null);
       setResubmitTarget(null);
+      const actionMessages: Record<ContractAction, string> = {
+        approve: 'Contract approved successfully.',
+        reject: 'Contract rejected.',
+        allow_resubmit: 'Student can now resubmit their contract.',
+        set_pending: 'Contract status set to pending.',
+      };
+      setSuccessMessage(actionMessages[action] ?? 'Action completed successfully.');
       fetchContracts();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Action failed');
@@ -178,6 +187,12 @@ export function ManageContracts() {
         onConfirm={(note) => {
           if (resubmitTarget) postAction(resubmitTarget.id, 'allow_resubmit', note);
         }}
+      />
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
       />
 
       <div>

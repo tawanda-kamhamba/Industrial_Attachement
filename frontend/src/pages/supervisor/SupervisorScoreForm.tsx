@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 const POINTS = [0, 1, 2, 3, 4, 5] as const;
@@ -124,7 +125,7 @@ export function SupervisorScoreForm({
     visitNumber: initialVisitNumber ?? 1,
   }));
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
@@ -198,7 +199,7 @@ export function SupervisorScoreForm({
         abilityToControlEmotions,
         generalRemarks,
       });
-      setSuccess(true);
+      setSuccessMessage('Assessment submitted successfully.');
     } catch (err: unknown) {
       const msg =
         err && typeof err === 'object' && 'message' in err
@@ -210,20 +211,16 @@ export function SupervisorScoreForm({
     }
   };
 
-  if (success) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-emerald-600">
-          Assessment submitted successfully.
-        </p>
-        <Button variant="outline" size="sm" onClick={onClose}>
-          Close
-        </Button>
-      </div>
-    );
-  }
-
   return (
+    <>
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => {
+          setSuccessMessage(null);
+          onClose();
+        }}
+      />
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-4">
         <p className="text-sm text-slate-700">Select visit:</p>
@@ -436,6 +433,7 @@ export function SupervisorScoreForm({
         </Button>
       </div>
     </form>
+    </>
   );
 }
 

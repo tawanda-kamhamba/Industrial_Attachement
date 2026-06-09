@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { api } from '@/services/api';
 
 import { SUPERVISOR_FACULTIES, SUPERVISOR_REGIONS } from '@/constants/supervisor';
@@ -33,6 +34,7 @@ export function AssignSupervisors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [assignments, setAssignments] = useState<Record<string, Record<string, string>>>({});
   const [saving, setSaving] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -83,7 +85,7 @@ export function AssignSupervisors() {
     setMessage(null);
     try {
       await api.post('/admin/assign-supervisors/save', { assignments });
-      setMessage({ type: 'success', text: 'Assignments saved successfully.' });
+      setSuccessMessage('Assignments saved successfully.');
     } catch (e) {
       setMessage({ type: 'error', text: e instanceof Error ? e.message : 'Failed to save' });
     } finally {
@@ -101,7 +103,7 @@ export function AssignSupervisors() {
     setMessage(null);
     try {
       await api.post('/admin/assign-supervisors/lecturer', addForm);
-      setMessage({ type: 'success', text: 'Lecturer added successfully.' });
+      setSuccessMessage('Lecturer added successfully.');
       setAddForm({ lecturer_name: '', lecturer_department: '', lecturer_phone_number: '', lecturer_faculty: '', lecturer_email: '', lecturer_region_residence: '', staff_id: '', password: '' });
       const res = await api.get<AssignmentsData>('/admin/assign-supervisors');
       setData(res);
@@ -123,11 +125,17 @@ export function AssignSupervisors() {
         <p className="page-subtitle">Assign institutional supervisors by province and faculty. Add lecturers first, then assign first and second supervisor per cell.</p>
       </div>
 
-      {message && (
-        <div className={`rounded-lg p-4 ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+      {message && message.type === 'error' && (
+        <div className="rounded-lg p-4 bg-red-50 text-red-800">
           {message.text}
         </div>
       )}
+
+      <SuccessModal
+        open={!!successMessage}
+        message={successMessage ?? ''}
+        onClose={() => setSuccessMessage(null)}
+      />
 
       {/* Student stats by region */}
       <Card>
