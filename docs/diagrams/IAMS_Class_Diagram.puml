@@ -1,0 +1,469 @@
+@startuml IAMS_Class_Diagram
+' IAMS Class Diagram - Tawanda Kamhamba R223985C
+' Fixed: use List~T~ not List<T> (angle brackets break PlantUML)
+
+top to bottom direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+skinparam ranksep 45
+skinparam nodesep 35
+skinparam classAttributeIconSize 0
+
+skinparam interface {
+  BackgroundColor #FEF9C3
+  BorderColor #CA8A04
+}
+
+skinparam abstract {
+  BackgroundColor #E0E7FF
+  BorderColor #4338CA
+}
+
+skinparam class<<UserRole>> {
+  BackgroundColor #DBEAFE
+  BorderColor #2563EB
+}
+
+skinparam class<<Domain>> {
+  BackgroundColor #F0FDF4
+  BorderColor #16A34A
+}
+
+skinparam class<<Assessment>> {
+  BackgroundColor #FEF3C7
+  BorderColor #D97706
+}
+
+skinparam class<<Communication>> {
+  BackgroundColor #FCE7F3
+  BorderColor #DB2777
+}
+
+skinparam class<<Service>> {
+  BackgroundColor #F1F5F9
+  BorderColor #64748B
+}
+
+title IAMS Class Diagram\nIndustrial Attachment Management System
+caption Updated implementation | Session RBAC | Visit publish-and-select model
+
+
+interface Authenticatable {
+  +login(credentials): Boolean
+  +logout(): void
+  +isAuthenticated(): Boolean
+}
+
+interface Reportable {
+  +generateReport(): Report
+  +exportData(): File
+}
+
+
+abstract class User <<UserRole>> {
+  #userId: String
+  #registrationNumber: String
+  #email: String
+  #passwordHash: String
+  #firstName: String
+  #lastName: String
+  #userType: String
+  #phoneNumber: String
+  #createdAt: DateTime
+  #isActive: Boolean
+  --
+  +login(): Boolean
+  +updateProfile(): void
+  +changePassword(): Boolean
+  +validatePassword(): Boolean
+}
+
+class Student <<UserRole>> {
+  -academicProgram: String
+  -yearOfStudy: String
+  -department: String
+  -faculty: String
+  -attachmentSession: String
+  -onboardingComplete: Boolean
+  -currentStatus: String
+  --
+  +registerIndustrial(): Boolean
+  +submitAssumption(): Boolean
+  +submitOrientationChecklist(): Boolean
+  +submitWeeklyELogbook(week): Boolean
+  +uploadContract(pdf): Boolean
+  +uploadFinalReport(file): Boolean
+  +selectVisitDate(availabilityId): Boolean
+  +requestSupervisor(lecturerId): Boolean
+  +reportWorkplaceIssue(category): Boolean
+}
+
+class InstitutionalSupervisor <<UserRole>> {
+  -staffId: String
+  -department: String
+  -faculty: String
+  -region: String
+  -maxStudentsCapacity: int
+  --
+  +viewAssignedStudents(): List
+  +publishVisitDates(dates): Boolean
+  +reviewELogbook(studentId): void
+  +enterVisitGrade(visitNumber): void
+  +enterElogbookAndReportMarks(): void
+  +generateAssessmentPasswords(): void
+  +approveSupervisorRequest(id): Boolean
+  +rejectSupervisorRequest(id, reason): Boolean
+  +acknowledgeStudentIssue(id): void
+  +computeFinalGrades(): List
+}
+
+class Administrator <<UserRole>> {
+  -adminLevel: String
+  -permissions: String
+  --
+  +viewRegisteredStudents(): List
+  +assignSupervisor(studentId, lecturerId): void
+  +viewDashboardAnalytics(): DashboardStats
+  +exportDashboardPdf(): File
+  +reviewContracts(): void
+  +reviewReports(): void
+  +changeAdminPassword(): Boolean
+}
+
+class CompanyAssessor <<UserRole>> {
+  -positionTitle: String
+  -companyName: String
+  -assessmentPassword: String
+  --
+  +submitCompanyAssessment(password): Boolean
+  +submitVisitingAssessment(password): Boolean
+  +calculateRubricScore(): int
+}
+
+User <|-- Student
+User <|-- InstitutionalSupervisor
+User <|-- Administrator
+User ..|> Authenticatable
+InstitutionalSupervisor ..|> Reportable
+
+
+class IndustrialRegistration <<Domain>> {
+  -registrationId: int
+  -indexNumber: String
+  -programme: String
+  -faculty: String
+  -level: String
+  -session: String
+  -attachmentRegion: String
+  -registeredAt: DateTime
+  --
+  +saveRegistration(): Boolean
+  +validateRegistration(): Boolean
+  +getRegistrationDetails(): Map
+}
+
+class AssumptionOfDuty <<Domain>> {
+  -assumptionId: int
+  -indexNumber: String
+  -companyName: String
+  -companyRegion: String
+  -companyAddress: String
+  -companySupervisorName: String
+  -companySupervisorContact: String
+  -companySupervisorEmail: String
+  -registrationType: String
+  --
+  +submitAssumption(): Boolean
+  +validateAssumption(): Boolean
+  +getPlacementDetails(): Map
+}
+
+class OrientationChecklist <<Domain>> {
+  -checklistId: int
+  -indexNumber: String
+  -hostInstitution: String
+  -generalItems: Map
+  -workItems: Map
+  -healthSafetyItems: Map
+  -completedAt: DateTime
+  --
+  +submitChecklist(): Boolean
+  +isComplete(): Boolean
+}
+
+class ELogbook <<Domain>> {
+  -entryId: int
+  -indexNumber: String
+  -weekNumber: int
+  -mondayJob: String
+  -mondaySkill: String
+  -tuesdayJob: String
+  -tuesdaySkill: String
+  -wednesdayJob: String
+  -wednesdaySkill: String
+  -thursdayJob: String
+  -thursdaySkill: String
+  -fridayJob: String
+  -fridaySkill: String
+  -updatedAt: DateTime
+  --
+  +saveWeekEntry(): Boolean
+  +exportToPdf(): File
+  +validateWeekCompletion(): Boolean
+}
+
+class StudentContract <<Domain>> {
+  -contractId: int
+  -indexNumber: String
+  -contractFilePath: String
+  -originalFilename: String
+  -status: String
+  -adminComment: String
+  -submittedAt: DateTime
+  --
+  +uploadPdf(): Boolean
+  +approve(): void
+  +reject(reason): void
+  +download(): File
+}
+
+class FinalReport <<Domain>> {
+  -reportId: int
+  -indexNumber: String
+  -reportFilesJson: String
+  -originalFilenamesJson: String
+  -status: String
+  -submissionDate: DateTime
+  --
+  +uploadReport(file): Boolean
+  +validateSingleSubmission(): Boolean
+  +validateFileFormat(): Boolean
+  +download(): File
+}
+
+class VisitAvailability <<Domain>> {
+  -availabilityId: int
+  -lecturerId: int
+  -visitDate: Date
+  -publishedAt: DateTime
+  --
+  +publishDates(): Boolean
+  +notifyAssignedStudents(): void
+  +normalizeDates(): List
+}
+
+class VisitSelection <<Domain>> {
+  -selectionId: int
+  -availabilityId: int
+  -studentIndexNumber: String
+  -visitDate: Date
+  -selectedAt: DateTime
+  --
+  +selectDate(availabilityId): Boolean
+  +validateOneSelectionPerStudent(): Boolean
+}
+
+class VisitingSupervisorGrade <<Assessment>> {
+  -gradeId: int
+  -userIndex: String
+  -visitNumber: int
+  -rubricScores: Map
+  -totalGrade: int
+  -assessedAt: DateTime
+  --
+  +submitVisit1Score(): void
+  +submitVisit2Score(): void
+  +validateRubric(): Boolean
+}
+
+class CompanySupervisorGrade <<Assessment>> {
+  -gradeId: int
+  -userIndex: String
+  -rubricScores: Map
+  -totalGrade: int
+  -assessedAt: DateTime
+  --
+  +submitAssessment(): void
+  +calculateTotalScore(): int
+}
+
+class SupervisorStudentMarks <<Assessment>> {
+  -markId: int
+  -indexNumber: String
+  -supervisorId: int
+  -elogbookMark: float
+  -reportMark: float
+  -updatedAt: DateTime
+  --
+  +saveElogbookMark(mark): void
+  +saveReportMark(mark): void
+}
+
+class FinalGrade <<Assessment>> {
+  -indexNumber: String
+  -firstVisitWeight: int
+  -secondVisitWeight: int
+  -companyWeight: int
+  -reportWeight: int
+  -elogbookWeight: int
+  -finalMark: float
+  -letterGrade: String
+  -isComplete: Boolean
+  --
+  +computeFinalMark(): float
+  +getMissingComponents(): List
+  +toLetterGrade(): String
+}
+
+class AssessmentPassword <<Assessment>> {
+  -lecturerId: int
+  -visitingPassword: String
+  -companyPassword: String
+  --
+  +generatePasswords(): void
+  +validatePassword(input): Boolean
+}
+
+class Notification <<Communication>> {
+  -notificationId: int
+  -recipientId: String
+  -recipientRole: String
+  -notificationType: String
+  -title: String
+  -message: String
+  -isRead: Boolean
+  -createdAt: DateTime
+  --
+  +sendNotification(): void
+  +markAsRead(): void
+  +getUnreadNotifications(): List
+}
+
+class SupervisorAssignmentRequest <<Communication>> {
+  -requestId: int
+  -studentIndexNumber: String
+  -lecturerId: int
+  -studentMessage: String
+  -status: String
+  -responseReason: String
+  -createdAt: DateTime
+  --
+  +submitRequest(): Boolean
+  +approve(): Boolean
+  +reject(reason): Boolean
+}
+
+class StudentIssueReport <<Communication>> {
+  -issueId: int
+  -studentIndexNumber: String
+  -category: String
+  -issueMessage: String
+  -status: String
+  -acknowledgedByLecturerId: int
+  -createdAt: DateTime
+  --
+  +submitIssue(): Boolean
+  +acknowledge(): void
+}
+
+class AuthService <<Service>> {
+  +loginStudent(index, password): Session
+  +loginSupervisor(staffId, password): Session
+  +loginAdmin(password): Session
+  +checkRole(session): String
+  +enforceRBAC(role): Boolean
+}
+
+class GradingService <<Service>> {
+  +getFinalGradeWeights(): Map
+  +computeFinalGrade(indexNumber): FinalGrade
+  +validateMarkInput(value): float
+  +saveSupervisorMarks(): void
+}
+
+class NotificationService <<Service>> {
+  +notifyStudent(indexNumber, type): void
+  +notifySupervisor(lecturerId, type): void
+  +onVisitDatesPublished(): void
+  +onLogbookComment(): void
+}
+
+class VisitScheduleService <<Service>> {
+  +publishAvailability(lecturerId, dates): void
+  +selectVisit(studentIndex, availabilityId): void
+  +normalizeVisitDates(dates): List
+}
+
+class ApiRouter <<Service>> {
+  +route(request): Response
+  +handleAuth(): void
+  +handleStudentModule(): void
+  +handleSupervisorModule(): void
+  +handleAdminModule(): void
+}
+
+
+VisitAvailability "1" *-- "0..*" VisitSelection : contains
+VisitAvailability ..> Notification : triggers
+
+FinalGrade ..> VisitingSupervisorGrade : uses
+FinalGrade ..> CompanySupervisorGrade : uses
+FinalGrade ..> SupervisorStudentMarks : uses
+CompanyAssessor ..> CompanySupervisorGrade : submits
+CompanyAssessor ..> AssessmentPassword : auth
+InstitutionalSupervisor "1" --> "1" AssessmentPassword : generates
+
+Student "1" --> "1" IndustrialRegistration : registers
+Student "1" --> "1" AssumptionOfDuty : submits
+Student "1" --> "0..1" OrientationChecklist : completes
+Student "1" *-- "0..*" ELogbook : maintains
+Student "1" *-- "0..*" StudentContract : uploads
+Student "1" *-- "0..1" FinalReport : submits
+Student "1" --> "0..*" VisitSelection : selects
+Student "1" --> "0..*" SupervisorAssignmentRequest : requests
+Student "1" --> "0..*" StudentIssueReport : reports
+Student "1" --> "0..*" Notification : receives
+Student "1" --> "0..1" FinalGrade : receives
+Student "1" --> "0..1" CompanySupervisorGrade : assessed
+
+InstitutionalSupervisor "1" --> "0..*" Student : supervises
+InstitutionalSupervisor "1" *-- "0..*" VisitAvailability : publishes
+InstitutionalSupervisor "1" --> "0..*" VisitingSupervisorGrade : enters
+InstitutionalSupervisor "1" --> "0..*" SupervisorStudentMarks : marks
+InstitutionalSupervisor "1" --> "0..*" SupervisorAssignmentRequest : reviews
+InstitutionalSupervisor "1" --> "0..*" StudentIssueReport : handles
+InstitutionalSupervisor "1" --> "0..*" Notification : receives
+
+Administrator "1" --> "0..*" Student : manages
+Administrator ..> Reportable : uses
+
+AuthService ..> User : authenticates
+GradingService ..> FinalGrade : computes
+NotificationService ..> Notification : creates
+VisitScheduleService ..> VisitAvailability : manages
+VisitScheduleService ..> VisitSelection : manages
+ApiRouter ..> AuthService : uses
+ApiRouter ..> GradingService : uses
+ApiRouter ..> NotificationService : uses
+ApiRouter ..> VisitScheduleService : uses
+
+Authenticatable -[hidden]down- User
+User -[hidden]down- Student
+IndustrialRegistration -[hidden]down- ELogbook
+ELogbook -[hidden]down- VisitAvailability
+VisitAvailability -[hidden]down- VisitingSupervisorGrade
+VisitingSupervisorGrade -[hidden]down- Notification
+Notification -[hidden]down- AuthService
+
+legend bottom
+  Updates from original diagram:
+  - VisitScheduling replaced by VisitAvailability + VisitSelection
+  - CompanyAssessor uses password (no full portal login)
+  - Added OrientationChecklist, StudentContract, SupervisorAssignmentRequest, StudentIssueReport
+  - FinalGrade from visit scores, company grade, e-logbook mark, report mark
+endlegend
+
+@enduml

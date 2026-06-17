@@ -1,0 +1,318 @@
+@startuml IAMS_Object_Diagram
+' IAMS Object Diagram - Tawanda Kamhamba R223985C
+' Updated for implemented system (React + PHP + MySQL)
+
+top to bottom direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 10
+skinparam ranksep 40
+skinparam nodesep 30
+skinparam object {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+}
+
+skinparam object<<Student>> {
+  BackgroundColor #DBEAFE
+  BorderColor #2563EB
+}
+
+skinparam object<<Supervisor>> {
+  BackgroundColor #DCFCE7
+  BorderColor #16A34A
+}
+
+skinparam object<<Admin>> {
+  BackgroundColor #F3E8FF
+  BorderColor #9333EA
+}
+
+skinparam object<<Domain>> {
+  BackgroundColor #F0FDF4
+  BorderColor #16A34A
+}
+
+skinparam object<<Assessment>> {
+  BackgroundColor #FEF3C7
+  BorderColor #D97706
+}
+
+skinparam object<<Communication>> {
+  BackgroundColor #FCE7F3
+  BorderColor #DB2777
+}
+
+title IAMS Object Diagram\nIndustrial Attachment Management System
+caption Sample runtime instances | Tawanda Kamhamba R223985C | June 2026
+
+
+object "admin1: Administrator" as admin1 <<Admin>> {
+  adminId = ADM001
+  username = admin
+  role = SYSTEM_ADMIN
+  department = FCEIC
+}
+
+object "student1: Student" as student1 <<Student>> {
+  studentId = RS001
+  indexNumber = R223985C
+  firstName = Tawanda
+  lastName = Kamhamba
+  faculty = COM
+  programme = BSc Hons Computer Science
+  onboardingStatus = COMPLETE
+  currentStatus = ACTIVE
+}
+
+object "reg1: IndustrialRegistration" as reg1 <<Domain>> {
+  registrationId = 101
+  indexNumber = R223985C
+  programme = BSc Hons Computer Science
+  faculty = COM
+  session = Morning
+  level = 400
+  attachmentRegion = Harare
+}
+
+object "assumption1: AssumptionOfDuty" as assumption1 <<Domain>> {
+  assumptionId = 201
+  indexNumber = R223985C
+  companyName = TechCorp Zimbabwe
+  companyRegion = Harare
+  companySupervisorName = Mrs. Moyo
+  companySupervisorEmail = moyo@techcorp.co.zw
+  registrationType = INDUSTRIAL
+}
+
+object "orientation1: OrientationChecklist" as orientation1 <<Domain>> {
+  checklistId = 301
+  indexNumber = R223985C
+  hostInstitution = TechCorp Zimbabwe
+  status = COMPLETED
+  completedAt = 2026-01-20
+}
+
+object "elogWeek1: ELogbook" as elogWeek1 <<Domain>> {
+  entryId = 401
+  indexNumber = R223985C
+  weekNumber = 1
+  status = SUBMITTED
+  updatedAt = 2026-02-07
+}
+
+object "elogWeek2: ELogbook" as elogWeek2 <<Domain>> {
+  entryId = 402
+  indexNumber = R223985C
+  weekNumber = 2
+  status = DRAFT
+  updatedAt = 2026-02-14
+}
+
+object "contract1: StudentContract" as contract1 <<Domain>> {
+  contractId = 501
+  indexNumber = R223985C
+  originalFilename = placement_contract.pdf
+  status = APPROVED
+  submissionDate = 2026-01-25
+}
+
+object "report1: FinalReport" as report1 <<Domain>> {
+  reportId = 601
+  indexNumber = R223985C
+  status = SUBMITTED
+  submissionDate = 2026-05-10
+  fileFormat = PDF
+}
+
+object "supInst1: InstitutionalSupervisor" as supInst1 <<Supervisor>> {
+  lecturerId = 12
+  staffId = VL012
+  name = Mr. Gombiro
+  faculty = COM
+  department = Computer Science
+  region = Harare
+}
+
+object "assignment1: SupervisorAssignment" as assignment1 <<Domain>> {
+  indexNumber = R223985C
+  lecturerId = 12
+  assignedAt = 2026-01-18
+}
+
+object "visitAvail1: VisitAvailability" as visitAvail1 <<Domain>> {
+  availabilityId = 701
+  lecturerId = 12
+  visitDate = 2026-03-15
+  publishedAt = 2026-03-01
+  status = PUBLISHED
+}
+
+object "visitSelect1: VisitSelection" as visitSelect1 <<Domain>> {
+  selectionId = 801
+  availabilityId = 701
+  studentIndexNumber = R223985C
+  visitDate = 2026-03-15
+  selectedAt = 2026-03-02
+}
+
+object "visitGrade1: VisitingSupervisorGrade" as visitGrade1 <<Assessment>> {
+  gradeId = 901
+  userIndex = R223985C
+  visitNumber = 1
+  totalGrade = 90
+  assessedAt = 2026-03-16
+}
+
+object "visitGrade2: VisitingSupervisorGrade" as visitGrade2 <<Assessment>> {
+  gradeId = 902
+  userIndex = R223985C
+  visitNumber = 2
+  totalGrade = 88
+  assessedAt = 2026-04-20
+}
+
+object "companyAssessor1: CompanyAssessor" as companyAssessor1 <<Supervisor>> {
+  assessorName = Mrs. Moyo
+  companyName = TechCorp Zimbabwe
+  position = Senior Developer
+  accessMode = PASSWORD_ONLY
+}
+
+object "companyGrade1: CompanySupervisorGrade" as companyGrade1 <<Assessment>> {
+  gradeId = 1001
+  userIndex = R223985C
+  totalGrade = 86
+  assessedAt = 2026-05-05
+}
+
+object "supMarks1: SupervisorStudentMarks" as supMarks1 <<Assessment>> {
+  markId = 1101
+  indexNumber = R223985C
+  supervisorId = 12
+  elogbookMark = 82
+  reportMark = 85
+}
+
+object "finalGrade1: FinalGrade" as finalGrade1 <<Assessment>> {
+  indexNumber = R223985C
+  firstVisitGrade = 90
+  secondVisitGrade = 88
+  companyGrade = 86
+  elogbookMark = 82
+  reportMark = 85
+  finalMark = 86.2
+  letterGrade = 2.1
+  isComplete = true
+}
+
+object "assessPwd1: AssessmentPassword" as assessPwd1 <<Domain>> {
+  lecturerId = 12
+  companyPassword = CPX7K9
+  visitingPassword = VPQ4M2
+}
+
+object "supRequest1: SupervisorAssignmentRequest" as supRequest1 <<Communication>> {
+  requestId = 1201
+  studentIndexNumber = R223985C
+  lecturerId = 12
+  status = APPROVED
+  createdAt = 2026-01-10
+}
+
+object "issueReport1: StudentIssueReport" as issueReport1 <<Communication>> {
+  issueId = 1301
+  studentIndexNumber = R223985C
+  category = workplace
+  status = ACKNOWLEDGED
+  acknowledgedBy = 12
+}
+
+object "notif1: Notification" as notif1 <<Communication>> {
+  notificationId = 1401
+  recipientIndexNumber = R223985C
+  type = VISIT_DATES_PUBLISHED
+  title = Visit dates available
+  isRead = false
+  createdAt = 2026-03-01
+}
+
+
+' --- Administrator relationships ---
+admin1 --> student1 : manages
+admin1 --> supInst1 : registers lecturer
+admin1 --> assignment1 : may assign via grid
+
+
+' --- Student registration and documents ---
+student1 --> reg1 : registers
+student1 --> assumption1 : submits assumption
+student1 --> orientation1 : completes
+student1 *-- elogWeek1 : maintains
+student1 *-- elogWeek2 : maintains
+student1 --> contract1 : uploads
+student1 --> report1 : submits
+student1 --> visitSelect1 : selects visit
+student1 --> supRequest1 : requested supervisor
+student1 --> issueReport1 : reported issue
+student1 --> notif1 : receives
+student1 --> finalGrade1 : receives
+
+
+' --- Supervisor relationships ---
+supInst1 --> student1 : supervises
+supInst1 --> assignment1 : assigned to
+supInst1 --> visitAvail1 : publishes
+supInst1 --> visitGrade1 : enters visit 1
+supInst1 --> visitGrade2 : enters visit 2
+supInst1 --> supMarks1 : enters marks
+supInst1 --> assessPwd1 : generates
+supInst1 --> supRequest1 : approved
+supInst1 --> issueReport1 : acknowledged
+
+
+' --- Visit scheduling chain ---
+visitAvail1 --> visitSelect1 : contains
+visitAvail1 ..> notif1 : triggers
+
+
+' --- Assessment chain ---
+companyAssessor1 --> companyGrade1 : submits via password
+assessPwd1 ..> companyAssessor1 : authenticates
+visitGrade1 ..> finalGrade1 : contributes
+visitGrade2 ..> finalGrade1 : contributes
+companyGrade1 ..> finalGrade1 : contributes
+supMarks1 ..> finalGrade1 : contributes
+
+
+' --- Placement context (assumption replaces old Placement + Company) ---
+assumption1 ..> companyAssessor1 : company contact
+reg1 ..> assumption1 : student context
+
+
+' --- Vertical layout hints ---
+admin1 -[hidden]down- student1
+student1 -[hidden]down- reg1
+reg1 -[hidden]down- assumption1
+assumption1 -[hidden]down- elogWeek1
+elogWeek1 -[hidden]down- contract1
+contract1 -[hidden]down- supInst1
+supInst1 -[hidden]down- visitAvail1
+visitAvail1 -[hidden]down- visitGrade1
+visitGrade1 -[hidden]down- companyGrade1
+companyGrade1 -[hidden]down- finalGrade1
+finalGrade1 -[hidden]down- notif1
+
+
+legend bottom
+  Updates from original object diagram:
+  - Placement + Company replaced by AssumptionOfDuty + IndustrialRegistration
+  - SiteVisit replaced by VisitAvailability + VisitSelection (publish then select)
+  - Company Supervisor is CompanyAssessor (password access, no portal login)
+  - Assessment split into visit grades, company grade, supervisor marks, and FinalGrade
+  - Added OrientationChecklist, StudentContract, SupervisorAssignmentRequest, StudentIssueReport
+endlegend
+
+@enduml

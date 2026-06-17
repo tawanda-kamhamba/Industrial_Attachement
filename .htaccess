@@ -1,0 +1,3 @@
+# IASMS — send root requests to the React app
+RewriteEngine On
+RewriteRule ^$ app/ [L,R=302]

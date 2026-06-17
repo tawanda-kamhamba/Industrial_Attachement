@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAMS — Entity-Relationship Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      margin: 0;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      padding: 20px 32px;
+    }
+    header h1 { margin: 0 0 6px; font-size: 1.5rem; }
+    header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+    main { padding: 24px 32px 48px; max-width: 1400px; margin: 0 auto; }
+    .panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .panel h2 { margin: 0 0 12px; color: #1e40af; font-size: 1.1rem; }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.9rem; }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .dot { width: 14px; height: 14px; border-radius: 4px; }
+    .student { background: #dbeafe; border: 2px solid #2563eb; }
+    .supervisor { background: #dcfce7; border: 2px solid #16a34a; }
+    .assessment { background: #fef3c7; border: 2px solid #d97706; }
+    .admin { background: #f3e8ff; border: 2px solid #9333ea; }
+    .mermaid { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+    th { background: #eff6ff; }
+    .note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; font-size: 0.9rem; line-height: 1.5; }
+    @media print {
+      header { background: #1e40af; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .panel { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Industrial Attachment Management System (IAMS)</h1>
+    <p>Entity-Relationship Diagram &nbsp;|&nbsp; Tawanda Kamhamba R223985C &nbsp;|&nbsp; Database: IASMS (MySQL)</p>
+  </header>
+
+  <main>
+    <div class="panel">
+      <h2>Legend</h2>
+      <div class="legend">
+        <span><i class="dot student"></i> Student &amp; attachment records</span>
+        <span><i class="dot supervisor"></i> Institutional supervisor &amp; visits</span>
+        <span><i class="dot assessment"></i> Assessment &amp; grading</span>
+        <span><i class="dot admin"></i> Admin &amp; reference data</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>ER Diagram (Core IAMS Schema)</h2>
+      <pre class="mermaid">
+erDiagram
+    registered_students {
+        int id PK
+        string index_number UK
+        string first_name
+        string last_name
+    }
+    industrial_registration {
+        int id PK
+        string index_number FK
+        string programme
+        string faculty
+    }
+    students_assumption {
+        int id PK
+        string index_number FK
+        string company_name
+    }
+    orientation_checklist {
+        int id PK
+        string index_number FK
+    }
+    elogbook_entries {
+        int id PK
+        string index_number FK
+        int week_number
+    }
+    student_contracts {
+        int id PK
+        string index_number FK
+        varchar status
+    }
+    student_reports {
+        int id PK
+        string index_number UK
+    }
+    visiting_lecturers {
+        int id PK
+        string staff_id UK
+        string lecturer_name
+    }
+    student_supervisor_assignments {
+        string index_number PK
+        int lecturer_id PK
+    }
+    supervisor_visit_availability {
+        int id PK
+        int lecturer_id FK
+        varchar visit_date
+    }
+    student_visit_selections {
+        int id PK
+        int availability_id FK
+        string student_index_number FK
+    }
+    visiting_supervisor_grade {
+        int id PK
+        string user_index FK
+        int visit_number
+    }
+    company_supervisor_grade {
+        int id PK
+        string user_index FK
+    }
+    supervisor_assignment_requests {
+        int id PK
+        string student_index_number FK
+        int lecturer_id FK
+    }
+    student_supervisor_issue_reports {
+        int id PK
+        string student_index_number FK
+    }
+    student_notifications {
+        int id PK
+        string recipient_index_number FK
+        varchar notif_type
+    }
+    supervisor_notifications {
+        int id PK
+        int recipient_lecturer_id FK
+    }
+    system_admin {
+        int id PK
+        string username
+    }
+
+    registered_students ||--o| industrial_registration : has
+    registered_students ||--o| students_assumption : has
+    registered_students ||--o| orientation_checklist : has
+    registered_students ||--o{ elogbook_entries : writes
+    registered_students ||--o{ student_contracts : uploads
+    registered_students ||--o| student_reports : submits
+    registered_students ||--o{ visiting_supervisor_grade : graded
+    registered_students ||--o{ company_supervisor_grade : graded
+    registered_students ||--o{ student_visit_selections : selects
+    registered_students ||--o{ student_notifications : receives
+    registered_students ||--o{ supervisor_assignment_requests : requests
+    registered_students ||--o{ student_supervisor_issue_reports : reports
+
+    visiting_lecturers ||--o{ student_supervisor_assignments : assigns
+    visiting_lecturers ||--o{ supervisor_visit_availability : publishes
+    visiting_lecturers ||--o{ supervisor_assignment_requests : receives
+    visiting_lecturers ||--o{ supervisor_notifications : receives
+
+    supervisor_visit_availability ||--o{ student_visit_selections : contains
+      </pre>
+    </div>
+
+    <div class="panel">
+      <h2>Table Summary</h2>
+      <table>
+        <thead>
+          <tr><th>Entity</th><th>Primary Key</th><th>Links To</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>registered_students</td><td>id</td><td>—</td><td>Student login credentials (central entity)</td></tr>
+          <tr><td>industrial_registration</td><td>id</td><td>index_number → student</td><td>Programme, faculty, session registration</td></tr>
+          <tr><td>students_assumption</td><td>id</td><td>index_number → student</td><td>Company placement &amp; supervisor contacts</td></tr>
+          <tr><td>orientation_checklist</td><td>id</td><td>index_number → student</td><td>Onboarding checklist responses</td></tr>
+          <tr><td>elogbook_entries</td><td>id</td><td>index_number → student</td><td>Weekly logbook (Mon–Fri)</td></tr>
+          <tr><td>student_contracts</td><td>id</td><td>index_number → student</td><td>Uploaded placement contracts</td></tr>
+          <tr><td>student_reports</td><td>id</td><td>index_number → student (unique)</td><td>Final report (one per student)</td></tr>
+          <tr><td>visiting_lecturers</td><td>id</td><td>—</td><td>Institutional supervisor accounts</td></tr>
+          <tr><td>student_supervisor_assignments</td><td>index_number + lecturer_id</td><td>student + lecturer</td><td>Direct supervisor assignment</td></tr>
+          <tr><td>supervisor_visit_availability</td><td>id</td><td>lecturer_id → visiting_lecturers</td><td>Published visit dates</td></tr>
+          <tr><td>student_visit_selections</td><td>id</td><td>availability + student</td><td>Student books a visit slot</td></tr>
+          <tr><td>visiting_supervisor_grade</td><td>id</td><td>user_index → student</td><td>Institutional visit scores (visit 1 &amp; 2)</td></tr>
+          <tr><td>company_supervisor_grade</td><td>id</td><td>user_index → student</td><td>Company assessment rubric scores</td></tr>
+          <tr><td>supervisor_assignment_requests</td><td>id</td><td>student + lecturer</td><td>Student requests a supervisor</td></tr>
+          <tr><td>student_supervisor_issue_reports</td><td>id</td><td>student + lecturer</td><td>Workplace issue reporting</td></tr>
+          <tr><td>student_notifications</td><td>id</td><td>recipient_index_number</td><td>In-app student alerts</td></tr>
+          <tr><td>supervisor_notifications</td><td>id</td><td>recipient_lecturer_id</td><td>In-app supervisor alerts</td></tr>
+          <tr><td>assigned_lecturers</td><td>id</td><td>—</td><td>Regional faculty supervisor grid</td></tr>
+          <tr><td>system_admin</td><td>id</td><td>—</td><td>Administrator login</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>Note:</strong> Most relationships use <code>index_number</code> as a logical foreign key (string match) rather than declared MySQL FOREIGN KEY constraints.
+      Legacy tables (<code>week1_table</code>…<code>week10_table</code>, <code>vira_registration</code>) are omitted — replaced by <code>elogbook_entries</code> in the implemented system.
+      Export: press <strong>Ctrl+P</strong> → Save as PDF, or screenshot this page for your presentation slide 12.
+    </div>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#dbeafe",
+        primaryBorderColor: "#2563eb",
+        primaryTextColor: "#0f172a",
+        lineColor: "#64748b",
+        fontSize: "13px"
+      },
+      er: { layoutDirection: "TB", minEntityWidth: 120 }
+    });
+  </script>
+</body>
+</html>

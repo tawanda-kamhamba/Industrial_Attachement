@@ -327,6 +327,32 @@ if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') =
     exit;
 }
 
+// Route: student supervisor assignment requests (GET list / POST request)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'supervisor-requests') {
+    require __DIR__ . '/student_supervisor_requests.php';
+    exit;
+}
+
+// Route: student issue reports to assigned supervisor(s) (GET / POST)
+if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'supervisor-issues') {
+    require __DIR__ . '/student_supervisor_issues.php';
+    exit;
+}
+
+// Route: supervisor student issue reports (GET list/detail, POST acknowledge)
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'student-issues') {
+    require __DIR__ . '/supervisor_student_issues.php';
+    exit;
+}
+
+// Route: supervisor assignment requests (GET list/detail, POST approve/reject)
+// GET /supervisor/assignment-requests
+// GET /supervisor/assignment-requests/{id}
+if (!empty($segments[0]) && $segments[0] === 'supervisor' && ($segments[1] ?? '') === 'assignment-requests') {
+    require __DIR__ . '/supervisor_assignment_requests.php';
+    exit;
+}
+
 // Route: student contract (GET status, POST upload) — uses student_contracts table only
 if (!empty($segments[0]) && $segments[0] === 'student' && ($segments[1] ?? '') === 'contract') {
     require __DIR__ . '/student_contract.php';

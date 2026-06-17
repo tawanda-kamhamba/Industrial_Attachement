@@ -1,0 +1,106 @@
+erDiagram
+    registered_students {
+        int id PK
+        string index_number UK
+        string first_name
+        string last_name
+    }
+    industrial_registration {
+        int id PK
+        string index_number FK
+        string programme
+        string faculty
+    }
+    students_assumption {
+        int id PK
+        string index_number FK
+        string company_name
+    }
+    orientation_checklist {
+        int id PK
+        string index_number FK
+    }
+    elogbook_entries {
+        int id PK
+        string index_number FK
+        int week_number
+    }
+    student_contracts {
+        int id PK
+        string index_number FK
+        varchar status
+    }
+    student_reports {
+        int id PK
+        string index_number UK
+    }
+    visiting_lecturers {
+        int id PK
+        string staff_id UK
+        string lecturer_name
+    }
+    student_supervisor_assignments {
+        string index_number PK
+        int lecturer_id PK
+    }
+    supervisor_visit_availability {
+        int id PK
+        int lecturer_id FK
+        varchar visit_date
+    }
+    student_visit_selections {
+        int id PK
+        int availability_id FK
+        string student_index_number FK
+    }
+    visiting_supervisor_grade {
+        int id PK
+        string user_index FK
+        int visit_number
+    }
+    company_supervisor_grade {
+        int id PK
+        string user_index FK
+    }
+    supervisor_assignment_requests {
+        int id PK
+        string student_index_number FK
+        int lecturer_id FK
+    }
+    student_supervisor_issue_reports {
+        int id PK
+        string student_index_number FK
+    }
+    student_notifications {
+        int id PK
+        string recipient_index_number FK
+        varchar notif_type
+    }
+    supervisor_notifications {
+        int id PK
+        int recipient_lecturer_id FK
+    }
+    system_admin {
+        int id PK
+        string username
+    }
+
+    registered_students ||--o| industrial_registration : has
+    registered_students ||--o| students_assumption : has
+    registered_students ||--o| orientation_checklist : has
+    registered_students ||--o{ elogbook_entries : writes
+    registered_students ||--o{ student_contracts : uploads
+    registered_students ||--o| student_reports : submits
+    registered_students ||--o{ visiting_supervisor_grade : graded
+    registered_students ||--o{ company_supervisor_grade : graded
+    registered_students ||--o{ student_visit_selections : selects
+    registered_students ||--o{ student_notifications : receives
+    registered_students ||--o{ supervisor_assignment_requests : requests
+    registered_students ||--o{ student_supervisor_issue_reports : reports
+
+    visiting_lecturers ||--o{ student_supervisor_assignments : assigns
+    visiting_lecturers ||--o{ supervisor_visit_availability : publishes
+    visiting_lecturers ||--o{ supervisor_assignment_requests : receives
+    visiting_lecturers ||--o{ supervisor_notifications : receives
+
+    supervisor_visit_availability ||--o{ student_visit_selections : contains

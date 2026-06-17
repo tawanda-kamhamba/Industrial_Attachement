@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAMS Capstone Presentation — Tawanda Kamhamba R223985C</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #2563eb;
+      --accent2: #38bdf8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --warn: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+    .deck { width: 100vw; height: 100vh; position: relative; }
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 48px 64px 80px;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.35s ease;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide.title-slide {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      text-align: center;
+      align-items: center;
+    }
+    .slide.title-slide h1 {
+      font-size: 2.6rem;
+      margin-bottom: 16px;
+      color: var(--accent2);
+    }
+    .slide.title-slide .subtitle { font-size: 1.35rem; color: var(--muted); margin: 8px 0; }
+    .slide.title-slide .meta { font-size: 1.05rem; margin-top: 28px; line-height: 1.8; }
+    h2 {
+      font-size: 1.85rem;
+      color: var(--accent2);
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 10px;
+      margin-bottom: 24px;
+    }
+    h3 { font-size: 1.15rem; color: var(--accent2); margin: 18px 0 10px; }
+    ul { list-style: none; padding: 0; }
+    ul li {
+      position: relative;
+      padding: 8px 0 8px 28px;
+      font-size: 1.12rem;
+      line-height: 1.45;
+      color: #e2e8f0;
+    }
+    ul li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    .placeholder {
+      border: 2px dashed var(--warn);
+      background: rgba(251, 191, 36, 0.08);
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      color: var(--warn);
+      font-size: 0.95rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid #334155;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .nav button:hover { background: #1d4ed8; }
+    .nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .counter { color: var(--muted); font-size: 0.9rem; }
+    .hint {
+      position: fixed;
+      top: 12px;
+      right: 16px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      z-index: 100;
+    }
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .stack-item {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid #334155;
+    }
+    .stack-item strong { display: block; color: var(--accent2); margin-bottom: 6px; }
+    @media print {
+      body { overflow: visible; background: white; color: black; }
+      .slide { display: block !important; page-break-after: always; height: auto; min-height: 100vh; }
+      .nav, .hint { display: none; }
+      h2 { color: #1e40af; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hint">← → arrow keys &nbsp;|&nbsp; F11 fullscreen &nbsp;|&nbsp; Edit text directly in browser DevTools or copy to Google Slides</div>
+
+  <div class="deck" id="deck">
+
+    <!-- SLIDE 1 -->
+    <section class="slide title-slide active" data-title="Title">
+      <div class="tag">Capstone Project Presentation</div>
+      <h1>Industrial Attachment Management System (IAMS)</h1>
+      <p class="subtitle">A Role-Based Web Platform for Industrial Attachment Administration</p>
+      <div class="meta">
+        <strong>Tawanda Kamhamba</strong><br>
+        Registration Number: <strong>R223985C</strong><br>
+        BSc Honours Computer Science — FCEIC<br>
+        Supervisor: <strong>Mr. Gombiro</strong><br>
+        University of Zimbabwe &nbsp;|&nbsp; June 2026
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" data-title="Introduction">
+      <h2>1. Introduction</h2>
+      <ul>
+        <li><strong>Student:</strong> Tawanda Kamhamba</li>
+        <li><strong>Registration Number:</strong> R223985C</li>
+        <li><strong>Project Title:</strong> Industrial Attachment Management System (IAMS)</li>
+        <li><strong>Supervisor:</strong> Mr. Gombiro — Department of Computer Science, FCEIC</li>
+        <li><strong>Project Type:</strong> Web-based administrative information system</li>
+        <li><strong>Purpose:</strong> Centralise industrial attachment workflows for students, supervisors, and administrators</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" data-title="Background">
+      <h2>1(d) Brief Background of the Problem</h2>
+      <ul>
+        <li>Industrial attachment connects academic learning with real workplace experience</li>
+        <li>Multiple stakeholders must coordinate: students, host companies, institutional supervisors, and administrators</li>
+        <li>At many institutions, processes still rely on <strong>paper forms, email, WhatsApp, and scattered file storage</strong></li>
+        <li>This creates delays, lost documents, and poor visibility of student progress</li>
+        <li>The Faculty needs a central digital system to manage attachment activities at scale</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" data-title="Problem What">
+      <h2>2(a) What Problem Is Being Addressed?</h2>
+      <ul>
+        <li>Fragmented, manual management of industrial attachment programmes</li>
+        <li>No single platform to track registration, assumption of duty, orientation, contracts, logbooks, reports, visits, and grades</li>
+        <li>Difficulty assigning and monitoring students to supervisors and host companies</li>
+        <li>Assessment records stored separately and inconsistently across channels</li>
+        <li>High administrative workload and risk of incomplete or lost documentation</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide" data-title="Problem Why">
+      <h2>2(b) Why Is It Important?</h2>
+      <ul>
+        <li>Attachment quality depends on timely monitoring and accurate records</li>
+        <li>Manual processes are tedious, error-prone, and hard to scale as student numbers grow (Sulaiman et al., 2022)</li>
+        <li>Institutions cannot easily demonstrate programme effectiveness or produce placement statistics</li>
+        <li>Poor coordination frustrates students, supervisors, and industry partners</li>
+        <li>Digital transformation improves accountability, audit trails, and reporting</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section class="slide" data-title="Problem Who">
+      <h2>2(c) Who Is Affected by the Problem?</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Students</strong> — delayed feedback, unclear requirements, lost submissions</li>
+          <li><strong>Institutional Supervisors</strong> — difficulty tracking assigned students and visits</li>
+          <li><strong>Company Supervisors</strong> — informal grading and communication channels</li>
+        </ul>
+        <ul>
+          <li><strong>Faculty Administrators</strong> — heavy workload counting registrations, placements, and reports</li>
+          <li><strong>Host Companies</strong> — limited structured feedback mechanisms</li>
+          <li><strong>The Institution</strong> — inability to monitor attachment quality at faculty scale</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide" data-title="General Objective">
+      <h2>3(a) General Objective</h2>
+      <ul>
+        <li>To develop the <strong>Industrial Attachment Management System (IAMS)</strong></li>
+        <li>A role-based web application that centralises industrial attachment management</li>
+        <li>Supports four stakeholder groups: <strong>students, institutional supervisors, company supervisors, and administrators</strong></li>
+        <li>Replaces fragmented manual processes with one integrated digital platform</li>
+        <li>Enables monitoring, scheduling, assessment, and reporting from a single source of truth</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide" data-title="Student Objectives">
+      <h2>3(b) Specific Objectives — Student Module</h2>
+      <ul>
+        <li>Secure student authentication using registration number and password</li>
+        <li>Instructions page guiding students through all attachment processes</li>
+        <li>Industrial registration and assumption of duty submission</li>
+        <li>Orientation checklist, contract upload (PDF), and final report upload</li>
+        <li>Weekly electronic logbook (e-logbook) for task and skill recording</li>
+        <li>Visit date selection after supervisor publishes available dates</li>
+        <li>Direct supervisor assignment requests and issue reporting to assigned supervisors</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 9 -->
+    <section class="slide" data-title="Supervisor Objectives">
+      <h2>3(b) Specific Objectives — Supervisor &amp; Admin</h2>
+      <ul>
+        <li>Institutional supervisor dashboard for assigned students and document review</li>
+        <li>Visit scheduling: publish dates → students select → notifications sent</li>
+        <li>Visit grading (Visit 1 &amp; 2), e-logbook marks, report marks, and final grade computation</li>
+        <li>Password-protected company and visiting supervisor assessment forms</li>
+        <li>Admin dashboard with analytics, supervisor assignment, and document oversight</li>
+        <li>In-system notifications for visits, logbook comments, contracts, and assignment requests</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 10 -->
+    <section class="slide" data-title="Expected Outcomes">
+      <h2>3(c) Expected Outcomes</h2>
+      <ul>
+        <li>A working web prototype replacing paper-based attachment processes</li>
+        <li>Centralised MySQL database of student attachment records</li>
+        <li>Faster supervisor monitoring and grade aggregation</li>
+        <li>Real-time admin analytics (registrations, faculty distribution, regional placements)</li>
+        <li>Improved audit trail for visits, submissions, and assessments</li>
+        <li>Foundation for future integration with institutional systems (e.g. Emhare)</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 11 -->
+    <section class="slide" data-title="Architecture">
+      <h2>4(a) System Architecture Diagram</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Three-tier architecture:</strong></li>
+          <li><strong>Presentation:</strong> React 18 SPA (TypeScript, Vite, Tailwind CSS)</li>
+          <li><strong>Application:</strong> PHP REST-style JSON API with session-based RBAC</li>
+          <li><strong>Data:</strong> MySQL relational database (IASMS)</li>
+          <li><strong>Deployment:</strong> XAMPP (local) / InfinityFree (hosted demo)</li>
+          <li>Flow: Browser → React (/iasms/app) → PHP API (/iasms/api) → MySQL + file storage</li>
+        </ul>
+        <div class="placeholder">[INSERT IMAGE]<br><br>System Architecture Diagram<br>Browser → React SPA → PHP API → MySQL</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 -->
+    <section class="slide" data-title="ER Diagram">
+      <h2>4(b) Database Design — ER Diagram</h2>
+      <div class="two-col">
+        <ul>
+          <li>Normalised MySQL schema (<code>iasms.sql</code>)</li>
+          <li><strong>Core tables:</strong> registered_students, industrial_registration, students_assumption</li>
+          <li><strong>Documents:</strong> student_contracts, student_reports, orientation_checklist</li>
+          <li><strong>Activity:</strong> elogbook_entries, supervisor_visit_availability, student_visit_selections</li>
+          <li><strong>Assessment:</strong> visiting_supervisor_grade, company_supervisor_grade</li>
+          <li><strong>Relations:</strong> visiting_lecturers, institutional_supervisor_students, notifications</li>
+        </ul>
+        <div class="placeholder">[INSERT IMAGE]<br><br>Entity-Relationship (ER) Diagram<br>from MySQL Workbench or documentation</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 -->
+    <section class="slide" data-title="Class Diagram">
+      <h2>4(c) Class Diagram</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Frontend classes/components:</strong></li>
+          <li>StudentLayout, SupervisorLayout, AdminLayout</li>
+          <li>RegisterPage, ELogbookPage, SupervisorDashboard, AdminDashboard</li>
+          <li><strong>Backend modules:</strong></li>
+          <li>auth_login.php, student_*.php, supervisor_*.php, admin_*.php</li>
+          <li><strong>Helpers:</strong> grading_helpers, notification_helpers, visit_schedule_helpers</li>
+        </ul>
+        <div class="placeholder">[INSERT IMAGE]<br><br>UML Class Diagram<br>React components + PHP API modules</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14 -->
+    <section class="slide" data-title="Use Case">
+      <h2>4(d) Use Case Diagram</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Actors:</strong> Student, Institutional Supervisor, Company Supervisor, Administrator</li>
+          <li><strong>Student:</strong> login, register, submit forms, e-logbook, upload documents, select visit, report issues</li>
+          <li><strong>Supervisor:</strong> review documents, publish visits, enter scores, generate assessment passwords</li>
+          <li><strong>Admin:</strong> view analytics, assign supervisors, monitor all submissions and scores</li>
+        </ul>
+        <div class="placeholder">[INSERT IMAGE]<br><br>Use Case Diagram<br>4 actors and main use cases</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15 -->
+    <section class="slide" data-title="Workflow">
+      <h2>4(e) Workflow / Process Flowchart</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Student journey:</strong></li>
+          <li>Login → Instructions → Registration → Assumption → Orientation</li>
+          <li>→ E-Logbook → Contract → Report → Visit Selection</li>
+          <li><strong>Visit workflow:</strong> Supervisor publishes dates → Student selects → Visit conducted → Scores recorded</li>
+          <li><strong>Grading:</strong> Company score + Visit scores + E-logbook mark + Report mark → Final grade</li>
+        </ul>
+        <div class="placeholder">[INSERT IMAGE]<br><br>Process Flowchart<br>Student journey &amp; visit scheduling states</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16 -->
+    <section class="slide" data-title="Tech Stack">
+      <h2>Technology Stack</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><strong>Frontend</strong>React 18, TypeScript, Vite, Tailwind CSS, Recharts, React Router</div>
+        <div class="stack-item"><strong>Backend</strong>PHP 8, Apache (XAMPP), REST JSON API</div>
+        <div class="stack-item"><strong>Database</strong>MySQL / MariaDB (IASMS schema)</div>
+        <div class="stack-item"><strong>Tools</strong>Postman, Git, Draw.io, jsPDF</div>
+        <div class="stack-item"><strong>Security</strong>Session RBAC, file validation, HTTPS (production)</div>
+        <div class="stack-item"><strong>Methodology</strong>Agile Scrum — 16 weeks</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17 -->
+    <section class="slide" data-title="Demo Login">
+      <h2>5(a) System Demonstration — Login &amp; Registration</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Multi-role login:</strong></li>
+          <li>Student — index number + password</li>
+          <li>Institutional Supervisor — staff ID + password</li>
+          <li>Administrator — admin password</li>
+          <li><strong>Onboarding guard</strong> blocks attachment modules until registration and assumption are complete</li>
+          <li>Industrial registration captures programme, faculty, level, and session</li>
+          <li>Assumption form captures company, region, supervisor contacts, attachment period</li>
+        </ul>
+        <div class="placeholder">[INSERT SCREENSHOT]<br><br>Login page<br>Registration &amp; Assumption forms</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18 -->
+    <section class="slide" data-title="Demo Features">
+      <h2>5(b) Main System Features</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>Student portal:</strong> dashboard, instructions, orientation, e-logbook, contract, report, visit schedule, profile</li>
+          <li><strong>Supervisor portal:</strong> assigned students, logbook review, visit scheduling, scores, final grades, passwords</li>
+          <li><strong>Admin portal:</strong> student lists, document viewers, assign supervisors, score overviews</li>
+          <li>Supervisor assignment requests and student issue reporting</li>
+        </ul>
+        <div class="placeholder">[INSERT SCREENSHOT]<br><br>Student, Supervisor &amp; Admin dashboards</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19 -->
+    <section class="slide" data-title="Demo Data">
+      <h2>5(c) Data Input and Processing</h2>
+      <div class="two-col">
+        <ul>
+          <li>Weekly e-logbook: Mon–Fri job assigned &amp; skill acquired → saved to <code>elogbook_entries</code></li>
+          <li>PDF contract upload and single final report (PDF/DOC/DOCX)</li>
+          <li>Supervisor logbook comments trigger student notifications</li>
+          <li>Final grade computed from company score, visit scores, e-logbook mark, and report mark</li>
+          <li>Visit dates normalised and de-duplicated before storage</li>
+        </ul>
+        <div class="placeholder">[INSERT SCREENSHOT]<br><br>E-logbook form<br>Supervisor grading page</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 20 -->
+    <section class="slide" data-title="Demo Reports">
+      <h2>5(d) Reports and Dashboards</h2>
+      <div class="two-col">
+        <ul>
+          <li>Admin dashboard charts: registrations by month, assumptions trend</li>
+          <li>Students by faculty (bar chart) and by region (pie chart)</li>
+          <li>Printable admin dashboard PDF summary (jsPDF)</li>
+          <li>Supervisors and admins download contracts and reports via authenticated APIs</li>
+          <li>UAT pass rate: 97.8% (44/45 tasks)</li>
+        </ul>
+        <div class="placeholder">[INSERT SCREENSHOT]<br><br>Admin charts<br>PDF export sample</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 21 -->
+    <section class="slide" data-title="AI ML">
+      <h2>5(e) AI / ML Functionality</h2>
+      <ul>
+        <li><strong>Not applicable to this project</strong></li>
+        <li>IAMS is an administrative information system focused on workflow automation and record management</li>
+        <li>Evaluation criteria: functional correctness, usability, response time, and role-appropriate access</li>
+        <li>No machine learning models, training data, or predictive analytics were implemented</li>
+        <li><strong>Future work:</strong> predictive analytics on placement success or automated logbook quality checks</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 22 -->
+    <section class="slide" data-title="Mobile">
+      <h2>5(f) Mobile App Functionality</h2>
+      <ul>
+        <li><strong>No native mobile application</strong> (Android/iOS) was developed</li>
+        <li>IAMS is a <strong>responsive web application</strong> accessible on desktop and mobile browsers</li>
+        <li>Tested on Chrome, Edge, Firefox (Windows) and mobile viewport on Android browser</li>
+        <li>Tailwind CSS responsive layouts support phone and tablet use during field attachment</li>
+        <li>Students can complete logbooks and upload documents from mobile browsers in the field</li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 23 -->
+    <section class="slide" data-title="Security">
+      <h2>5(g) Error Handling &amp; Security — Conclusion</h2>
+      <div class="two-col">
+        <ul>
+          <li><strong>RBAC:</strong> PHP session roles on all protected API endpoints</li>
+          <li><strong>Frontend guards:</strong> ProtectedRoute, StudentOnboardingGuard</li>
+          <li><strong>File validation:</strong> allowed extensions for contracts (PDF) and reports</li>
+          <li><strong>SQL injection mitigation:</strong> input escaping on API inputs</li>
+          <li><strong>HTTPS</strong> on production host; JSON error responses on API failures</li>
+          <li><strong>Limitations:</strong> email notifications and full password hashing scoped out of prototype</li>
+        </ul>
+        <ul>
+          <li><strong>Conclusion:</strong> IAMS successfully centralises industrial attachment management using React + PHP + MySQL</li>
+          <li>All four roles have dedicated interfaces and permissions</li>
+          <li>Core modules tested and validated through UAT</li>
+          <li style="margin-top:20px;font-size:1.3rem;color:var(--accent2);"><strong>Thank you — Questions?</strong></li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="nav">
+    <button id="prevBtn" disabled>← Previous</button>
+    <span class="counter" id="counter">1 / 23</span>
+    <button id="nextBtn">Next →</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const counter = document.getElementById("counter");
+    let current = 0;
+
+    function showSlide(n) {
+      slides[current].classList.remove("active");
+      current = Math.max(0, Math.min(n, slides.length - 1));
+      slides[current].classList.add("active");
+      counter.textContent = (current + 1) + " / " + slides.length + " — " + (slides[current].dataset.title || "");
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+      document.title = "Slide " + (current + 1) + ": " + (slides[current].dataset.title || "IAMS");
+    }
+
+    prevBtn.addEventListener("click", () => showSlide(current - 1));
+    nextBtn.addEventListener("click", () => showSlide(current + 1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); showSlide(current + 1); }
+      if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); showSlide(current - 1); }
+      if (e.key === "Home") showSlide(0);
+      if (e.key === "End") showSlide(slides.length - 1);
+    });
+  </script>
+</body>
+</html>

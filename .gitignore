@@ -2,3 +2,15 @@
 .env*.local
 frontend/node_modules/
 node_modules/
+frontend/dist/
+
+# User-uploaded files (keep folder structure via .gitkeep)
+uploads/contracts/*
+!uploads/contracts/.gitkeep
+uploads/student_profiles/*
+!uploads/student_profiles/.gitkeep
+submit_report/uploads/*
+!submit_report/uploads/.gitkeep
+
+# Office lock files
+~$*

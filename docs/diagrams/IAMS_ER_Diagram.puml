@@ -1,0 +1,372 @@
+@startuml IAMS_ER_Diagram
+' =============================================================================
+' IAMS Entity-Relationship Diagram — VERTICAL LAYOUT (top to bottom)
+' Tawanda Kamhamba R223985C | Database: IASMS (MySQL)
+' =============================================================================
+
+top to bottom direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+skinparam ranksep 55
+skinparam nodesep 25
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.2
+
+skinparam title {
+  FontSize 18
+  FontColor #1E40AF
+  BorderColor #BFDBFE
+  BackgroundColor #EFF6FF
+}
+
+skinparam caption {
+  FontColor #64748B
+  FontSize 10
+}
+
+skinparam package {
+  BackgroundColor #F8FAFC
+  BorderColor #CBD5E1
+  FontColor #334155
+  FontStyle bold
+  RoundCorner 8
+}
+
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #94A3B8
+  FontColor #0F172A
+}
+
+skinparam entity<<StudentCore>> {
+  BackgroundColor #DBEAFE
+  BorderColor #2563EB
+  FontColor #1E3A8A
+}
+
+skinparam entity<<StudentDoc>> {
+  BackgroundColor #EFF6FF
+  BorderColor #3B82F6
+  FontColor #1E40AF
+}
+
+skinparam entity<<Supervisor>> {
+  BackgroundColor #DCFCE7
+  BorderColor #16A34A
+  FontColor #14532D
+}
+
+skinparam entity<<Assessment>> {
+  BackgroundColor #FEF3C7
+  BorderColor #D97706
+  FontColor #92400E
+}
+
+skinparam entity<<Communication>> {
+  BackgroundColor #FCE7F3
+  BorderColor #DB2777
+  FontColor #9D174D
+}
+
+skinparam entity<<Admin>> {
+  BackgroundColor #F3E8FF
+  BorderColor #9333EA
+  FontColor #581C87
+}
+
+title IAMS Entity-Relationship Diagram\nIndustrial Attachment Management System
+caption Vertical layout | Logical FK via index_number | June 2026
+
+
+' =============================================================================
+' 1. STUDENT CORE (stacked vertically)
+' =============================================================================
+package "1. Student Core" as P1 {
+
+  entity "registered_students\n(Central Entity)" as rs <<StudentCore>> {
+    * **id** : INT <<PK>>
+    --
+    * **index_number** : VARCHAR <<UK>>
+    first_name : VARCHAR
+    last_name : VARCHAR
+    password : VARCHAR
+  }
+
+  entity "industrial_registration" as ir <<StudentCore>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<FK>>
+    programme : VARCHAR
+    faculty : VARCHAR
+    session : VARCHAR
+  }
+
+  entity "students_assumption" as sa <<StudentCore>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<FK>>
+    company_name : VARCHAR
+    company_region : VARCHAR
+    supervisor_name : VARCHAR
+  }
+
+  entity "student_profile_photos" as spp <<StudentCore>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<UK>>
+    filename : VARCHAR
+  }
+
+  rs -[hidden]down- ir
+  ir -[hidden]down- sa
+  sa -[hidden]down- spp
+}
+
+
+' =============================================================================
+' 2. STUDENT DOCUMENTS (stacked vertically)
+' =============================================================================
+package "2. Student Documents" as P2 {
+
+  entity "orientation_checklist" as oc <<StudentDoc>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<FK>>
+    host_institution : VARCHAR
+    completed_at : TIMESTAMP
+  }
+
+  entity "elogbook_entries" as ee <<StudentDoc>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<FK>>
+    * week_number : INT
+    mon_fri_jobs_skills : TEXT
+  }
+
+  entity "student_contracts" as sc <<StudentDoc>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<FK>>
+    contract_file : VARCHAR
+    status : ENUM
+  }
+
+  entity "student_reports" as sr <<StudentDoc>> {
+    * **id** : INT <<PK>>
+    --
+    * index_number : VARCHAR <<UK>>
+    report_files_json : LONGTEXT
+    status : ENUM
+  }
+
+  oc -[hidden]down- ee
+  ee -[hidden]down- sc
+  sc -[hidden]down- sr
+}
+
+
+' =============================================================================
+' 3. SUPERVISOR AND VISITS (stacked vertically)
+' =============================================================================
+package "3. Supervisor and Visits" as P3 {
+
+  entity "visiting_lecturers\n(Institutional Supervisor)" as vl <<Supervisor>> {
+    * **id** : INT <<PK>>
+    --
+    * staff_id : VARCHAR <<UK>>
+    lecturer_name : VARCHAR
+    lecturer_faculty : VARCHAR
+    password : VARCHAR
+  }
+
+  entity "student_supervisor_assignments" as ssa <<Supervisor>> {
+    * **index_number** : VARCHAR <<PK>>
+    * **lecturer_id** : INT <<PK>>
+  }
+
+  entity "institutional_supervisor_students" as iss <<Supervisor>> {
+    * **id** : INT <<PK>>
+    --
+    * supervisor_id : INT <<FK>>
+    * student_index : VARCHAR <<FK>>
+    visit_number : TINYINT
+  }
+
+  entity "supervisor_visit_availability" as sva <<Supervisor>> {
+    * **id** : INT <<PK>>
+    --
+    * lecturer_id : INT <<FK>>
+    * visit_date : DATE
+    published_at : TIMESTAMP
+  }
+
+  entity "student_visit_selections" as svs <<Supervisor>> {
+    * **id** : INT <<PK>>
+    --
+    * availability_id : INT <<FK>>
+    * student_index_number : VARCHAR <<FK>>
+    visit_date : DATE
+  }
+
+  vl -[hidden]down- ssa
+  ssa -[hidden]down- iss
+  iss -[hidden]down- sva
+  sva -[hidden]down- svs
+}
+
+
+' =============================================================================
+' 4. ASSESSMENT (stacked vertically)
+' =============================================================================
+package "4. Assessment" as P4 {
+
+  entity "visiting_supervisor_grade" as vsg <<Assessment>> {
+    * **id** : INT <<PK>>
+    --
+    * user_index : VARCHAR <<FK>>
+    visit_number : TINYINT
+    grade : INT
+  }
+
+  entity "company_supervisor_grade" as csg <<Assessment>> {
+    * **id** : INT <<PK>>
+    --
+    * user_index : VARCHAR <<FK>>
+    grade : INT
+  }
+
+  vsg -[hidden]down- csg
+}
+
+
+' =============================================================================
+' 5. REQUESTS AND NOTIFICATIONS (stacked vertically)
+' =============================================================================
+package "5. Requests and Notifications" as P5 {
+
+  entity "supervisor_assignment_requests" as sar <<Communication>> {
+    * **id** : INT <<PK>>
+    --
+    * student_index_number : VARCHAR <<FK>>
+    * lecturer_id : INT <<FK>>
+    status : ENUM
+  }
+
+  entity "student_supervisor_issue_reports" as ssir <<Communication>> {
+    * **id** : INT <<PK>>
+    --
+    * student_index_number : VARCHAR <<FK>>
+    category : VARCHAR
+    status : ENUM
+  }
+
+  entity "student_notifications" as sn <<Communication>> {
+    * **id** : INT <<PK>>
+    --
+    * recipient_index_number : VARCHAR <<FK>>
+    notif_type : VARCHAR
+    title : VARCHAR
+  }
+
+  entity "supervisor_notifications" as supn <<Communication>> {
+    * **id** : INT <<PK>>
+    --
+    * recipient_lecturer_id : INT <<FK>>
+    notif_type : VARCHAR
+  }
+
+  sar -[hidden]down- ssir
+  ssir -[hidden]down- sn
+  sn -[hidden]down- supn
+}
+
+
+' =============================================================================
+' 6. ADMIN (stacked vertically)
+' =============================================================================
+package "6. Admin Reference" as P6 {
+
+  entity "system_admin" as admin <<Admin>> {
+    * **id** : INT <<PK>>
+    --
+    username : VARCHAR
+    password : VARCHAR
+  }
+
+  entity "assigned_lecturers\n(Regional Grid)" as al <<Admin>> {
+    * **id** : INT <<PK>>
+    --
+    regions : VARCHAR
+    faculty_supervisor_slots : VARCHAR
+  }
+
+  admin -[hidden]down- al
+}
+
+
+' =============================================================================
+' FORCE PACKAGES INTO A SINGLE VERTICAL COLUMN
+' =============================================================================
+P1 -[hidden]down- P2
+P2 -[hidden]down- P3
+P3 -[hidden]down- P4
+P4 -[hidden]down- P5
+P5 -[hidden]down- P6
+
+
+' =============================================================================
+' RELATIONSHIPS — follow vertical flow (mostly downward from rs and vl)
+' =============================================================================
+
+' Student spine
+rs ||--o| ir : registers
+rs ||--o| sa : assumption
+rs ||--o| spp : photo
+rs ||--o| oc : orientation
+rs ||--o{ ee : weekly logbook
+rs ||--o{ sc : contracts
+rs ||--o| sr : final report
+
+' Assessment linked below documents
+rs ||--o{ vsg : visit grades
+rs ||--o{ csg : company grade
+
+' Supervisor block
+vl ||--o{ ssa : assigns
+vl ||--o{ iss : supervises
+vl ||--o{ sva : publishes dates
+vl ||--o{ sar : request received
+vl ||--o{ supn : alerts
+vl ||--o{ vsg : enters scores
+
+' Visit chain (vertical within P3)
+sva ||--o{ svs : slot booked
+rs ||--o{ svs : selects visit
+
+' Communication
+rs ||--o{ sar : requests
+rs ||--o{ ssir : reports issue
+rs ||--o{ sn : notifications
+ssir }o--o| vl : acknowledged by
+
+
+' =============================================================================
+' LEGEND AT BOTTOM (keeps diagram narrow / vertical)
+' =============================================================================
+legend bottom
+  |= Colour |= Domain |
+  | <#DBEAFE> | Student core |
+  | <#EFF6FF> | Student documents |
+  | <#DCFCE7> | Supervisor and visits |
+  | <#FEF3C7> | Assessment |
+  | <#FCE7F3> | Requests and notifications |
+  | <#F3E8FF> | Admin reference |
+  Legacy week1..week10 tables omitted (replaced by elogbook_entries)
+endlegend
+
+@enduml

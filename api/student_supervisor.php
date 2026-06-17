@@ -1,5 +1,7 @@
 <?php
 // GET: current student's assigned institutional supervisor (details).
+require_once __DIR__ . '/supervisor_request_helpers.php';
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     echo json_encode(['error' => 'Unauthorized']);
     http_response_code(401);
@@ -146,10 +148,43 @@ if ($assigned === null) {
     }
 }
 
+$has_direct = iasms_student_has_direct_supervisor_assignment($conn, $index_number);
+$eligibility = iasms_student_can_request_supervisor($conn, $index_number);
+
+$pending_request = null;
+if (!$has_direct) {
+    iasms_ensure_supervisor_assignment_requests_table($conn);
+    $pr = @mysqli_query(
+        $conn,
+        "SELECT r.id, r.lecturer_id, r.status, r.created_at, vl.lecturer_name
+         FROM supervisor_assignment_requests r
+         JOIN visiting_lecturers vl ON vl.id = r.lecturer_id
+         WHERE r.student_index_number='$idx' AND r.status='pending'
+         ORDER BY r.created_at DESC
+         LIMIT 1"
+    );
+    if ($pr && mysqli_num_rows($pr) === 1) {
+        $prow = mysqli_fetch_assoc($pr);
+        $pending_request = [
+            'id' => (int)($prow['id'] ?? 0),
+            'lecturer_id' => (int)($prow['lecturer_id'] ?? 0),
+            'lecturer_name' => $prow['lecturer_name'] ?? '',
+            'status' => $prow['status'] ?? 'pending',
+            'created_at' => $prow['created_at'] ?? null,
+        ];
+    }
+}
+
 echo json_encode([
     'index_number' => $index_number,
     'assigned' => $assigned,
     'other_assigned' => $other_assigned,
+    'has_direct_assignment' => $has_direct,
+    'can_request_supervisor' => !$has_direct && ($eligibility['can_request'] ?? false),
+    'can_request_reason' => $has_direct
+        ? 'You already have an assigned institutional supervisor.'
+        : ($eligibility['reason'] ?? null),
+    'pending_request' => $pending_request,
 ]);
 exit;
 
